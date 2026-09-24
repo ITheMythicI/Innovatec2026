@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_dashboard" name="shell-type">
+  <title>Red NOVA — Centro de Comando C5 & Tablero Táctico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dde9ff",
+            "surface-container-highest": "#d3e3ff",
+            "primary": "#000000",
+            "on-primary": "#ffffff",
+            "secondary": "#bb0112",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#e02928",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "outline": "#75777e",
+            "outline-variant": "#cfc4c5",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#44474d",
+            "safe-emerald": "#059669",
+            "safe-container": "#d1fae5",
+            "on-safe": "#065f46"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+    #tactical-map { z-index: 10; }
+    .leaflet-pane { z-index: 10; }
+    .leaflet-top, .leaflet-bottom { z-index: 15; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+  <!-- HEADER SUPERIOR -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/40 shadow-sm">
+    <div class="h-16 w-full px-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-headline font-bold text-lg shadow-sm">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface leading-none">RED NOVA</span>
+          <span class="font-mono text-[10px] text-on-surface-variant tracking-wider font-semibold">CENTRO DE COMANDO & OPERACIONES C5</span>
+        </div>
+        <div class="hidden xl:flex items-center gap-2 pl-4 border-l border-outline-variant/50">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container font-mono text-xs font-bold tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            MANDO MULTI-AMENAZA ACTIVO
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-safe-container text-on-safe font-mono text-xs font-bold tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+          ENLACE LORA & SAT-CORE 99.9%
+        </div>
+        <div class="hidden md:flex flex-col text-right font-mono text-xs">
+          <span id="utc-clock" class="text-on-surface font-semibold">14:38:22 UTC</span>
+          <span class="text-on-surface-variant text-[10px]">CST (LOCAL)</span>
+        </div>
+        <!-- OPERATOR BADGE ÚNICO (Sin nombres duplicados) -->
+        <div class="flex items-center gap-2.5 pl-2">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-headline text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left leading-tight">
+            <span id="header-operator-name" class="font-headline text-xs font-bold text-on-surface">Cmdte. J. Morales</span>
+            <span id="header-operator-role" class="font-mono text-[10px] text-on-surface-variant">SUPER_ADMIN [C5-01]</span>
+          </div>
+          <button onclick="ApiClient.clearSession(); window.location.href='/dashboard/login.html';" class="p-1 text-on-surface-variant hover:text-secondary" title="Cerrar Sesión">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR NAVEGACIÓN -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/40 shadow-sm z-40 flex flex-col justify-between py-4 overflow-y-auto">
+    <div class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 mb-1">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">CANALES DE CONTROL</span>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-headline font-bold text-sm shadow-sm" data-path="tablero-general" href="/dashboard/panel.html">
+          <span class="material-symbols-outlined text-[20px] text-primary">radar</span>
+          <span>Tablero General & Mapa</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="dispositivos-activacion" href="/dashboard/devices.html">
+          <span class="material-symbols-outlined text-[20px]">volume_up</span>
+          <span>Dispositivos & Sirenas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="incidentes-sos" href="/dashboard/incidents.html">
+          <span class="material-symbols-outlined text-[20px]">emergency</span>
+          <span>Registro de Incidentes & SOS</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="red-familiar" href="/dashboard/people.html">
+          <span class="material-symbols-outlined text-[20px]">group_work</span>
+          <span>Red Familiar & Personas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="metricas-analitica" href="/dashboard/analytics.html">
+          <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <span>Métricas & Analítica</span>
+        </a>
+        <a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm border-l-2 border-secondary" data-path="noticias-alertas-app" href="/dashboard/broadcasts.html">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-secondary">campaign</span>
+            <span class="font-medium">Noticias & Alertas App</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase">BROADCAST</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="arquitectura-sistema" href="/dashboard/architecture.html">
+          <span class="material-symbols-outlined text-[20px]">account_tree</span>
+          <span>Arquitectura del Sistema</span>
+        </a>
+      </nav>
+    </div>
+    <div class="px-4">
+      <div class="p-3 rounded-lg bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[11px] font-bold text-on-surface">RED NOVA CORE</span>
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+        </div>
+        <p class="font-mono text-[10px] text-on-surface-variant">PostGIS 16 + LoRaWAN + SAT</p>
+        <p class="font-mono text-[10px] text-on-surface-variant">Frecuencia: 915 MHz Cifrada</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="pl-64">
+    <main class="pt-16 w-full px-6 min-h-screen pb-12">
+      <!-- SELECTOR DE AMENAZA / SITUATIONAL AWARENESS -->
+      <section class="mt-4 mb-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-[24px]">public</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-headline font-bold text-lg text-on-surface">Tablero Operacional de Amenazas</h1>
+              <span id="threat-badge" class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-mono text-xs font-bold">SISTEMA ACTIVO</span>
+            </div>
+            <p class="font-body text-xs text-on-surface-variant">Monitoreo multiriesgo nacional: Sismos, Inundaciones, Huracanes, Incendios, Volcanes, Deslaves y Riesgos Químicos.</p>
+          </div>
+        </div>
+        <!-- Selector rápido de catástrofe activa -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="font-mono text-xs text-on-surface-variant font-bold uppercase">Amenaza Activa:</label>
+          <select id="activeDisasterSelector" onchange="switchDisasterContext(this.value)" class="bg-surface-container-low text-on-surface font-headline font-bold text-xs px-3 py-2 rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="EARTHQUAKE">Sismo / Terremoto (Magnitud 7.4)</option>
+            <option value="FLOOD" selected>Inundación Severa (Desbordamiento de Río)</option>
+            <option value="HURRICANE">Tornado / Huracán Cat 4</option>
+            <option value="FIRE">Incendio Forestal / Urbano</option>
+            <option value="VOLCANO">Alerta Volcánica Fase 3</option>
+            <option value="LANDSLIDE">Deslave / Deslizamiento de Ladera</option>
+            <option value="CHEMICAL">Fuga Química / Contingencia</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- KPIS OPERACIONALES -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Terminales en Línea</span>
+              <span id="kpi-devices-count" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">sensors</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-safe-emerald flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+            <span>Malla LoRa + 4G/5G Enlazada</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Alertas SOS Activas</span>
+              <span id="kpi-active-emergencies" class="font-headline font-bold text-2xl text-secondary mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-error-container text-on-error-container">
+              <span class="material-symbols-outlined text-[20px]">emergency</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-secondary flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">priority_high</span>
+            <span id="kpi-reports-pending">-- reportes pendientes</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Albergues Oficiales</span>
+              <span id="kpi-total-shelters" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">night_shelter</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">people</span>
+            <span id="kpi-people-count">-- personas registradas</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Zonas de Riesgo Activas</span>
+              <span id="kpi-risk-zones-count" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">warning</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">map</span>
+            <span>Geocercas activas en PostGIS</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- GRID PRINCIPAL: MAPA TÁCTICO & CONSOLA DE ALTA DE ZONAS/ALBERGUES/POIS -->
+      <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+        <!-- COLUMNA IZQUIERDA: MAPA TÁCTICO (7 COLS) -->
+        <div class="xl:col-span-7 flex flex-col gap-4">
+          <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm flex flex-col">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-[22px]">radar</span>
+                <h2 class="font-headline font-bold text-base text-on-surface">Mapa Operacional en Tiempo Real</h2>
+              </div>
+              <div class="flex items-center gap-2 font-mono text-[11px] text-on-surface-variant">
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> SOS</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Albergue</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Zona Peligro</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> POI</span>
+              </div>
+            </div>
+
+            <!-- VIEWPORT DEL MAPA LEAFLET -->
+            <div id="tactical-map" class="relative w-full h-[480px] rounded-lg overflow-hidden border border-outline-variant/40 shadow-inner"></div>
+
+            <div class="mt-3 flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-low p-2.5 rounded-lg">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px] text-primary">touch_app</span>
+                <span>Haz clic en el mapa para capturar coordenadas al dar de alta zonas o albergues.</span>
+              </div>
+              <span id="map-last-coords" class="font-bold text-primary">19.4326, -99.1332</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: CONSOLA DE ALTA TÁCTICA DEL ADMINISTRADOR (5 COLS) -->
+        <div class="xl:col-span-5 flex flex-col gap-4">
+          <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-outline-variant/30">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[20px]">add_location_alt</span>
+                <h3 class="font-headline font-bold text-sm text-on-surface uppercase">Consola de Alta Táctica (C5)</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px] font-bold">100% FUNCIONAL</span>
+            </div>
+
+            <!-- TABS DE ALTA -->
+            <div class="flex items-center gap-1 py-2 border-b border-outline-variant/30 overflow-x-auto">
+              <button onclick="switchCreateTab('riskZone')" id="tabBtn-riskZone" class="px-3 py-1.5 rounded-lg bg-primary text-white font-headline text-xs font-bold whitespace-nowrap shadow-sm">
+                Zona de Peligro
+              </button>
+              <button onclick="switchCreateTab('shelter')" id="tabBtn-shelter" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Albergue
+              </button>
+              <button onclick="switchCreateTab('poi')" id="tabBtn-poi" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Punto de Interés
+              </button>
+              <button onclick="switchCreateTab('device')" id="tabBtn-device" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Sirena / Nodo
+              </button>
+            </div>
+
+            <!-- FORMULARIO 1: ALTA DE ZONA DE PELIGRO -->
+            <form id="form-riskZone" onsubmit="handleCreateRiskZone(event)" class="flex flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre / Identificador de la Zona *</label>
+                <input type="text" id="rz-name" required placeholder="Ej: Perímetro de Desborde Río San Javier" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Tipo de Amenaza *</label>
+                  <select id="rz-hazardType" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none">
+                    <option value="FLOOD">Inundación</option>
+                    <option value="EARTHQUAKE">Sismo / Falla</option>
+                    <option value="HURRICANE">Tornado / Huracán</option>
+                    <option value="FIRE">Fuego / Incendio</option>
+                    <option value="VOLCANO">Alerta Volcánica</option>
+                    <option value="LANDSLIDE">Deslave</option>
+                    <option value="CHEMICAL">Riesgo Químico</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nivel de Riesgo *</label>
+                  <select id="rz-riskLevel" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none">
+                    <option value="CRITICAL">Crítico (Evacuación)</option>
+                    <option value="HIGH">Alto (Peligro)</option>
+                    <option value="MEDIUM">Medio (Precaución)</option>
+                    <option value="LOW">Bajo (Monitoreo)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="rz-lat" required value="19.4326" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="rz-lng" required value="-99.1332" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Radio (Metros)</label>
+                  <input type="number" id="rz-radius" value="1200" min="50" max="15000" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Descripción / Instrucción Civil</label>
+                <textarea id="rz-desc" rows="2" placeholder="Desalojo obligatorio hacia albergues en cota alta..." class="w-full px-3 py-1.5 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none"></textarea>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-secondary hover:bg-secondary-container text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_alert</span>
+                <span>Dar de Alta Zona de Peligro</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 2: ALTA DE ALBERGUE (Oculto por defecto) -->
+            <form id="form-shelter" onsubmit="handleCreateShelter(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre del Albergue *</label>
+                <input type="text" id="sh-name" required placeholder="Ej: Gimnasio Municipal Benito Juárez" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Capacidad Total *</label>
+                  <input type="number" id="sh-capacity" required value="450" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Ocupación Inicial</label>
+                  <input type="number" id="sh-occupancy" value="120" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Dirección / Referencia</label>
+                <input type="text" id="sh-address" placeholder="Calle República de Brasil #42, Centro" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="sh-lat" required value="19.4385" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="sh-lng" required value="-99.1295" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-primary hover:bg-black text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">night_shelter</span>
+                <span>Registrar Albergue Oficial</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 3: ALTA DE POI (Oculto) -->
+            <form id="form-poi" onsubmit="handleCreatePoi(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre del Punto de Interés *</label>
+                <input type="text" id="poi-name" required placeholder="Ej: Puesto Médico Cruz Roja San Jerónimo" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Categoría POI *</label>
+                <select id="poi-cat" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+                  <option value="MEDICAL">Puesto Médico / Hospital</option>
+                  <option value="WATER">Distribución de Agua Potable</option>
+                  <option value="FOOD">Centro de Acopio y Raciones</option>
+                  <option value="POLICE">Seguridad / Guardia Nacional</option>
+                  <option value="FIREFIGHTERS">Bomberos / Rescate Urbano</option>
+                  <option value="HELIPAD">Helipuerto de Evacuación</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="poi-lat" required value="19.4350" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="poi-lng" required value="-99.1310" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-safe-emerald hover:bg-emerald-700 text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_location</span>
+                <span>Registrar Punto de Interés</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 4: ALTA DE TERMINAL / SIRENA (Oculto) -->
+            <form id="form-device" onsubmit="handleCreateDevice(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Identificador de la Sirena / Nodo *</label>
+                <input type="text" id="dev-id" required placeholder="Ej: SIRENA-NOVA-NORTE-08" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Tipo de Baliza</label>
+                  <select id="dev-type" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+                    <option value="SIREN_COMMUNITY">Sirena Comunitaria (120dB)</option>
+                    <option value="LORA_GATEWAY">Gateway Malla LoRa</option>
+                    <option value="RESCUE_TERMINAL">Terminal Móvil SAR</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Frecuencia / Canal</label>
+                  <input type="text" id="dev-freq" value="915.0 MHz (CH 04)" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="dev-lat" required value="19.4370" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="dev-lng" required value="-99.1340" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-primary hover:bg-black text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">cell_tower</span>
+                <span>Activar Nodo / Sirena en Red</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTADO INFERIOR DE RECURSOS TÁCTICOS ACTIVOS (ZONAS DE PELIGRO, ALBERGUES Y POIS) -->
+      <section class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-2 border-b border-outline-variant/30">
+          <div>
+            <h2 class="font-headline font-bold text-base text-on-surface">Puntos Tácticos y Zonas Activas en Terreno</h2>
+            <p class="font-body text-xs text-on-surface-variant">Inventario en tiempo real sincronizado con la App Móvil de la ciudadanía y brigadas.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs text-on-surface-variant">FILTRO:</span>
+            <button onclick="renderTacticalTable('all')" class="px-2.5 py-1 rounded bg-primary text-white font-mono text-xs font-bold">Todos</button>
+            <button onclick="renderTacticalTable('zones')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">Peligros</button>
+            <button onclick="renderTacticalTable('shelters')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">Albergues</button>
+            <button onclick="renderTacticalTable('pois')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">POIs</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-body text-xs">
+            <thead>
+              <tr class="bg-surface-container text-on-surface font-mono text-[11px] uppercase tracking-wider">
+                <th class="py-2.5 px-3 rounded-l-lg">Tipo / Icono</th>
+                <th class="py-2.5 px-3">Nombre del Recurso</th>
+                <th class="py-2.5 px-3">Categoría / Nivel</th>
+                <th class="py-2.5 px-3">Coordenadas</th>
+                <th class="py-2.5 px-3">Capacidad / Alcance</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tactical-resources-table" class="divide-y divide-outline-variant/20">
+              <!-- Renderizado dinámico desde dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="/dashboard/js/api.js"></script>
+  <script src="/dashboard/js/dashboard.js"></script>
+</body>
+</html>

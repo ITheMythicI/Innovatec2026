@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_dashboard" name="shell-type">
+  <title>Red NOVA — Dispositivos & Sirenas Tácticas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dde9ff",
+            "primary": "#000000",
+            "secondary": "#bb0112",
+            "secondary-container": "#e02928",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "outline": "#75777e",
+            "outline-variant": "#cfc4c5",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#44474d",
+            "safe-emerald": "#059669",
+            "safe-container": "#d1fae5",
+            "on-safe": "#065f46"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/40 shadow-sm">
+    <div class="h-16 w-full px-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-headline font-bold text-lg shadow-sm">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface leading-none">RED NOVA</span>
+          <span class="font-mono text-[10px] text-on-surface-variant tracking-wider font-semibold">GESTIÓN DE DISPOSITIVOS & SIRENAS</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-safe-container text-on-safe font-mono text-xs font-bold tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+          RED ACÚSTICA ACTIVA
+        </div>
+        <div class="flex items-center gap-2.5 pl-2">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-headline text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left leading-tight">
+            <span id="header-operator-name" class="font-headline text-xs font-bold text-on-surface">Cmdte. J. Morales</span>
+            <span id="header-operator-role" class="font-mono text-[10px] text-on-surface-variant">SUPER_ADMIN [C5-01]</span>
+          </div>
+          <button onclick="ApiClient.clearSession(); window.location.href='/dashboard/login.html';" class="p-1 text-on-surface-variant hover:text-secondary" title="Cerrar Sesión">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/40 shadow-sm z-40 flex flex-col justify-between py-4 overflow-y-auto">
+    <div class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 mb-1">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">CANALES DE CONTROL</span>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="tablero-general" href="/dashboard/panel.html">
+          <span class="material-symbols-outlined text-[20px]">radar</span>
+          <span>Tablero General & Mapa</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-headline font-bold text-sm shadow-sm" data-path="dispositivos-activacion" href="/dashboard/devices.html">
+          <span class="material-symbols-outlined text-[20px] text-primary">volume_up</span>
+          <span>Dispositivos & Sirenas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="incidentes-sos" href="/dashboard/incidents.html">
+          <span class="material-symbols-outlined text-[20px]">emergency</span>
+          <span>Registro de Incidentes & SOS</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="red-familiar" href="/dashboard/people.html">
+          <span class="material-symbols-outlined text-[20px]">group_work</span>
+          <span>Red Familiar & Personas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="metricas-analitica" href="/dashboard/analytics.html">
+          <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <span>Métricas & Analítica</span>
+        </a>
+        <a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm border-l-2 border-secondary" data-path="noticias-alertas-app" href="/dashboard/broadcasts.html">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-secondary">campaign</span>
+            <span class="font-medium">Noticias & Alertas App</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase">BROADCAST</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="pl-64">
+    <main class="pt-16 w-full px-6 min-h-screen pb-12">
+      <!-- CONSOLA DE DISPARO ACÚSTICO REMOTO Y SIRENAS -->
+      <section class="mt-4 mb-6 bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/40 shadow-sm flex flex-col gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-outline-variant/30">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-secondary text-white flex items-center justify-center font-bold">
+              <span class="material-symbols-outlined text-[24px]">crisis_alert</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="font-headline font-bold text-base text-on-surface uppercase">Activación Remota de Alarma Sonora & Sirenas</h1>
+                <span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-mono text-[10px] font-bold">95-120 dB FORZADO</span>
+              </div>
+              <p class="font-body text-xs text-on-surface-variant">Emisión sincronizada en altavoces de terminales y sirenas comunitarias para localización de personas bajo escombros o inundaciones.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 font-mono text-xs text-on-surface bg-surface-container-low px-3 py-1.5 rounded-lg">
+            <span class="material-symbols-outlined text-secondary text-[16px]">cell_tower</span>
+            <span>Último pulso acústico: <strong class="text-secondary">Hace 3 min</strong> (1,248 terminales confirmaron recepción ACK)</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 items-center bg-surface-container-low p-4 rounded-xl">
+          <!-- Selector de Sector / Baliza -->
+          <div class="xl:col-span-4 flex flex-col gap-1">
+            <label class="font-mono text-xs uppercase tracking-wider text-on-surface-variant font-bold">Sector Geográfico de Disparo</label>
+            <select id="sector-selector" class="w-full bg-surface-container-lowest text-on-surface font-body text-xs px-3 py-2.5 rounded-lg border border-outline-variant/40 focus:outline-none shadow-sm">
+              <option value="all">Todos los terminales y sirenas registradas (342 nodos)</option>
+              <option value="sos">Solo terminales con alerta SOS pendiente (18 disp.)</option>
+              <option value="s4">Sector 4 - Cuauhtémoc & San Jerónimo (142 disp.)</option>
+              <option value="north">Sector Norte - Perímetro de Desborde Río San Javier</option>
+            </select>
+          </div>
+
+          <!-- Bypass Modo Silencio -->
+          <div class="xl:col-span-4 flex items-center gap-4 px-2">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="toggle-bypass" checked class="w-4 h-4 rounded text-secondary accent-secondary focus:ring-0">
+              <div class="flex flex-col">
+                <span class="font-headline font-bold text-xs text-on-surface">Bypass Modo Silencio (Hardware)</span>
+                <span class="font-body text-[11px] text-on-surface-variant">Sobrescribe "No Molestar" y volumen 0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón de Disparo -->
+          <div class="xl:col-span-4 flex items-center gap-2 justify-end">
+            <button onclick="triggerSoundPing()" class="w-full sm:w-auto flex-1 py-2.5 px-4 rounded-lg bg-secondary hover:bg-secondary-container text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition">
+              <span class="material-symbols-outlined text-[18px]">volume_up</span>
+              <span>EMITIR TONO DE RECONOCIMIENTO (95dB)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTRO EN TIEMPO REAL: SOLICITUDES Y TERMINALES -->
+      <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/40 shadow-sm flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-outline-variant/30">
+          <div>
+            <h2 class="font-headline font-bold text-base text-on-surface">Inventario de Terminales de Flota & Estado Acústico</h2>
+            <p class="font-body text-xs text-on-surface-variant">Telemetría en vivo de terminales conectadas vía Malla LoRa y 4G/5G.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs text-on-surface-variant">AUTO-REFRESCO:</span>
+            <span class="inline-flex items-center gap-1 font-mono text-xs text-on-safe bg-safe-container px-2.5 py-1 rounded-full font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-safe-emerald"></span> EN VIVO (2.5s)
+            </span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-body text-xs">
+            <thead>
+              <tr class="bg-surface-container text-on-surface font-mono text-[11px] uppercase tracking-wider">
+                <th class="py-2.5 px-3 rounded-l-lg">Dispositivo / ID</th>
+                <th class="py-2.5 px-3">Usuario Titular</th>
+                <th class="py-2.5 px-3">Ubicación GPS</th>
+                <th class="py-2.5 px-3">Enlace / Red</th>
+                <th class="py-2.5 px-3">Batería</th>
+                <th class="py-2.5 px-3">Estado Acústico</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Acción Inmediata</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/20">
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-2.5 px-3 font-mono font-bold text-on-surface">#NOVA-8821</td>
+                <td class="py-2.5 px-3 font-headline font-bold text-on-surface">Carmen Domínguez <span class="font-normal text-on-surface-variant font-body">(68 años)</span></td>
+                <td class="py-2.5 px-3 font-mono text-[11px] text-on-surface-variant">Sector San Jerónimo #402</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-safe-emerald font-bold">LoRa Mesh (915 MHz)</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-secondary font-bold">14% (Crítico)</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-mono text-[10px] font-bold">SOS ACTIVO</span>
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="pingSingleDevice('NOVA-8821')" class="px-2.5 py-1 rounded bg-secondary hover:bg-secondary-container text-white font-mono text-[11px] font-bold shadow-sm transition">
+                    Activar 95dB
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-2.5 px-3 font-mono font-bold text-on-surface">#NOVA-9043</td>
+                <td class="py-2.5 px-3 font-headline font-bold text-on-surface">Alejandro Morales</td>
+                <td class="py-2.5 px-3 font-mono text-[11px] text-on-surface-variant">En ruta a Refugio Morelos</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-on-surface-variant">4G LTE / SAT</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-on-surface-variant">42%</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px] font-bold">STANDBY</span>
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="pingSingleDevice('NOVA-9043')" class="px-2.5 py-1 rounded bg-surface-container hover:bg-primary hover:text-white font-mono text-[11px] font-semibold transition">
+                    Prueba Ping
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-2.5 px-3 font-mono font-bold text-on-surface">#NOVA-SIREN-01</td>
+                <td class="py-2.5 px-3 font-headline font-bold text-on-surface">Sirena Central Benito Juárez</td>
+                <td class="py-2.5 px-3 font-mono text-[11px] text-on-surface-variant">Poste C5 #129</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-safe-emerald font-bold">VHF / LoRa Gateway</td>
+                <td class="py-2.5 px-3 font-mono text-xs text-safe-emerald font-bold">100% (Solar)</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded bg-safe-container text-on-safe font-mono text-[10px] font-bold">ENLACE OK</span>
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="pingSingleDevice('NOVA-SIREN-01')" class="px-2.5 py-1 rounded bg-secondary hover:bg-secondary-container text-white font-mono text-[11px] font-bold shadow-sm transition">
+                    Disparar Sirena
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/dashboard/js/api.js"></script>
+  <script>
+    function triggerSoundPing() {
+      const sector = document.getElementById('sector-selector').value;
+      alert(`[SONIDO] Emitiendo pulso acústico de 95dB a terminales del sector (${sector}). Traspasando modo silencio.`);
+    }
+
+    function pingSingleDevice(id) {
+      alert(`[SONIDO] Pulso acústico transmitido con éxito al terminal #${id}. Activando altavoz piezoeléctrico a máxima potencia.`);
+    }
+  </script>
+</body>
+</html>

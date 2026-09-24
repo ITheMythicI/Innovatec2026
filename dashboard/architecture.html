@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red NOVA — Arquitectura Técnica del Sistema</title>
+
+  <!-- Tipografías Oficiales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#0b1329",
+            "surface": "#0f172a",
+            "surface-card": "#1e293b",
+            "surface-card-hover": "#334155",
+            "primary": "#38bdf8",
+            "secondary": "#ef4444",
+            "safe-emerald": "#10b981",
+            "warning-amber": "#f59e0b",
+            "purple-accent": "#8b5cf6",
+            "border-dark": "#334155"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Mermaid.js para renderizado dinámico de diagramas -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0f172a',
+        primaryColor: '#1e293b',
+        primaryTextColor: '#f8fafc',
+        primaryBorderColor: '#38bdf8',
+        lineColor: '#94a3b8',
+        secondaryColor: '#334155',
+        tertiaryColor: '#1e293b',
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '13px'
+      }
+    });
+  </script>
+
+  <style>
+    body {
+      background-color: #0b1329;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(239, 68, 68, 0.08) 0%, transparent 40%);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body class="text-slate-100 font-body antialiased min-h-screen pb-16">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-border-dark px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary text-slate-900 flex items-center justify-center font-headline font-bold text-xl shadow-lg shadow-primary/20">
+          N
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-headline font-bold text-lg text-white tracking-tight">RED NOVA / RESGUARDO</h1>
+            <span class="px-2 py-0.5 rounded bg-primary/20 text-primary font-mono text-[10px] font-bold uppercase tracking-wider border border-primary/30">
+              ARQUITECTURA TÉCNICA
+            </span>
+          </div>
+          <p class="font-mono text-xs text-slate-400">Innovatec 2026 • Sistema Multi-Riesgo Offline-First</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="/dashboard/panel.html" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-card hover:bg-surface-card-hover border border-border-dark text-xs font-headline font-bold transition">
+          <span class="material-symbols-outlined text-[18px] text-primary">dashboard</span>
+          <span>Volver al Tablero C5</span>
+        </a>
+        <button onclick="window.print()" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary hover:bg-sky-400 text-slate-900 text-xs font-headline font-bold shadow-lg shadow-primary/20 transition">
+          <span class="material-symbols-outlined text-[18px]">print</span>
+          <span>Imprimir / PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-6 pt-8 space-y-10">
+    <!-- HERO SECTION -->
+    <section class="bg-surface-card/60 backdrop-blur-md p-6 rounded-2xl border border-border-dark shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span class="font-mono text-xs text-primary font-bold tracking-widest uppercase mb-1 block">Visión Integral del Ecosistema</span>
+          <h2 class="font-headline font-bold text-2xl sm:text-3xl text-white">Arquitectura por Capas & Resiliencia Híbrida</h2>
+          <p class="text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
+            Ecosistema de misión crítica estructurado en 4 capas desacopladas: Clientes móviles y Web C5, Transporte híbrido (LoRaWAN, BLE Mesh y Satelital), Backend monolito modular NestJS y Motor geoespacial PostgreSQL con PostGIS.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 shrink-0">
+          <div class="p-3 bg-surface rounded-xl border border-border-dark">
+            <span class="font-mono text-[10px] text-slate-400 uppercase block">Disponibilidad</span>
+            <span class="font-headline font-bold text-lg text-safe-emerald">99.98%</span>
+          </div>
+          <div class="p-3 bg-surface rounded-xl border border-border-dark">
+            <span class="font-mono text-[10px] text-slate-400 uppercase block">Modo Offline</span>
+            <span class="font-headline font-bold text-lg text-primary">100% Nativo</span>
+          </div>
+          <div class="p-3 bg-surface rounded-xl border border-border-dark">
+            <span class="font-mono text-[10px] text-slate-400 uppercase block">Cifrado Enlace</span>
+            <span class="font-headline font-bold text-lg text-purple-accent">AES-256</span>
+          </div>
+          <div class="p-3 bg-surface rounded-xl border border-border-dark">
+            <span class="font-mono text-[10px] text-slate-400 uppercase block">Sirenas Acústicas</span>
+            <span class="font-headline font-bold text-lg text-secondary">115-120 dB</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAGRAMA MERMAID INTERACTIVO -->
+    <section class="bg-surface-card p-6 rounded-2xl border border-border-dark shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary text-[22px]">account_tree</span>
+          <h3 class="font-headline font-bold text-lg text-white">Diagrama de Flujo y Componentes</h3>
+        </div>
+        <span class="font-mono text-xs text-slate-400">Mermaid.js Live Render</span>
+      </div>
+
+      <div class="w-full overflow-x-auto custom-scrollbar p-4 bg-surface rounded-xl border border-border-dark/60">
+        <div class="mermaid flex justify-center min-w-[800px]">
+flowchart TB
+    %% CAPA 1: CLIENTES Y HARDWARE
+    subgraph CLIENT_LAYER ["1. Capa de Clientes y Hardware en Campo"]
+        subgraph MOBILE_APP ["App Móvil (Flutter / Dart)"]
+            UI_MOB["UI Modo Oscuro Resguardo"]
+            GPS_SRV["Hardware GPS Engine (Geolocator)"]
+            LOCAL_DB["SQLite Local DB (sqflite)"]
+            SYNC_MGR["SyncManager (Offline-First Queue)"]
+            BLE_DRV["Driver BLE Mesh (P2P)"]
+        end
+
+        subgraph WEB_DASHBOARD ["Panel Táctico C5 (HTML5 / Tailwind / JS)"]
+            TACTICAL_MAP["Mapa Táctico Leaflet"]
+            ADMIN_FORMS["Consola de Alta (Zonas, Albergues, POIs)"]
+            KPI_TELEMETRY["Telemetría y Analítica Forense"]
+            BROADCAST_CTRL["Centro de Alertas Masivas"]
+        end
+
+        subgraph PHYSICAL_HW ["Nodos y Balizas Físicas"]
+            SIRENS["Sirenas Comunitarias (115-120 dB)"]
+            LORA_GW["Gateways LoRaWAN (915 MHz)"]
+            SAT_UPLINK["Uplink Satelital (Iridium/Starlink)"]
+        end
+    end
+
+    %% CAPA 2: TRANSPORTE Y RED
+    subgraph COMM_LAYER ["2. Capa de Transporte y Red Híbrida"]
+        NET_HTTP["REST API HTTP/JSON (0.0.0.0:3001)"]
+        NET_LORA["Malla RF LoRaWAN 915 MHz Cifrada"]
+        NET_BLE["Malla Bluetooth Low Energy P2P"]
+        NET_SAT["Enlace Satelital Directo"]
+        OSRM_ROUTING["Servidor de Ruteo Callejero OSRM"]
+    end
+
+    %% CAPA 3: SERVICIOS BACKEND (NESTJS)
+    subgraph BACKEND_LAYER ["3. Backend API Gateway & Lógica de Dominio (NestJS)"]
+        API_GATEWAY["API Gateway (0.0.0.0:3001)"]
+        JWT_GUARD["Control de Acceso RBAC (JWT Guard)"]
+        VALIDATION["ValidationPipe (class-validator / DTOs)"]
+
+        subgraph MODULES ["Módulos de Dominio Modular"]
+            MOD_GEO["GeographyModule (RiskZones & POIs)"]
+            MOD_SHELTERS["SheltersModule (Albergues & Capacidad)"]
+            MOD_EMERG["EmergenciesModule (SOS & Reportes)"]
+            MOD_PEOPLE["PeopleModule (Red Familiar & QR)"]
+            MOD_DEVICES["DevicesModule (Sirenas & Nodos)"]
+            MOD_BROADCAST["BroadcastModule (Alertas Push)"]
+            MOD_AUDIT["AuditModule (Logs Forenses)"]
+        end
+
+        PRISMA_ORM["Prisma ORM Client"]
+    end
+
+    %% CAPA 4: PERSISTENCIA Y MOTOR ESPACIAL
+    subgraph DATA_LAYER ["4. Capa de Datos y Motor Geoespacial"]
+        POSTGRES_DB[("PostgreSQL 16")]
+        POSTGIS_EXT["Extensión Espacial PostGIS 3.4
+(ST_DWithin, ST_Distance, Polígonos GeoJSON)"]
+    end
+
+    %% CONEXIONES Y FLUJOS
+    MOBILE_APP -->|Peticiones REST / Sincronización| NET_HTTP
+    MOBILE_APP -->|P2P Mesh Offline| NET_BLE
+    MOBILE_APP -->|Cálculo Rutas Seguras| OSRM_ROUTING
+    MOBILE_APP -->|Lectura Satelital| GPS_SRV
+
+    WEB_DASHBOARD -->|Peticiones REST / Gestión C5| NET_HTTP
+    PHYSICAL_HW -->|Telemetría RF| NET_LORA
+    PHYSICAL_HW -->|Uplink Respaldo| NET_SAT
+
+    NET_HTTP --> API_GATEWAY
+    NET_LORA --> API_GATEWAY
+    NET_SAT --> API_GATEWAY
+
+    API_GATEWAY --> JWT_GUARD
+    JWT_GUARD --> VALIDATION
+    VALIDATION --> MODULES
+
+    MOD_GEO --> PRISMA_ORM
+    MOD_SHELTERS --> PRISMA_ORM
+    MOD_EMERG --> PRISMA_ORM
+    MOD_PEOPLE --> PRISMA_ORM
+    MOD_DEVICES --> PRISMA_ORM
+    MOD_BROADCAST --> PRISMA_ORM
+    MOD_AUDIT --> PRISMA_ORM
+
+    PRISMA_ORM --> POSTGRES_DB
+    POSTGRES_DB --- POSTGIS_EXT
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE INSPECCIÓN POR CAPAS -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- CAPA 1 -->
+      <div class="bg-surface-card p-6 rounded-2xl border border-border-dark flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-primary flex items-center justify-center font-mono font-bold text-xs">01</span>
+            <h3 class="font-headline font-bold text-lg text-white">Capa de Clientes & Hardware</h3>
+          </div>
+          <ul class="space-y-2.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">smartphone</span>
+              <span><strong>App Móvil (Flutter / Dart):</strong> Interfaz ciudadana y brigadistas en modo oscuro, botón SOS físico/virtual y base SQLite local.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">gps_fixed</span>
+              <span><strong>Motor GPS Satelital:</strong> Geolocalización satelital directa mediante <code class="text-primary font-mono">geolocator</code> en el dispositivo real.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">computer</span>
+              <span><strong>Dashboard Web C5:</strong> Centro de mando táctico, emisión de avisos y creación de zonas poligonales GeoJSON.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">volume_up</span>
+              <span><strong>Sirenas & Nodos de Campo:</strong> Balizas acústicas de 115-120 dB activables remotamente vía LoRaWAN 915 MHz.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-3 border-t border-border-dark font-mono text-[11px] text-slate-400">
+          Tecnologías: Flutter 3.x, Dart, sqflite, Leaflet, Tailwind CSS.
+        </div>
+      </div>
+
+      <!-- CAPA 2 -->
+      <div class="bg-surface-card p-6 rounded-2xl border border-border-dark flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-safe-emerald flex items-center justify-center font-mono font-bold text-xs">02</span>
+            <h3 class="font-headline font-bold text-lg text-white">Capa de Red Híbrida & Ruteo</h3>
+          </div>
+          <ul class="space-y-2.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-safe-emerald text-[18px]">wifi</span>
+              <span><strong>REST API / JSON:</strong> Conexión con failover multi-host (<code class="text-safe-emerald font-mono">172.16.160.167:3001</code> / USB / LAN).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-safe-emerald text-[18px]">sensors</span>
+              <span><strong>Malla LoRaWAN (915 MHz):</strong> Protocolo RF cifrado con modulación de largo alcance para zonas sin cobertura celular.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-safe-emerald text-[18px]">bluetooth</span>
+              <span><strong>BLE Mesh P2P:</strong> Sincronización descentralizada de credenciales y pings "Estoy a Salvo" entre móviles.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-safe-emerald text-[18px]">route</span>
+              <span><strong>Servidor OSRM:</strong> Trazado vial dinámico de rutas seguras de evacuación desde el GPS real hasta el albergue.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-3 border-t border-border-dark font-mono text-[11px] text-slate-400">
+          Protocolos: HTTP/REST, LoRaWAN, BLE 5.0, OSRM API, AES-256.
+        </div>
+      </div>
+
+      <!-- CAPA 3 -->
+      <div class="bg-surface-card p-6 rounded-2xl border border-border-dark flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-accent flex items-center justify-center font-mono font-bold text-xs">03</span>
+            <h3 class="font-headline font-bold text-lg text-white">Backend NestJS & Lógica de Negocio</h3>
+          </div>
+          <ul class="space-y-2.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-purple-accent text-[18px]">dns</span>
+              <span><strong>Multi-Interface Binding:</strong> Servidor configurado en <code class="text-purple-accent font-mono">0.0.0.0:3001</code> para acceso universal en LAN y Wi-Fi.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-purple-accent text-[18px]">security</span>
+              <span><strong>Control de Acceso RBAC:</strong> JWT Guards con roles estrictos (SUPER_ADMIN, COMMANDER, OPERATOR, USER).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-purple-accent text-[18px]">layers</span>
+              <span><strong>Módulos de Negocio:</strong> Geography (Polígonos 32-Point), Shelters, Emergencies, People, Devices y Broadcast.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-purple-accent text-[18px]">check_circle</span>
+              <span><strong>Validación Global:</strong> Transformación estricta de DTOs con <code class="text-purple-accent font-mono">class-validator</code>.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-3 border-t border-border-dark font-mono text-[11px] text-slate-400">
+          Tecnologías: NestJS, TypeScript, Node.js, Prisma ORM, Swagger.
+        </div>
+      </div>
+
+      <!-- CAPA 4 -->
+      <div class="bg-surface-card p-6 rounded-2xl border border-border-dark flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-warning-amber flex items-center justify-center font-mono font-bold text-xs">04</span>
+            <h3 class="font-headline font-bold text-lg text-white">Base de Datos & Motor Geoespacial</h3>
+          </div>
+          <ul class="space-y-2.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-warning-amber text-[18px]">database</span>
+              <span><strong>PostgreSQL 16:</strong> Almacenamiento relacional ACID con contenedor Docker en puerto 5433.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-warning-amber text-[18px]">public</span>
+              <span><strong>PostGIS 3.4 Spatial:</strong> Indexación R-Tree, cálculo de distancias exactas (<code class="text-warning-amber font-mono">ST_Distance</code>) y radios (<code class="text-warning-amber font-mono">ST_DWithin</code>).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-warning-amber text-[18px]">polyline</span>
+              <span><strong>Polígonos GeoJSON:</strong> Almacenamiento nativo de perímetros de desbordamiento, fallas geológicas y zonas de riesgo.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-warning-amber text-[18px]">sync</span>
+              <span><strong>Eventos de Sincronización:</strong> Cola de idempotencia para transacciones originadas offline.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-3 border-t border-border-dark font-mono text-[11px] text-slate-400">
+          Tecnologías: PostgreSQL 16, PostGIS 3.4, Docker Compose.
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

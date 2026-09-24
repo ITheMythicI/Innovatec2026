@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: innovatec-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-innovatec_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-innovatec_password}
+      POSTGRES_DB: ${POSTGRES_DB:-innovatec_db}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - innovatec_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-innovatec_user} -d ${POSTGRES_DB:-innovatec_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  innovatec_pgdata:
+    name: innovatec_pgdata

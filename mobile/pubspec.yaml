@@ -1,0 +1,30 @@
+name: innovatec_mobile
+description: "Innovatec 2026 Emergency & Disaster Response Mobile Application"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  crypto: ^3.0.7
+  uuid: ^4.6.0
+  intl: ^0.20.3
+  http: ^1.2.0
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+  geolocator: ^13.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

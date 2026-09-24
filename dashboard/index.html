@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red NOVA — Centro de Mando Táctico C5</title>
+  <script>
+    const token = sessionStorage.getItem('resguardo_token');
+    if (token) {
+      window.location.replace('/dashboard/panel.html');
+    } else {
+      window.location.replace('/dashboard/login.html');
+    }
+  </script>
+</head>
+<body style="background-color: #0b1c30; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: monospace;">
+  <p>Redirigiendo a terminal oficial Red NOVA C5...</p>
+</body>
+</html>

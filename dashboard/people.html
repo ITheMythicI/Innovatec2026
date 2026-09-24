@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_dashboard" name="shell-type">
+  <title>Red NOVA — Red Familiar & Personas Censadas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dde9ff",
+            "primary": "#000000",
+            "secondary": "#bb0112",
+            "secondary-container": "#e02928",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "outline": "#75777e",
+            "outline-variant": "#cfc4c5",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#44474d",
+            "safe-emerald": "#059669",
+            "safe-container": "#d1fae5",
+            "on-safe": "#065f46"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/40 shadow-sm">
+    <div class="h-16 w-full px-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-headline font-bold text-lg shadow-sm">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface leading-none">RED NOVA</span>
+          <span class="font-mono text-[10px] text-on-surface-variant tracking-wider font-semibold">CENSO FAMILIAR & BIENESTAR SOCIAL</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-safe-container text-on-safe font-mono text-xs font-bold tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+          PADRÓN VINCULADO AL C5
+        </div>
+        <div class="flex items-center gap-2.5 pl-2">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-headline text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left leading-tight">
+            <span id="header-operator-name" class="font-headline text-xs font-bold text-on-surface">Cmdte. J. Morales</span>
+            <span id="header-operator-role" class="font-mono text-[10px] text-on-surface-variant">SUPER_ADMIN [C5-01]</span>
+          </div>
+          <button onclick="ApiClient.clearSession(); window.location.href='/dashboard/login.html';" class="p-1 text-on-surface-variant hover:text-secondary" title="Cerrar Sesión">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/40 shadow-sm z-40 flex flex-col justify-between py-4 overflow-y-auto">
+    <div class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 mb-1">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">CANALES DE CONTROL</span>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="tablero-general" href="/dashboard/panel.html">
+          <span class="material-symbols-outlined text-[20px]">radar</span>
+          <span>Tablero General & Mapa</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="dispositivos-activacion" href="/dashboard/devices.html">
+          <span class="material-symbols-outlined text-[20px]">volume_up</span>
+          <span>Dispositivos & Sirenas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="incidentes-sos" href="/dashboard/incidents.html">
+          <span class="material-symbols-outlined text-[20px]">emergency</span>
+          <span>Registro de Incidentes & SOS</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-headline font-bold text-sm shadow-sm" data-path="red-familiar" href="/dashboard/people.html">
+          <span class="material-symbols-outlined text-[20px] text-primary">group_work</span>
+          <span>Red Familiar & Personas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="metricas-analitica" href="/dashboard/analytics.html">
+          <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <span>Métricas & Analítica</span>
+        </a>
+        <a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm border-l-2 border-secondary" data-path="noticias-alertas-app" href="/dashboard/broadcasts.html">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-secondary">campaign</span>
+            <span class="font-medium">Noticias & Alertas App</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase">BROADCAST</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="pl-64">
+    <main class="pt-16 w-full px-6 min-h-screen pb-12">
+      <!-- CABECERA DE SECCIÓN -->
+      <section class="mt-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
+            <span>RED NOVA C5</span>
+            <span>/</span>
+            <span class="text-on-surface font-bold">REUNIFICACIÓN Y PADRÓN FAMILIAR</span>
+          </div>
+          <h1 class="font-headline font-bold text-xl text-on-surface uppercase mt-1">Censo Social y Red Familiar de Bienestar</h1>
+          <p class="font-body text-xs text-on-surface-variant">Monitoreo de núcleos familiares, menores con protocolo de protección y estado de albergados.</p>
+        </div>
+      </section>
+
+      <!-- KPIS DEL CENSO -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Núcleos Familiares</span>
+          <span class="font-headline font-bold text-2xl text-on-surface mt-1">3,420</span>
+          <span class="font-body text-[11px] text-safe-emerald mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">check</span> 91.4% con reporte confirmado
+          </span>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Personas Censadas</span>
+          <span class="font-headline font-bold text-2xl text-on-surface mt-1">12,840</span>
+          <span class="font-body text-[11px] text-on-surface-variant mt-1">4,210 Menores · 1,510 Adultos Mayores</span>
+        </div>
+        <div class="p-4 rounded-xl bg-error-container text-on-error-container shadow-sm flex flex-col justify-between">
+          <span class="font-mono text-xs uppercase font-bold">Protocolo Menores (Búsqueda)</span>
+          <span class="font-headline font-bold text-2xl text-secondary mt-1">4 Casos Activos</span>
+          <span class="font-body text-[11px] font-medium mt-1">67 Menores Reunificados</span>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Fichas Médicas SOS</span>
+          <span class="font-headline font-bold text-2xl text-on-surface mt-1">140 Críticas</span>
+          <span class="font-body text-[11px] text-on-surface-variant mt-1">58 Insulina · 32 Oxígeno · 50 Movilidad</span>
+        </div>
+      </section>
+
+      <!-- TABLA DE PADRÓN FAMILIAR -->
+      <section class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/40 shadow-sm flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-outline-variant/30">
+          <div class="flex items-center gap-3">
+            <div class="relative min-w-[280px]">
+              <span class="material-symbols-outlined absolute left-3 top-2 text-on-surface-variant text-[18px]">search</span>
+              <input type="text" id="peopleSearch" onkeyup="filterPeopleTable()" placeholder="Buscar por nombre, folio o albergue..." class="w-full pl-9 pr-3 py-1.5 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none">
+            </div>
+          </div>
+          <span class="font-mono text-xs text-on-surface-variant">BASE DE DATOS INMUTABLE RED NOVA</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-body text-xs">
+            <thead>
+              <tr class="bg-surface-container text-on-surface font-mono text-[11px] uppercase tracking-wider">
+                <th class="py-2.5 px-3 rounded-l-lg">Folio / Titular</th>
+                <th class="py-2.5 px-3">Núcleo Familiar</th>
+                <th class="py-2.5 px-3">Integrantes</th>
+                <th class="py-2.5 px-3">Punto de Encuentro / Albergue</th>
+                <th class="py-2.5 px-3">Estado de Bienestar</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Detalles</th>
+              </tr>
+            </thead>
+            <tbody id="people-tbody" class="divide-y divide-outline-variant/20">
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-2.5 px-3 font-mono font-bold text-on-surface">#FAM-CDMX-01<br><span class="font-headline text-xs font-bold">Carlos Mendoza Ruiz</span></td>
+                <td class="py-2.5 px-3 font-body text-xs">Familia Mendoza Garza</td>
+                <td class="py-2.5 px-3 font-mono text-xs">4 miembros (1 menor)</td>
+                <td class="py-2.5 px-3 font-body text-xs text-on-surface-variant">Gimnasio Benito Juárez / Parque México</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded bg-safe-container text-on-safe font-mono text-[10px] font-bold">3/4 A SALVO</span>
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="alert('Expediente Familiar #FAM-CDMX-01:\\n- Carlos Mendoza (A Salvo)\\n- Ana Sofía Garza (En Refugio Benito Juárez)\\n- Mateo Mendoza (5 años - En Refugio con madre)\\n- Elena Ruiz (En Evacuación)')" class="px-2.5 py-1 rounded bg-surface-container hover:bg-primary hover:text-white font-mono text-[11px] font-semibold transition">
+                    Ver Núcleo
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-surface-container-low transition">
+                <td class="py-2.5 px-3 font-mono font-bold text-on-surface">#FAM-CDMX-02<br><span class="font-headline text-xs font-bold">Roberto Gómez Luna</span></td>
+                <td class="py-2.5 px-3 font-body text-xs">Familia Gómez Luna</td>
+                <td class="py-2.5 px-3 font-mono text-xs">3 miembros</td>
+                <td class="py-2.5 px-3 font-body text-xs text-on-surface-variant">Estadio Jesús Martínez</td>
+                <td class="py-2.5 px-3">
+                  <span class="px-2 py-0.5 rounded bg-safe-container text-on-safe font-mono text-[10px] font-bold">3/3 A SALVO</span>
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="alert('Expediente Familiar #FAM-CDMX-02: Todos alojados en Estadio Jesús Martínez.')" class="px-2.5 py-1 rounded bg-surface-container hover:bg-primary hover:text-white font-mono text-[11px] font-semibold transition">
+                    Ver Núcleo
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/dashboard/js/api.js"></script>
+  <script>
+    function filterPeopleTable() {
+      const q = document.getElementById('peopleSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#people-tbody tr');
+      rows.forEach(r => {
+        const txt = r.textContent.toLowerCase();
+        r.style.display = txt.includes(q) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

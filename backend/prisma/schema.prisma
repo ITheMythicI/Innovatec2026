@@ -1,0 +1,659 @@
+// Prisma Schema for Innovatec 2026 Emergency & Disaster Management System
+// Standard conventions:
+// - All IDs use UUID (v4)
+// - All dates and timestamps are stored in UTC
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==============================================================================
+// ENUMS: EMERGENCIAS Y GEOGRAFÍA
+// ==============================================================================
+
+enum EmergencyType {
+  EARTHQUAKE
+  FLOOD
+  HURRICANE
+  WILDFIRE
+  LANDSLIDE
+  VOLCANIC_ERUPTION
+  TSUNAMI
+  EXPLOSION
+  BUILDING_COLLAPSE
+  HAZARDOUS_SPILL
+  OTHER
+}
+
+enum EmergencySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EmergencyStatus {
+  ACTIVE
+  CONTAINED
+  RESOLVED
+  CANCELLED
+}
+
+enum ShelterStatus {
+  OPEN
+  FULL
+  CLOSED
+  EVACUATING
+}
+
+enum ShelterServiceType {
+  MEDICAL
+  FOOD
+  WATER
+  ELECTRICITY
+  SANITATION
+  BEDS
+  PSYCHOLOGICAL_SUPPORT
+  WIFI_COMMUNICATION
+  PETS_ALLOWED
+  ACCESSIBLE
+  OTHER
+}
+
+enum ShelterStayStatus {
+  ACTIVE
+  CHECKED_OUT
+  TRANSFERRED
+}
+
+enum ReportCategory {
+  CASUALTIES
+  TRAPPED_PERSONS
+  STRUCTURAL_DAMAGE
+  FIRE_HAZARD
+  FLOODING
+  ROAD_BLOCKED
+  SUPPLY_NEED
+  MEDICAL_EMERGENCY
+  OTHER
+}
+
+enum ReportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  PENDING
+  VERIFIED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum HazardType {
+  FLOOD
+  LANDSLIDE
+  TSUNAMI
+  FIRE
+  STRUCTURAL_COLLAPSE
+  CONTAMINATION
+  VOLCANIC_LAHAR
+  SEISMIC_FAULT
+  OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  EXTREME
+}
+
+enum PoiCategory {
+  HOSPITAL
+  CLINIC
+  WATER_POINT
+  FOOD_DISTRIBUTION
+  POLICE_STATION
+  FIRE_STATION
+  HELIPAD
+  SUPPLY_DEPOT
+  TELECOM_TOWER
+  GOVERNMENT_OFFICE
+  OTHER
+}
+
+enum PoiStatus {
+  OPERATIONAL
+  LIMITED
+  DAMAGED
+  DESTROYED
+  INACCESSIBLE
+}
+
+// ==============================================================================
+// ENUMS: USUARIOS Y CONTROL DE ACCESO
+// ==============================================================================
+
+/// Rol principal del usuario en el sistema (embebido en JWT para autorización rápida)
+enum AppRole {
+  SUPER_ADMIN // Acceso total al sistema
+  COMMANDER   // Operación completa del dashboard: broadcast, alertas, análisis
+  OPERATOR    // Campo + dashboard según permisos: emergencias, albergues, reportes
+  VIEWER      // Dashboard de solo lectura
+  USER        // App ciudadana: mapa, albergues, SOS, reportes propios
+}
+
+/// Estado de entrega de alertas/broadcasts
+enum BroadcastStatus {
+  CREATED
+  SENT
+  PARTIALLY_DELIVERED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum BroadcastType {
+  NEWS
+  ALERT
+  EVACUATION
+  WARNING
+}
+
+enum BroadcastTarget {
+  GLOBAL
+  GEOGRAPHIC
+  ROLE
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  ACKNOWLEDGED
+  FAILED
+}
+
+enum DeliveryChannel {
+  WEBSOCKET
+  FCM
+  SMS
+  BLE
+}
+
+// ==============================================================================
+// 1. IDENTIDAD Y CONTROL DE ACCESO (RBAC)
+// ==============================================================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  phone        String?
+  /// Identificador operativo/táctico opcional (ej: "OP-04", número de placa, matrícula)
+  tacticalId   String?  @unique @map("tactical_id")
+  /// Rol principal embebido en JWT — para autorización rápida sin consulta DB adicional
+  appRole      AppRole  @default(USER) @map("app_role")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  userRoles    UserRole[]
+  auditLogs    AuditLog[]
+  reports      Report[]
+  broadcasts   Broadcast[]
+
+  @@index([email])
+  @@index([appRole])
+  @@map("users")
+}
+
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  action      String           // CREATE, READ, UPDATE, DELETE, MANAGE
+  resource    String           // PEOPLE, FAMILIES, EMERGENCIES, SHELTERS, REPORTS, SYNC
+  description String?
+  createdAt   DateTime         @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@unique([action, resource])
+  @@map("permissions")
+}
+
+model UserRole {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  roleId     String   @map("role_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  assignedAt   DateTime @default(now()) @map("assigned_at")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// ==============================================================================
+// 2. PERSONAS Y FAMILIAS
+// ==============================================================================
+
+model Person {
+  id           String    @id @default(uuid())
+  nationalId   String?   @unique @map("national_id")
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  birthDate    DateTime? @map("birth_date")
+  gender       String?
+  bloodType    String?   @map("blood_type")
+  medicalNotes String?   @map("medical_notes")
+  status       String    @default("SAFE") // SAFE, INJURED, MISSING, DECEASED, UNKNOWN
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  familyMembers  FamilyMember[]
+  missingReports MissingPersonReport[]
+  locationEvents PersonLocationEvent[]
+  shelterStays   ShelterStay[]
+
+  @@map("people")
+}
+
+model Family {
+  id                    String   @id @default(uuid())
+  familyName            String   @map("family_name")
+  representativeContact String?  @map("representative_contact")
+  notes                 String?
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  members FamilyMember[]
+
+  @@map("families")
+}
+
+model FamilyMember {
+  id           String   @id @default(uuid())
+  familyId     String   @map("family_id")
+  personId     String   @map("person_id")
+  relationship String   // PARENT, CHILD, SPOUSE, SIBLING, OTHER
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, personId])
+  @@map("family_members")
+}
+
+model MissingPersonReport {
+  id               String    @id @default(uuid())
+  personId         String    @map("person_id")
+  reporterContact  String?   @map("reporter_contact")
+  lastSeenLocation String?   @map("last_seen_location")
+  lastSeenDate     DateTime? @map("last_seen_date")
+  status           String    @default("OPEN") // OPEN, FOUND, CLOSED
+  description      String?
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@map("missing_person_reports")
+}
+
+model PersonLocationEvent {
+  id         String   @id @default(uuid())
+  personId   String   @map("person_id")
+  deviceId   String?  @map("device_id")
+  latitude   Float
+  longitude  Float
+  accuracy   Float?
+  source     String   @default("GPS") // GPS, BLE, MANUAL, CELL
+  recordedAt DateTime @default(now()) @map("recorded_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  person Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  device Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@map("person_location_events")
+}
+
+// ==============================================================================
+// 3. EMERGENCIAS Y REPORTES
+// ==============================================================================
+
+model Emergency {
+  id           String            @id @default(uuid())
+  title        String
+  description  String?
+  type         EmergencyType     @default(OTHER)
+  severity     EmergencySeverity @default(MEDIUM)
+  status       EmergencyStatus   @default(ACTIVE)
+  latitude     Float
+  longitude    Float
+  radiusMeters Float?            @map("radius_meters")
+  startedAt    DateTime          @default(now()) @map("started_at")
+  endedAt      DateTime?         @map("ended_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  events    EmergencyEvent[]
+  reports   Report[]
+  riskZones RiskZone[]
+
+  @@index([status, severity])
+  @@index([startedAt])
+  @@map("emergencies")
+}
+
+model EmergencyEvent {
+  id          String   @id @default(uuid())
+  emergencyId String   @map("emergency_id")
+  eventType   String   @map("event_type") // AFTERSHOCK, EVACUATION_ORDER, ALERT_LEVEL_CHANGE, etc.
+  description String?
+  latitude    Float?
+  longitude   Float?
+  recordedAt  DateTime @default(now()) @map("recorded_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  emergency Emergency @relation(fields: [emergencyId], references: [id], onDelete: Cascade)
+
+  @@index([emergencyId, recordedAt])
+  @@map("emergency_events")
+}
+
+model Report {
+  id                String         @id @default(uuid())
+  reporterUserId    String?        @map("reporter_user_id")
+  reporterName      String?        @map("reporter_name")
+  reporterContact   String?        @map("reporter_contact")
+  emergencyId       String?        @map("emergency_id")
+  title             String
+  description       String
+  category          ReportCategory @default(OTHER)
+  priority          ReportPriority @default(MEDIUM)
+  status            ReportStatus   @default(PENDING)
+  latitude          Float?
+  longitude         Float?
+  address           String?
+  verifiedByUserId  String?        @map("verified_by_user_id")
+  verificationNotes String?        @map("verification_notes")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  reporterUser User?      @relation(fields: [reporterUserId], references: [id], onDelete: SetNull)
+  emergency    Emergency? @relation(fields: [emergencyId], references: [id], onDelete: SetNull)
+
+  @@index([status, priority])
+  @@index([emergencyId])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+// ==============================================================================
+// 4. GEOGRAFÍA, ALBERGUES Y PUNTOS DE INTERÉS
+// ==============================================================================
+
+model Location {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  latitude    Float
+  longitude   Float
+  address     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("locations")
+}
+
+model Shelter {
+  id               String        @id @default(uuid())
+  name             String
+  address          String?
+  latitude         Float
+  longitude        Float
+  capacity         Int
+  currentOccupancy Int           @default(0) @map("current_occupancy")
+  status           ShelterStatus @default(OPEN)
+  contactName      String?       @map("contact_name")
+  contactPhone     String?       @map("contact_phone")
+  managedBy        String?       @map("managed_by")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  services ShelterService[]
+  stays    ShelterStay[]
+
+  @@index([status, currentOccupancy])
+  @@map("shelters")
+}
+
+model ShelterService {
+  id          String             @id @default(uuid())
+  shelterId   String             @map("shelter_id")
+  serviceType ShelterServiceType @map("service_type")
+  description String?
+  isAvailable Boolean            @default(true) @map("is_available")
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  shelter Shelter @relation(fields: [shelterId], references: [id], onDelete: Cascade)
+
+  @@unique([shelterId, serviceType])
+  @@map("shelter_services")
+}
+
+model ShelterStay {
+  id           String            @id @default(uuid())
+  shelterId    String            @map("shelter_id")
+  personId     String            @map("person_id")
+  checkInDate  DateTime          @default(now()) @map("check_in_date")
+  checkOutDate DateTime?         @map("check_out_date")
+  status       ShelterStayStatus @default(ACTIVE)
+  assignedBed  String?           @map("assigned_bed")
+  notes        String?
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  shelter Shelter @relation(fields: [shelterId], references: [id], onDelete: Cascade)
+  person  Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([shelterId, status])
+  @@index([personId, status])
+  @@map("shelter_stays")
+}
+
+model RiskZone {
+  id              String     @id @default(uuid())
+  name            String
+  hazardType      HazardType @default(OTHER) @map("hazard_type")
+  riskLevel       RiskLevel  @default(HIGH) @map("risk_level")
+  description     String?
+  geometryGeoJson Json       @map("geometry_geojson") // GeoJSON Polygon o MultiPolygon
+  active          Boolean    @default(true)
+  emergencyId     String?    @map("emergency_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  emergency Emergency? @relation(fields: [emergencyId], references: [id], onDelete: SetNull)
+
+  @@index([active, riskLevel])
+  @@map("risk_zones")
+}
+
+model PointOfInterest {
+  id           String      @id @default(uuid())
+  name         String
+  category     PoiCategory
+  status       PoiStatus   @default(OPERATIONAL)
+  latitude     Float
+  longitude    Float
+  address      String?
+  contactPhone String?     @map("contact_phone")
+  description  String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@index([category, status])
+  @@map("points_of_interest")
+}
+
+// ==============================================================================
+// 5. DISPOSITIVOS Y SINCRONIZACIÓN
+// ==============================================================================
+
+model Device {
+  id               String    @id @default(uuid())
+  deviceIdentifier String    @unique @map("device_identifier") // Client generated device UUID
+  deviceModel      String?   @map("device_model")
+  appVersion       String?   @map("app_version")
+  publicKey        String?   @map("public_key") // Public key for crypto signature verification
+  /// Última latitud conocida (para broadcast geolocalizado y mapa operacional)
+  lastLatitude     Float?    @map("last_latitude")
+  /// Última longitud conocida
+  lastLongitude    Float?    @map("last_longitude")
+  /// Timestamp de la última actualización de posición (para indicador de frescura)
+  lastPositionAt   DateTime? @map("last_position_at")
+  lastSyncAt       DateTime? @map("last_sync_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  syncEvents         SyncEvent[]
+  locationEvents     PersonLocationEvent[]
+  broadcastDeliveries BroadcastDelivery[]
+
+  @@index([lastLatitude, lastLongitude])
+  @@map("devices")
+}
+
+model SyncEvent {
+  id              String   @id @default(uuid())
+  eventId         String   @unique @map("event_id") // UUID generado en el móvil para IDEMPOTENCIA
+  deviceId        String   @map("device_id")
+  entityType      String   @map("entity_type")
+  entityId        String   @map("entity_id")
+  operation       String   // CREATE, UPDATE, DELETE
+  version         Int      @default(1)
+  payload         Json
+  clientCreatedAt DateTime @map("client_created_at")
+  syncedAt        DateTime @default(now()) @map("synced_at")
+  status          String   @default("PROCESSED") // PROCESSED, CONFLICT, REJECTED
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([deviceId, syncedAt])
+  @@map("sync_events")
+}
+
+// ==============================================================================
+// 6. SEGURIDAD Y AUDITORÍA
+// ==============================================================================
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String   // USER_LOGIN, RECORD_CREATED, SENSITIVE_DATA_ACCESSED
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}
+
+// ==============================================================================
+// 7. COMUNICADOS Y ALERTAS (BROADCASTS)
+// ==============================================================================
+
+/// Comunicado o alerta emitida desde el dashboard hacia los dispositivos móviles.
+/// Soporta segmentación global, geográfica o por rol.
+model Broadcast {
+  id              String          @id @default(uuid())
+  title           String
+  body            String          @db.Text
+  type            BroadcastType
+  targetMode      BroadcastTarget @default(GLOBAL) @map("target_mode")
+  targetRole      AppRole?        @map("target_role")   // Usado si targetMode = ROLE
+  /// Centro geográfico para targetMode = GEOGRAPHIC
+  geoLatitude     Float?          @map("geo_latitude")
+  geoLongitude    Float?          @map("geo_longitude")
+  geoRadiusMeters Int?            @map("geo_radius_meters")
+  status          BroadcastStatus @default(CREATED)
+  sentAt          DateTime?       @map("sent_at")
+  scheduledAt     DateTime?       @map("scheduled_at")
+  sentByUserId    String          @map("sent_by_user_id")
+  sentBy          User            @relation(fields: [sentByUserId], references: [id])
+  deliveries      BroadcastDelivery[]
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([type, status])
+  @@map("broadcasts")
+}
+
+/// Registro de entrega individual de un broadcast a un dispositivo específico.
+/// Permite rastrear el estado por canal (WebSocket, FCM, SMS, BLE).
+model BroadcastDelivery {
+  id          String          @id @default(uuid())
+  broadcastId String          @map("broadcast_id")
+  deviceId    String          @map("device_id")
+  channel     DeliveryChannel @default(WEBSOCKET)
+  status      DeliveryStatus  @default(PENDING)
+  sentAt      DateTime?       @map("sent_at")
+  deliveredAt DateTime?       @map("delivered_at")
+  ackAt       DateTime?       @map("ack_at")
+  failReason  String?         @map("fail_reason")
+  broadcast   Broadcast       @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  device      Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@unique([broadcastId, deviceId, channel])
+  @@index([broadcastId, status])
+  @@index([deviceId, status])
+  @@map("broadcast_deliveries")
+}
