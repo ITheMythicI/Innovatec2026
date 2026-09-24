@@ -5,6 +5,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/theme/resguardo_theme.dart';
 import '../../../../core/security/roles_and_permissions.dart';
 import '../../../auth/domain/services/auth_service.dart';
+import 'evacuation_route_screen.dart';
 
 class OperationalMapScreen extends StatefulWidget {
   const OperationalMapScreen({super.key});
@@ -365,7 +366,15 @@ class _OperationalMapScreenState extends State<OperationalMapScreen> {
                     backgroundColor: ResguardoTheme.emergencyCrimson,
                     foregroundColor: Colors.white,
                   ),
-                  onPressed: () => Navigator.pop(ctx),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EvacuationRouteScreen(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.warning),
                   label: const Text('Ruta de Evacuación Segura'),
                 ),
@@ -424,7 +433,15 @@ class _OperationalMapScreenState extends State<OperationalMapScreen> {
                     backgroundColor: ResguardoTheme.safeEmerald,
                     foregroundColor: Colors.white,
                   ),
-                  onPressed: () => Navigator.pop(ctx),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EvacuationRouteScreen(),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.navigation),
                   label: const Text('Cómo Llegar al Albergue'),
                 ),

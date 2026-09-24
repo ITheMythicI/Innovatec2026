@@ -186,6 +186,23 @@ class Report {
     this.syncStatus = 'synced',
   });
 
+  Map<String, dynamic> toCreatePayload() {
+    final map = <String, dynamic>{
+      'title': title,
+      'description': description,
+      'category': category.toBackendString(),
+      'priority': priority.toBackendString(),
+    };
+    if (latitude != null) map['latitude'] = latitude;
+    if (longitude != null) map['longitude'] = longitude;
+    if (address != null && address!.isNotEmpty) map['address'] = address;
+    if (emergencyId != null && emergencyId!.isNotEmpty) map['emergencyId'] = emergencyId;
+    if (reporterName != null && reporterName!.isNotEmpty) map['reporterName'] = reporterName;
+    if (reporterContact != null && reporterContact!.isNotEmpty) map['reporterContact'] = reporterContact;
+    if (reporterUserId != null && reporterUserId!.isNotEmpty) map['reporterUserId'] = reporterUserId;
+    return map;
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'reporterUserId': reporterUserId,

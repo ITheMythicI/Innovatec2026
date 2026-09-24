@@ -491,7 +491,9 @@ class _FamilyHubScreenState extends State<FamilyHubScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: isUrgent ? ResguardoTheme.emergencyCrimson : ResguardoTheme.outlineVariant,
+          color: isUrgent
+              ? ResguardoTheme.emergencyCrimson
+              : (isSafe ? ResguardoTheme.safeEmerald.withValues(alpha: 0.5) : ResguardoTheme.outlineVariant),
           width: isUrgent ? 2 : 1,
         ),
       ),

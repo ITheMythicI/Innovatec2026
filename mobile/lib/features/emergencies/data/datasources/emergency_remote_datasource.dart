@@ -35,13 +35,37 @@ class EmergencyRemoteDataSourceImpl implements EmergencyRemoteDataSource {
 
   @override
   Future<Emergency> createEmergency(Emergency emergency) async {
-    final response = await _apiClient.post('/emergencies', body: emergency.toJson());
+    final payload = {
+      'title': emergency.title,
+      if (emergency.description != null && emergency.description!.isNotEmpty)
+        'description': emergency.description,
+      'type': emergency.type.toBackendString(),
+      'severity': emergency.severity.toBackendString(),
+      'status': emergency.status.toBackendString(),
+      'latitude': emergency.latitude,
+      'longitude': emergency.longitude,
+      if (emergency.radiusMeters != null) 'radiusMeters': emergency.radiusMeters,
+      'startedAt': emergency.startedAt.toUtc().toIso8601String(),
+    };
+
+    final response = await _apiClient.post('/emergencies', body: payload);
     return Emergency.fromJson(response as Map<String, dynamic>);
   }
 
   @override
   Future<Emergency> updateEmergency(Emergency emergency) async {
-    final response = await _apiClient.patch('/emergencies/${emergency.id}', body: emergency.toJson());
+    final payload = {
+      'title': emergency.title,
+      if (emergency.description != null) 'description': emergency.description,
+      'type': emergency.type.toBackendString(),
+      'severity': emergency.severity.toBackendString(),
+      'status': emergency.status.toBackendString(),
+      'latitude': emergency.latitude,
+      'longitude': emergency.longitude,
+      if (emergency.radiusMeters != null) 'radiusMeters': emergency.radiusMeters,
+    };
+
+    final response = await _apiClient.patch('/emergencies/${emergency.id}', body: payload);
     return Emergency.fromJson(response as Map<String, dynamic>);
   }
 }

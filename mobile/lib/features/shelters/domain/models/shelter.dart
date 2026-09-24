@@ -108,7 +108,12 @@ class Shelter {
   factory Shelter.fromJson(Map<String, dynamic> json) {
     List<String> parsedServices = [];
     if (json['services'] is List) {
-      parsedServices = (json['services'] as List).map((e) => e.toString()).toList();
+      parsedServices = (json['services'] as List).map((e) {
+        if (e is Map) {
+          return (e['serviceType'] ?? e['name'] ?? '').toString();
+        }
+        return e.toString();
+      }).where((s) => s.isNotEmpty).toList();
     } else if (json['services_json'] is String && (json['services_json'] as String).isNotEmpty) {
       parsedServices = (json['services_json'] as String).split(',');
     }

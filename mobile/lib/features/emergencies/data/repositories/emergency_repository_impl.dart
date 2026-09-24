@@ -66,32 +66,39 @@ class EmergencyRepositoryImpl implements EmergencyRepository {
 
   @override
   Future<Emergency> createEmergency(Emergency emergency) async {
-    final localEmergency = Emergency(
-      id: emergency.id,
-      title: emergency.title,
-      description: emergency.description,
-      type: emergency.type,
-      severity: emergency.severity,
-      status: emergency.status,
-      latitude: emergency.latitude,
-      longitude: emergency.longitude,
-      radiusMeters: emergency.radiusMeters,
-      startedAt: emergency.startedAt,
-      endedAt: emergency.endedAt,
-      createdAt: emergency.createdAt,
-      updatedAt: emergency.updatedAt,
-      syncStatus: 'pending_create',
-    );
-    await _localDataSource.saveEmergency(localEmergency);
+    try {
+      final remote = await _remoteDataSource.createEmergency(emergency);
+      await _localDataSource.saveEmergency(remote);
+      return remote;
+    } catch (_) {
+      // Modo Offline: se almacena localmente y se encola para sincronización
+      final localEmergency = Emergency(
+        id: emergency.id,
+        title: emergency.title,
+        description: emergency.description,
+        type: emergency.type,
+        severity: emergency.severity,
+        status: emergency.status,
+        latitude: emergency.latitude,
+        longitude: emergency.longitude,
+        radiusMeters: emergency.radiusMeters,
+        startedAt: emergency.startedAt,
+        endedAt: emergency.endedAt,
+        createdAt: emergency.createdAt,
+        updatedAt: emergency.updatedAt,
+        syncStatus: 'pending_create',
+      );
+      await _localDataSource.saveEmergency(localEmergency);
 
-    await _syncManager.enqueueLocalMutation(
-      entityType: 'emergency',
-      entityId: emergency.id,
-      operation: 'CREATE',
-      payload: emergency.toJson(),
-    );
+      await _syncManager.enqueueLocalMutation(
+        entityType: 'emergency',
+        entityId: emergency.id,
+        operation: 'CREATE',
+        payload: emergency.toJson(),
+      );
 
-    return localEmergency;
+      return localEmergency;
+    }
   }
 
   @override

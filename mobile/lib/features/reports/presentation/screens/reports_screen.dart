@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
+import 'package:innovatec_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:innovatec_mobile/features/reports/domain/models/report.dart';
 import 'package:innovatec_mobile/features/reports/presentation/controllers/report_controller.dart';
 
@@ -414,21 +415,35 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (titleCtrl.text.trim().isEmpty || descCtrl.text.trim().isEmpty) return;
+                    final currentUser = AuthService().currentUser;
+                    final now = DateTime.now().toUtc();
+                    final messenger = ScaffoldMessenger.of(context);
                     final report = Report(
                       id: const Uuid().v4(),
                       title: titleCtrl.text.trim(),
                       description: descCtrl.text.trim(),
-                      address: addrCtrl.text.trim(),
+                      address: addrCtrl.text.trim().isNotEmpty ? addrCtrl.text.trim() : null,
+                      reporterUserId: currentUser?.id,
+                      reporterName: currentUser?.fullName ?? 'Ciudadano Reportante',
+                      reporterContact: currentUser?.emailOrPhone,
                       category: selectedCat,
                       priority: selectedPri,
                       status: ReportStatus.pending,
                       latitude: 19.4326,
                       longitude: -99.1332,
-                      createdAt: DateTime.now().toUtc(),
-                      updatedAt: DateTime.now().toUtc(),
+                      createdAt: now,
+                      updatedAt: now,
                     );
                     Navigator.pop(ctx);
                     await _controller.createReport(report);
+                    if (mounted) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          backgroundColor: ResguardoTheme.safeEmerald,
+                          content: Text('✅ Reporte de incidente transmitido al Centro de Comando C5.'),
+                        ),
+                      );
+                    }
                   },
                   child: const Text('Guardar Reporte'),
                 ),

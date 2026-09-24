@@ -6,13 +6,9 @@ import 'features/auth/domain/services/auth_service.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
 import 'features/emergencies/presentation/screens/emergencies_screen.dart';
 import 'features/shelters/presentation/screens/shelters_screen.dart';
-import 'features/reports/presentation/screens/reports_screen.dart';
-import 'features/people/presentation/screens/missing_persons_screen.dart';
-import 'features/families/presentation/screens/family_hub_screen.dart';
-import 'features/user_profile/presentation/screens/medical_card_screen.dart';
-import 'features/audit/presentation/screens/audit_log_screen.dart';
 import 'features/map/presentation/screens/operational_map_screen.dart';
 import 'features/broadcasts/presentation/screens/official_broadcasts_screen.dart';
+import 'features/hub/presentation/screens/tactical_hub_screen.dart';
 import 'sync/sync_event.dart';
 import 'sync/sync_manager.dart';
 
@@ -46,6 +42,14 @@ class MainNavigationHub extends StatefulWidget {
 class _MainNavigationHubState extends State<MainNavigationHub> {
   int _currentIndex = 0;
 
+  final List<Widget> _screens = const [
+    EmergenciesScreen(),
+    OperationalMapScreen(),
+    OfficialBroadcastsScreen(),
+    SheltersScreen(),
+    TacticalHubScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -53,102 +57,18 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
       builder: (context, _) {
         final authUser = AuthService().currentUser;
         final currentRole = authUser?.role ?? UserRole.citizen;
-        final canViewAudit = RbacService.hasPermission(currentRole, AppPermission.viewAuditLog);
-
-        // Definición de pestañas dinámicas filtradas por RBAC
-        // El usuario común (citizen) NO debe ver la pestaña de auditoría.
-        final List<_NavigationTabItem> activeTabs = [
-          const _NavigationTabItem(
-            screen: EmergenciesScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.warning_amber_rounded),
-              activeIcon: Icon(Icons.warning),
-              label: 'SOS / Pánico',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: OperationalMapScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.map_outlined),
-              activeIcon: Icon(Icons.map),
-              label: 'Mapa',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: OfficialBroadcastsScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.campaign_outlined),
-              activeIcon: Icon(Icons.campaign),
-              label: 'Boletines',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: SheltersScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.night_shelter_outlined),
-              activeIcon: Icon(Icons.night_shelter),
-              label: 'Albergues',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: FamilyHubScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.family_restroom_outlined),
-              activeIcon: Icon(Icons.family_restroom),
-              label: 'Mi Familia',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: ReportsScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.assignment_outlined),
-              activeIcon: Icon(Icons.assignment),
-              label: 'Reportes',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: MissingPersonsScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.person_search_outlined),
-              activeIcon: Icon(Icons.person_search),
-              label: 'Personas',
-            ),
-          ),
-          const _NavigationTabItem(
-            screen: MedicalCardScreen(),
-            item: BottomNavigationBarItem(
-              icon: Icon(Icons.medical_information_outlined),
-              activeIcon: Icon(Icons.medical_information),
-              label: 'Ficha Médica',
-            ),
-          ),
-          if (canViewAudit)
-            const _NavigationTabItem(
-              screen: AuditLogScreen(),
-              item: BottomNavigationBarItem(
-                icon: Icon(Icons.shield_outlined),
-                activeIcon: Icon(Icons.shield),
-                label: 'Auditoría',
-              ),
-            ),
-        ];
-
-        // Prevenir desborde de índice si el rol cambia y se reduce la cantidad de tabs
-        if (_currentIndex >= activeTabs.length) {
-          _currentIndex = 0;
-        }
 
         return Scaffold(
           appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
+            preferredSize: const Size.fromHeight(50),
             child: Container(
               color: ResguardoTheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: SafeArea(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Indicador de Conectividad y Cola Offline-First (Design.md)
+                    // Indicador de Conectividad / Malla Offline
                     Flexible(
                       child: StreamBuilder<SyncStatus>(
                         stream: SyncManager.instance.syncStatusStream,
@@ -173,10 +93,8 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                                 statusText = 'OFFLINE ($pending)';
                               }
 
-                              return GestureDetector(
-                                onTap: () {
-                                  SyncManager.instance.synchronizePendingEvents();
-                                },
+                              return InkWell(
+                                onTap: () => SyncManager.instance.synchronizePendingEvents(),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -188,7 +106,7 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    const SizedBox(width: 5),
+                                    const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
                                         statusText,
@@ -210,13 +128,16 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 6),
+
+                    const SizedBox(width: 8),
+
+                    // Selector Rápido de Rol y Botón de Usuario
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Selector Rápido de Rol para Pruebas y Despacho
                         PopupMenuButton<UserRole>(
                           color: ResguardoTheme.surface,
-                          tooltip: 'Cambiar Rol de Usuario',
+                          tooltip: 'Cambiar Rol Táctico',
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
@@ -225,6 +146,7 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                               border: Border.all(color: Colors.white24),
                             ),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.security, size: 12, color: Colors.white),
                                 const SizedBox(width: 4),
@@ -273,12 +195,13 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                           },
                         ),
 
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
 
-                        // Botón de Acceso / Login / Registro
                         IconButton(
                           icon: const Icon(Icons.account_circle_outlined, color: Colors.white, size: 20),
-                          tooltip: 'Iniciar Sesión / Registro Táctico',
+                          tooltip: 'Iniciar Sesión / Registro',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -297,7 +220,10 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
               ),
             ),
           ),
-          body: activeTabs[_currentIndex].screen,
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: ResguardoTheme.outline, width: 1)),
@@ -306,28 +232,44 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
               currentIndex: _currentIndex,
               onTap: (index) => setState(() => _currentIndex = index),
               backgroundColor: ResguardoTheme.surface,
-              selectedItemColor: ResguardoTheme.primary,
+              selectedItemColor: ResguardoTheme.emergencyCrimson,
               unselectedItemColor: ResguardoTheme.textMuted,
               selectedFontSize: 11,
               unselectedFontSize: 10,
               type: BottomNavigationBarType.fixed,
               selectedLabelStyle: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w700),
-              unselectedLabelStyle: const TextStyle(fontFamily: 'Inter'),
-              items: activeTabs.map((t) => t.item).toList(),
+              unselectedLabelStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.warning_amber_rounded),
+                  activeIcon: Icon(Icons.warning, color: ResguardoTheme.emergencyCrimson),
+                  label: 'SOS / Pánico',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.map_outlined),
+                  activeIcon: Icon(Icons.map),
+                  label: 'Mapa',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.campaign_outlined),
+                  activeIcon: Icon(Icons.campaign),
+                  label: 'Boletines',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.night_shelter_outlined),
+                  activeIcon: Icon(Icons.night_shelter),
+                  label: 'Albergues',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.grid_view_rounded),
+                  activeIcon: Icon(Icons.grid_view_rounded),
+                  label: 'Módulos',
+                ),
+              ],
             ),
           ),
         );
       },
     );
   }
-}
-
-class _NavigationTabItem {
-  final Widget screen;
-  final BottomNavigationBarItem item;
-
-  const _NavigationTabItem({
-    required this.screen,
-    required this.item,
-  });
 }

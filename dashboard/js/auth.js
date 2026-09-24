@@ -2,6 +2,18 @@
  * Control de Autenticación Táctica - Pantalla de Acceso Oficial
  */
 
+function quickLogin(email) {
+  const operatorInput = document.getElementById('operator_id');
+  const passwordInput = document.getElementById('operator_password');
+  const form = document.getElementById('auth-form');
+
+  if (operatorInput && passwordInput && form) {
+    operatorInput.value = email;
+    passwordInput.value = 'Password123!';
+    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('auth-form');
   const operatorInput = document.getElementById('operator_id');

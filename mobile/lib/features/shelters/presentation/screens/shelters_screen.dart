@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/features/shelters/domain/models/shelter.dart';
 import 'package:innovatec_mobile/features/shelters/presentation/controllers/shelter_controller.dart';
+import 'package:innovatec_mobile/features/map/presentation/screens/evacuation_route_screen.dart';
 
 class SheltersScreen extends StatefulWidget {
   const SheltersScreen({super.key});
@@ -13,12 +14,15 @@ class SheltersScreen extends StatefulWidget {
 
 class _SheltersScreenState extends State<SheltersScreen> {
   late final ShelterController _controller;
+  String _searchQuery = '';
+  String? _selectedServiceFilter;
+  final Set<String> _checkedInShelterIds = {};
 
   @override
   void initState() {
     super.initState();
     _controller = ShelterController();
-    _controller.loadShelters();
+    _controller.loadShelters(forceRefresh: true);
   }
 
   @override
@@ -32,18 +36,49 @@ class _SheltersScreenState extends State<SheltersScreen> {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
+        final allShelters = _controller.shelters;
+        final filteredShelters = allShelters.where((s) {
+          if (_searchQuery.isNotEmpty) {
+            final query = _searchQuery.toLowerCase();
+            final matchesName = s.name.toLowerCase().contains(query);
+            final matchesAddr = (s.address ?? '').toLowerCase().contains(query);
+            if (!matchesName && !matchesAddr) return false;
+          }
+          if (_selectedServiceFilter != null) {
+            final hasService = s.services.any((svc) =>
+                svc.toLowerCase().contains(_selectedServiceFilter!.toLowerCase()));
+            if (!hasService) return false;
+          }
+          return true;
+        }).toList();
+
         return Scaffold(
           backgroundColor: ResguardoTheme.background,
           appBar: AppBar(
             backgroundColor: ResguardoTheme.surface,
-            title: const Text(
-              'Red de Albergues & Refugio',
-              style: TextStyle(
-                fontFamily: 'Space Grotesk',
-                fontWeight: FontWeight.w700,
-                color: ResguardoTheme.primary,
-                fontSize: 20,
-              ),
+            elevation: 0,
+            title: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Red de Albergues & Refugio',
+                  style: TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontWeight: FontWeight.w700,
+                    color: ResguardoTheme.primary,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  'CAPACIDAD EN TIEMPO REAL • PROTOCOLO SINAPROC',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: ResguardoTheme.outline,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             actions: [
               IconButton(
@@ -60,34 +95,66 @@ class _SheltersScreenState extends State<SheltersScreen> {
           ),
           body: Column(
             children: [
-              // Barra de Filtros Rápidos (Design.md)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                child: Row(
+              // Buscador y Filtros Rápidos
+              Container(
+                color: ResguardoTheme.surface,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Column(
                   children: [
-                    FilterChip(
-                      selected: _controller.onlyAvailable,
-                      label: const Text('Solo con Camas Disponibles'),
-                      labelStyle: TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _controller.onlyAvailable ? Colors.white : ResguardoTheme.primary,
+                    TextField(
+                      onChanged: (val) => setState(() => _searchQuery = val),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar albergue por nombre o colonia...',
+                        prefixIcon: const Icon(Icons.search, size: 20, color: ResguardoTheme.textMuted),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        fillColor: ResguardoTheme.surfaceContainerLow,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
-                      selectedColor: ResguardoTheme.primary,
-                      backgroundColor: ResguardoTheme.surface,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                        side: const BorderSide(color: ResguardoTheme.outline),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          FilterChip(
+                            selected: _controller.onlyAvailable,
+                            label: const Text('Con Cupo Disponible'),
+                            labelStyle: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: _controller.onlyAvailable ? Colors.white : ResguardoTheme.primary,
+                            ),
+                            selectedColor: ResguardoTheme.primary,
+                            backgroundColor: ResguardoTheme.surfaceContainerLow,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                              side: const BorderSide(color: ResguardoTheme.outline),
+                            ),
+                            onSelected: (val) => _controller.toggleOnlyAvailable(val),
+                          ),
+                          const SizedBox(width: 6),
+                          _buildServiceFilterChip('Médico', 'MEDICAL', Icons.medical_services_outlined),
+                          const SizedBox(width: 6),
+                          _buildServiceFilterChip('Comida/Agua', 'FOOD', Icons.restaurant_outlined),
+                          const SizedBox(width: 6),
+                          _buildServiceFilterChip('Mascotas', 'PET', Icons.pets_outlined),
+                        ],
                       ),
-                      onSelected: (val) => _controller.toggleOnlyAvailable(val),
                     ),
                   ],
                 ),
               ),
 
               // Lista de Albergues
-              Expanded(child: _buildContent()),
+              Expanded(
+                child: _buildContent(filteredShelters),
+              ),
             ],
           ),
         );
@@ -95,12 +162,38 @@ class _SheltersScreenState extends State<SheltersScreen> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildServiceFilterChip(String label, String serviceKey, IconData icon) {
+    final isSelected = _selectedServiceFilter == serviceKey;
+    return FilterChip(
+      selected: isSelected,
+      avatar: Icon(icon, size: 14, color: isSelected ? Colors.white : ResguardoTheme.primary),
+      label: Text(label),
+      labelStyle: TextStyle(
+        fontFamily: 'JetBrains Mono',
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        color: isSelected ? Colors.white : ResguardoTheme.primary,
+      ),
+      selectedColor: ResguardoTheme.safeEmerald,
+      backgroundColor: ResguardoTheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+        side: const BorderSide(color: ResguardoTheme.outline),
+      ),
+      onSelected: (val) {
+        setState(() {
+          _selectedServiceFilter = val ? serviceKey : null;
+        });
+      },
+    );
+  }
+
+  Widget _buildContent(List<Shelter> shelters) {
     if (_controller.status == ShelterStateStatus.loading) {
       return const Center(child: CircularProgressIndicator(color: ResguardoTheme.primary));
     }
 
-    if (_controller.shelters.isEmpty) {
+    if (shelters.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -110,24 +203,25 @@ class _SheltersScreenState extends State<SheltersScreen> {
               const Icon(Icons.night_shelter_outlined, size: 48, color: ResguardoTheme.textMuted),
               const SizedBox(height: 12),
               const Text(
-                'Sin Albergues en Caché Local',
+                'No se encontraron albergues',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontWeight: FontWeight.w700,
-                  fontSize: 18,
+                  fontSize: 16,
                   color: ResguardoTheme.primary,
                 ),
               ),
               const SizedBox(height: 6),
               const Text(
-                'Conecta a red para sincronizar los albergues habilitados por Protección Civil.',
+                'Intenta con otros filtros de búsqueda o sincroniza la base de datos.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: 'Inter', color: ResguardoTheme.textMuted, fontSize: 13),
+                style: TextStyle(fontFamily: 'Inter', color: ResguardoTheme.textMuted, fontSize: 12),
               ),
               const SizedBox(height: 16),
-              OutlinedButton(
+              OutlinedButton.icon(
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('Recargar Catálogo'),
                 onPressed: () => _controller.loadShelters(forceRefresh: true),
-                child: const Text('Actualizar Albergues'),
               ),
             ],
           ),
@@ -135,41 +229,42 @@ class _SheltersScreenState extends State<SheltersScreen> {
       );
     }
 
-    return RefreshIndicator(
-      color: ResguardoTheme.primary,
-      onRefresh: () => _controller.loadShelters(forceRefresh: true),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        itemCount: _controller.shelters.length,
-        itemBuilder: (context, index) {
-          final shelter = _controller.shelters[index];
-          return _buildShelterCard(shelter);
-        },
-      ),
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: shelters.length,
+      itemBuilder: (context, index) {
+        final shelter = shelters[index];
+        return _buildShelterCard(shelter);
+      },
     );
   }
 
   Widget _buildShelterCard(Shelter shelter) {
     Color statusColor = ResguardoTheme.safeEmerald;
-    if (shelter.status == ShelterStatus.full) {
+    if (shelter.status == ShelterStatus.full || shelter.occupancyPercentage >= 0.9) {
       statusColor = ResguardoTheme.emergencyCrimson;
-    } else if (shelter.status == ShelterStatus.closed || shelter.status == ShelterStatus.evacuating) {
+    } else if (shelter.occupancyPercentage >= 0.7) {
       statusColor = ResguardoTheme.warningAmber;
     }
+
+    final isCheckedIn = _checkedInShelterIds.contains(shelter.id);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
         color: ResguardoTheme.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ResguardoTheme.outline, width: 1),
+        border: Border.all(
+          color: isCheckedIn ? ResguardoTheme.safeEmerald : ResguardoTheme.outline,
+          width: isCheckedIn ? 2 : 1,
+        ),
         boxShadow: const [ResguardoTheme.shadowLevel2],
       ),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Indicador notch 4px
+            // Indicador vertical de estado
             Container(
               width: 4,
               decoration: BoxDecoration(
@@ -182,7 +277,7 @@ class _SheltersScreenState extends State<SheltersScreen> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(14.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -195,28 +290,54 @@ class _SheltersScreenState extends State<SheltersScreen> {
                             style: const TextStyle(
                               fontFamily: 'Space Grotesk',
                               fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                              fontSize: 15,
                               color: ResguardoTheme.primary,
                             ),
                           ),
                         ),
-                        _buildStatusBadge(shelter.status.displayName, statusColor),
+                        if (isCheckedIn)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: ResguardoTheme.safeEmerald,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'MI ALBERGUE',
+                              style: TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        else
+                          _buildStatusBadge(shelter.status.displayName, statusColor),
                       ],
                     ),
                     if (shelter.address != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        shelter.address!,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 13,
-                          color: ResguardoTheme.onSurfaceVariant,
-                        ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined, size: 13, color: ResguardoTheme.textMuted),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              shelter.address!,
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                                color: ResguardoTheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
-                    // Barra de Ocupación Telemetría (Design.md)
+                    // Barra de Ocupación
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -224,10 +345,10 @@ class _SheltersScreenState extends State<SheltersScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'OCUPACIÓN: ${shelter.currentOccupancy} / ${shelter.capacity} CAMAS',
+                              'OCUPACIÓN: ${shelter.currentOccupancy} / ${shelter.capacity} PERSONAS',
                               style: const TextStyle(
                                 fontFamily: 'JetBrains Mono',
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: ResguardoTheme.primary,
                               ),
@@ -236,32 +357,34 @@ class _SheltersScreenState extends State<SheltersScreen> {
                               '${(shelter.occupancyPercentage * 100).toInt()}%',
                               style: TextStyle(
                                 fontFamily: 'JetBrains Mono',
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: statusColor,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(2),
                           child: LinearProgressIndicator(
                             value: shelter.occupancyPercentage,
                             backgroundColor: ResguardoTheme.surfaceContainerHighest,
                             valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                            minHeight: 6,
+                            minHeight: 5,
                           ),
                         ),
                       ],
                     ),
 
+                    // Tags de Servicios
                     if (shelter.services.isNotEmpty) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Wrap(
-                        spacing: 6,
+                        spacing: 4,
                         runSpacing: 4,
                         children: shelter.services.map((svc) {
+                          String label = svc.replaceAll('_', ' ');
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
@@ -270,10 +393,10 @@ class _SheltersScreenState extends State<SheltersScreen> {
                               border: Border.all(color: ResguardoTheme.outline),
                             ),
                             child: Text(
-                              svc.toUpperCase(),
+                              label.toUpperCase(),
                               style: const TextStyle(
                                 fontFamily: 'JetBrains Mono',
-                                fontSize: 9,
+                                fontSize: 8,
                                 fontWeight: FontWeight.w600,
                                 color: ResguardoTheme.primary,
                               ),
@@ -283,19 +406,69 @@ class _SheltersScreenState extends State<SheltersScreen> {
                       ),
                     ],
 
-                    const SizedBox(height: 8),
-                    if (shelter.syncStatus.startsWith('pending'))
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'Pendiente de envío',
-                          style: TextStyle(
-                            fontFamily: 'JetBrains Mono',
-                            fontSize: 10,
-                            color: ResguardoTheme.warningAmber,
+                    const SizedBox(height: 10),
+
+                    // Botones de Acción Táctica
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: ResguardoTheme.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: const BorderSide(color: ResguardoTheme.primary),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                            icon: const Icon(Icons.near_me, size: 14),
+                            label: const Text(
+                              'Trazar Ruta',
+                              style: TextStyle(fontFamily: 'Space Grotesk', fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const EvacuationRouteScreen()),
+                              );
+                            },
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isCheckedIn ? ResguardoTheme.textMuted : ResguardoTheme.safeEmerald,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            ),
+                            icon: Icon(isCheckedIn ? Icons.check_circle : Icons.login, size: 14),
+                            label: Text(
+                              isCheckedIn ? 'Registrado' : 'Check-in',
+                              style: const TextStyle(fontFamily: 'Space Grotesk', fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                if (isCheckedIn) {
+                                  _checkedInShelterIds.remove(shelter.id);
+                                } else {
+                                  _checkedInShelterIds.add(shelter.id);
+                                }
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: ResguardoTheme.safeEmerald,
+                                  content: Text(
+                                    isCheckedIn
+                                        ? 'Has salido del albergue ${shelter.name}. Cupo liberado.'
+                                        : '✅ ¡Check-in confirmado en ${shelter.name}! Censo actualizado en el C5.',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -308,7 +481,7 @@ class _SheltersScreenState extends State<SheltersScreen> {
 
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(4),
@@ -318,7 +491,7 @@ class _SheltersScreenState extends State<SheltersScreen> {
         text,
         style: TextStyle(
           fontFamily: 'JetBrains Mono',
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: FontWeight.w600,
           color: color,
         ),
@@ -346,6 +519,7 @@ class _SheltersScreenState extends State<SheltersScreen> {
               fontFamily: 'Space Grotesk',
               fontWeight: FontWeight.w700,
               color: ResguardoTheme.primary,
+              fontSize: 16,
             ),
           ),
           content: SingleChildScrollView(
@@ -354,18 +528,18 @@ class _SheltersScreenState extends State<SheltersScreen> {
               children: [
                 TextField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Nombre del Albergue *'),
+                  decoration: const InputDecoration(labelText: 'Nombre del Albergue o Refugio *'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 TextField(
                   controller: addrCtrl,
-                  decoration: const InputDecoration(labelText: 'Dirección o Punto de Referencia'),
+                  decoration: const InputDecoration(labelText: 'Dirección o Ubicación *'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 TextField(
                   controller: capCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Capacidad en Camas *'),
+                  decoration: const InputDecoration(labelText: 'Capacidad Total de Camas *'),
                 ),
               ],
             ),
@@ -373,26 +547,42 @@ class _SheltersScreenState extends State<SheltersScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancelar', style: TextStyle(color: ResguardoTheme.textMuted)),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () async {
-                if (nameCtrl.text.trim().isEmpty) return;
-                final shelter = Shelter(
-                  id: const Uuid().v4(),
-                  name: nameCtrl.text.trim(),
-                  address: addrCtrl.text.trim(),
-                  latitude: 19.4326,
-                  longitude: -99.1332,
-                  capacity: int.tryParse(capCtrl.text.trim()) ?? 50,
-                  currentOccupancy: 0,
-                  status: ShelterStatus.open,
-                  services: ['AGUA', 'MÉDICO', 'ENERGÍA', 'ALIMENTOS'],
-                  createdAt: DateTime.now().toUtc(),
-                  updatedAt: DateTime.now().toUtc(),
-                );
-                Navigator.pop(ctx);
-                await _controller.createShelter(shelter);
+                final name = nameCtrl.text.trim();
+                final addr = addrCtrl.text.trim();
+                final cap = int.tryParse(capCtrl.text) ?? 50;
+
+                if (name.isNotEmpty) {
+                  final now = DateTime.now().toUtc();
+                  final newShelter = Shelter(
+                    id: const Uuid().v4(),
+                    name: name,
+                    address: addr.isNotEmpty ? addr : null,
+                    latitude: 19.4326,
+                    longitude: -99.1332,
+                    capacity: cap,
+                    currentOccupancy: 0,
+                    status: ShelterStatus.open,
+                    services: const ['MEDICAL', 'FOOD', 'WATER'],
+                    createdAt: now,
+                    updatedAt: now,
+                  );
+
+                  final messenger = ScaffoldMessenger.of(context);
+                  await _controller.createShelter(newShelter);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        backgroundColor: ResguardoTheme.safeEmerald,
+                        content: Text('Albergue registrado y transmitido al Centro de Mando.'),
+                      ),
+                    );
+                  }
+                }
               },
               child: const Text('Guardar'),
             ),

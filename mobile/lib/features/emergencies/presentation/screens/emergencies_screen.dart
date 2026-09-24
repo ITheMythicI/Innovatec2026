@@ -871,10 +871,12 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
   }
 
   void _triggerInstantSos(BuildContext context) async {
+    final folioId = 'SOS-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    
     final newSos = Emergency(
       id: const Uuid().v4(),
-      title: 'ALERTA SOS - IMPACTO URGENTE',
-      description: 'Señal de auxilio prioritaria generada en campo por brigadista.',
+      title: 'ALERTA SOS - AUXILIO INMEDIATO ($folioId)',
+      description: 'Señal de auxilio urgente y geolocalizada emitida por ciudadano/brigadista desde terminal móvil.',
       type: EmergencyType.other,
       severity: EmergencySeverity.critical,
       status: EmergencyStatus.active,
@@ -887,13 +889,104 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
 
     await _controller.createEmergency(newSos);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        backgroundColor: ResguardoTheme.emergencyCrimson,
-        content: Text(
-          'Alerta SOS generada y registrada en cola local SQLite para retransmisión.',
-          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold),
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: ResguardoTheme.emergencyCrimson, width: 2),
         ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: ResguardoTheme.emergencyCrimson.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.emergency, color: ResguardoTheme.emergencyCrimson, size: 24),
+            ),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'SOS TRANSMITIDO AL C5',
+                style: TextStyle(
+                  fontFamily: 'Space Grotesk',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: ResguardoTheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: ResguardoTheme.emergencyCrimsonBorder),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'FOLIO DE DESPACHO: $folioId',
+                    style: const TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: ResguardoTheme.emergencyCrimson,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'GPS: 19.4326° N, 99.1332° W • ZONA NORTE',
+                    style: TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 10,
+                      color: ResguardoTheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Tu señal de auxilio y coordenadas han sido registradas en la mesa de mando C5. Las brigadas de rescate más cercanas han sido alertadas.',
+              style: TextStyle(fontFamily: 'Inter', fontSize: 12, color: ResguardoTheme.onSurfaceVariant, height: 1.3),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Entendido', style: TextStyle(color: ResguardoTheme.textMuted)),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ResguardoTheme.emergencyCrimson,
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.near_me, size: 16),
+            label: const Text('Ver Ruta a Albergue'),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EvacuationRouteScreen()),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

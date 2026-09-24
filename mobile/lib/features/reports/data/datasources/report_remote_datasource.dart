@@ -36,7 +36,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
 
   @override
   Future<Report> createReport(Report report) async {
-    final response = await _apiClient.post('/reports', body: report.toJson());
+    final response = await _apiClient.post('/reports', body: report.toCreatePayload());
     return Report.fromJson(response as Map<String, dynamic>);
   }
 

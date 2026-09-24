@@ -841,8 +841,8 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                           actorRole: auth?.role ?? UserRole.citizen,
                         );
 
-                        Navigator.pop(mCtx);
-                        if (context.mounted) {
+                        if (mCtx.mounted) Navigator.pop(mCtx);
+                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Reporte guardado localmente y firmado criptográficamente.'),
