@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'audit_event.dart';
 import '../security/crypto_service.dart';
+import '../../database/app_database.dart';
 
 /// Resultado de la verificación de integridad de la cadena de auditoría.
 class ChainVerificationResult {
@@ -17,7 +19,7 @@ class ChainVerificationResult {
   });
 }
 
-/// Servicio central de auditoría inmutable (Audit Trail con Hash Chain).
+/// Servicio central de auditoría inmutable (Audit Trail con Hash Chain) con persistencia local SQLite.
 class AuditService {
   static final AuditService _instance = AuditService._internal();
   factory AuditService() => _instance;
@@ -45,8 +47,23 @@ class AuditService {
         signingSecret: 'INNOVATEC_GENESIS_SECRET',
       );
       _events.add(genesis);
+      _saveLogToDb(genesis);
       _eventStreamController.add(_events);
     }
+  }
+
+  Future<void> _saveLogToDb(AuditEvent event) async {
+    try {
+      await AppDatabase.instance.auditDao.insertLog({
+        'id': event.id,
+        'action': event.eventType.name,
+        'role': event.actorRole,
+        'resource_type': 'AUDIT_CHAIN_EVENT',
+        'resource_id': event.entityId,
+        'details': json.encode(event.metadata),
+        'timestamp': event.timestamp.toUtc().toIso8601String(),
+      });
+    } catch (_) {}
   }
 
   /// Registra un evento de auditoría encadenado.
@@ -73,6 +90,7 @@ class AuditService {
     );
 
     _events.add(event);
+    await _saveLogToDb(event);
     _eventStreamController.add(_events);
     return event;
   }

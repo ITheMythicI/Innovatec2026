@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:innovatec_mobile/core/audit/audit_event.dart';
 import 'package:innovatec_mobile/core/audit/audit_service.dart';
+import 'package:innovatec_mobile/database/app_database.dart';
 import 'package:innovatec_mobile/features/user_profile/domain/models/user_profile.dart';
+import 'package:innovatec_mobile/sync/sync_manager.dart';
 
 /// Servicio gestor del perfil médico de emergencia del usuario.
 class ProfileService {
@@ -20,6 +23,7 @@ class ProfileService {
 
   void _initDefaultProfile() {
     _profile = _createDefaultProfile();
+    _saveToLocalDb(_profile!);
     _profileController.add(_profile!);
   }
 
@@ -52,9 +56,35 @@ class ProfileService {
     );
   }
 
+  Future<void> _saveToLocalDb(UserProfile profile) async {
+    final map = {
+      'id': profile.userId,
+      'full_name': profile.fullName,
+      'blood_type': profile.bloodType,
+      'allergies_json': json.encode(profile.allergies),
+      'chronic_conditions_json': json.encode(profile.chronicConditions),
+      'current_medications_json': json.encode(profile.vitalMedications),
+      'emergency_contacts_json': json.encode(profile.emergencyContacts.map((c) => c.toJson()).toList()),
+      'organ_donor': profile.isOrganDonor ? 1 : 0,
+      'last_updated': profile.lastUpdated.toUtc().toIso8601String(),
+    };
+    await AppDatabase.instance.medicalCardDao.saveMedicalCard(map);
+  }
+
   Future<void> updateProfile(UserProfile updatedProfile, {required String actorRole}) async {
     _profile = updatedProfile;
     _profileController.add(_profile!);
+
+    // Persistencia SQLite
+    await _saveToLocalDb(updatedProfile);
+
+    // Encola mutación en SyncManager
+    await SyncManager.instance.enqueueLocalMutation(
+      entityType: 'user_profile',
+      entityId: updatedProfile.userId,
+      operation: 'UPDATE',
+      payload: updatedProfile.toJson(),
+    );
 
     await AuditService().logEvent(
       eventType: AuditEventType.emergencyProfileUpdated,

@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:innovatec_mobile/core/audit/audit_event.dart';
 import 'package:innovatec_mobile/core/audit/audit_service.dart';
 import 'package:innovatec_mobile/core/security/crypto_service.dart';
+import 'package:innovatec_mobile/database/app_database.dart';
 import 'package:innovatec_mobile/features/families/domain/models/family_group.dart';
 import 'package:innovatec_mobile/features/families/domain/models/family_member.dart';
+import 'package:innovatec_mobile/sync/sync_manager.dart';
 
 /// Servicio gestor de Familias y Núcleos de Confianza Offline-First.
 class FamilyService {
@@ -76,6 +78,21 @@ class FamilyService {
       ],
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
     );
+
+    // Persiste en SQLite
+    AppDatabase.instance.familiesDao.insertOrUpdateFamily({
+      'id': _currentFamily!.id,
+      'family_name': _currentFamily!.familyName,
+      'emergency_meeting_point': _currentFamily!.meetingPointLocation,
+      'representative_contact': _currentFamily!.headOfHouseholdUserId,
+      'notes': '',
+      'last_status_update': DateTime.now().toUtc().toIso8601String(),
+    });
+    AppDatabase.instance.familiesDao.insertOrUpdateMembers(
+      _currentFamily!.id,
+      _currentFamily!.members.map((m) => m.toJson()).toList(),
+    );
+
     _familyController.add(_currentFamily);
   }
 
@@ -105,6 +122,26 @@ class FamilyService {
 
     _currentFamily = _currentFamily!.copyWith(members: updatedMembers);
     _familyController.add(_currentFamily);
+
+    // Persistencia SQLite
+    await AppDatabase.instance.familiesDao.insertOrUpdateMembers(
+      _currentFamily!.id,
+      updatedMembers.map((m) => m.toJson()).toList(),
+    );
+
+    // Encolar mutación
+    await SyncManager.instance.enqueueLocalMutation(
+      entityType: 'family_member_status',
+      entityId: memberId,
+      operation: 'UPDATE',
+      payload: {
+        'familyId': _currentFamily!.id,
+        'memberId': memberId,
+        'newStatus': newStatus.name,
+        'shelter': shelterName,
+        'location': lastKnownLocation,
+      },
+    );
 
     await AuditService().logEvent(
       eventType: AuditEventType.familyMemberStatusChanged,
@@ -153,6 +190,20 @@ class FamilyService {
         );
 
     _familyController.add(_currentFamily);
+
+    // Persistencia SQLite
+    await AppDatabase.instance.familiesDao.insertOrUpdateMembers(
+      _currentFamily!.id,
+      members.map((m) => m.toJson()).toList(),
+    );
+
+    // Encolar mutación
+    await SyncManager.instance.enqueueLocalMutation(
+      entityType: 'family_member',
+      entityId: newMember.id,
+      operation: 'CREATE',
+      payload: newMember.toJson(),
+    );
 
     await AuditService().logEvent(
       eventType: AuditEventType.familyCreated,

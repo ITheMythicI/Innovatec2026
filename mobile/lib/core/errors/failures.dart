@@ -1,4 +1,4 @@
-/// Jerarquía base de fallos y excepciones para la aplicación.
+/// Jerarquía base de fallos y excepciones para la aplicación móvil.
 abstract class Failure {
   final String message;
   final dynamic cause;
@@ -28,4 +28,24 @@ class DatabaseFailure extends Failure {
 /// Fallo en el proceso de sincronización offline.
 class SyncFailure extends Failure {
   const SyncFailure([super.message = 'Error al sincronizar datos', super.cause]);
+}
+
+/// Fallo por falta de permisos o sesión inválida/expirada.
+class AuthFailure extends Failure {
+  const AuthFailure([super.message = 'No autorizado o sesión expirada', super.cause]);
+}
+
+/// Fallo de validación de campos obligatorios o formato incorrecto.
+class ValidationFailure extends Failure {
+  const ValidationFailure([super.message = 'Datos de entrada inválidos', super.cause]);
+}
+
+/// Fallo cuando un recurso no fue encontrado.
+class NotFoundFailure extends Failure {
+  const NotFoundFailure([super.message = 'Recurso no encontrado', super.cause]);
+}
+
+/// Fallo por conflicto de versiones en concurrencia offline/online.
+class ConflictFailure extends Failure {
+  const ConflictFailure([super.message = 'Conflicto de sincronización detectado', super.cause]);
 }

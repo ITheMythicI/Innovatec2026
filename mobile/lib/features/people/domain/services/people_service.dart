@@ -3,7 +3,9 @@ import 'package:innovatec_mobile/core/audit/audit_event.dart';
 import 'package:innovatec_mobile/core/audit/audit_service.dart';
 import 'package:innovatec_mobile/core/security/crypto_service.dart';
 import 'package:innovatec_mobile/core/security/roles_and_permissions.dart';
+import 'package:innovatec_mobile/database/app_database.dart';
 import 'package:innovatec_mobile/features/people/domain/models/person_report.dart';
+import 'package:innovatec_mobile/sync/sync_manager.dart';
 
 /// Servicio Offline-First para Personas Desaparecidas, Encontradas y Protocolo de Menores.
 class PeopleService {
@@ -102,6 +104,12 @@ class PeopleService {
         updatedAt: DateTime.now().subtract(const Duration(hours: 3)),
       ),
     ]);
+
+    // Persiste en SQLite local
+    for (final r in _reports) {
+      AppDatabase.instance.peopleDao.insertOrUpdate(r.toJson());
+    }
+
     _reportsController.add(_reports);
   }
 
@@ -181,6 +189,17 @@ class PeopleService {
     _reports.insert(0, newReport);
     _reportsController.add(_reports);
 
+    // Persistencia SQLite
+    await AppDatabase.instance.peopleDao.insertOrUpdate(newReport.toJson());
+
+    // Encola mutación en cola de sincronización offline
+    await SyncManager.instance.enqueueLocalMutation(
+      entityType: 'person_report',
+      entityId: newReport.id,
+      operation: 'CREATE',
+      payload: newReport.toJson(),
+    );
+
     await AuditService().logEvent(
       eventType: type == PersonReportType.missing
           ? AuditEventType.missingPersonReported
@@ -227,6 +246,17 @@ class PeopleService {
 
     _reports[index] = updatedReport;
     _reportsController.add(_reports);
+
+    // Persistencia SQLite
+    await AppDatabase.instance.peopleDao.insertOrUpdate(updatedReport.toJson());
+
+    // Encola mutación en cola de sincronización offline
+    await SyncManager.instance.enqueueLocalMutation(
+      entityType: 'person_report',
+      entityId: updatedReport.id,
+      operation: 'UPDATE',
+      payload: updatedReport.toJson(),
+    );
 
     await AuditService().logEvent(
       eventType: oldReport.isMinor

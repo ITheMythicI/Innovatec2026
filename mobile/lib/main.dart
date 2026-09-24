@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'core/theme/resguardo_theme.dart';
 import 'core/security/roles_and_permissions.dart';
+import 'database/app_database.dart';
 import 'features/auth/domain/services/auth_service.dart';
+import 'features/emergencies/presentation/screens/emergencies_screen.dart';
+import 'features/shelters/presentation/screens/shelters_screen.dart';
+import 'features/reports/presentation/screens/reports_screen.dart';
 import 'features/people/presentation/screens/missing_persons_screen.dart';
 import 'features/families/presentation/screens/family_hub_screen.dart';
 import 'features/user_profile/presentation/screens/medical_card_screen.dart';
 import 'features/audit/presentation/screens/audit_log_screen.dart';
+import 'sync/sync_event.dart';
+import 'sync/sync_manager.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppDatabase.instance.initialize();
   runApp(const InnovatecApp());
 }
 
@@ -17,21 +25,9 @@ class InnovatecApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Innovatec 2026 - Respuesta ante Desastres',
+      title: 'Resguardo - Innovatec 2026',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF10141A),
-        primaryColor: Colors.redAccent,
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.redAccent,
-          secondary: Colors.tealAccent,
-          surface: Color(0xFF181E27),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF151A22),
-          elevation: 0,
-        ),
-      ),
+      theme: ResguardoTheme.lightTheme,
       home: const MainNavigationHub(),
     );
   }
@@ -48,6 +44,9 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
+    EmergenciesScreen(),
+    SheltersScreen(),
+    ReportsScreen(),
     MissingPersonsScreen(),
     FamilyHubScreen(),
     MedicalCardScreen(),
@@ -66,51 +65,93 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(48),
             child: Container(
-              color: const Color(0xFF0D1117),
+              color: ResguardoTheme.primary,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: SafeArea(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Indicador de Conectividad Offline-First
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.greenAccent,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          'OFFLINE-FIRST (Malla Activa)',
-                          style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                    // Indicador de Conectividad y Cola Offline-First (Design.md)
+                    StreamBuilder<SyncStatus>(
+                      stream: SyncManager.instance.syncStatusStream,
+                      initialData: SyncStatus.synced,
+                      builder: (context, syncSnap) {
+                        return StreamBuilder<int>(
+                          stream: SyncManager.instance.pendingCountStream,
+                          initialData: 0,
+                          builder: (context, countSnap) {
+                            final pending = countSnap.data ?? 0;
+                            final status = syncSnap.data ?? SyncStatus.synced;
+                            final isSyncing = status == SyncStatus.syncing;
+
+                            Color statusColor = ResguardoTheme.safeEmerald;
+                            String statusText = 'OFFLINE-FIRST (Malla Activa)';
+
+                            if (isSyncing) {
+                              statusColor = Colors.lightBlueAccent;
+                              statusText = 'SINCRONIZANDO CON BACKEND...';
+                            } else if (pending > 0) {
+                              statusColor = ResguardoTheme.warningAmber;
+                              statusText = 'OFFLINE ($pending PENDIENTES)';
+                            }
+
+                            return GestureDetector(
+                              onTap: () {
+                                SyncManager.instance.synchronizePendingEvents();
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: statusColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    statusText,
+                                    style: TextStyle(
+                                      fontFamily: 'JetBrains Mono',
+                                      color: statusColor,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
 
                     // Selector Rápido de Rol para Pruebas y Despacho
                     PopupMenuButton<UserRole>(
-                      color: const Color(0xFF1E2632),
+                      color: ResguardoTheme.surface,
                       tooltip: 'Cambiar Rol de Usuario',
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF222C3A),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.tealAccent.withOpacity(0.4)),
+                          color: const Color(0xFF182942),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.white24),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.security, size: 12, color: Colors.tealAccent),
+                            const Icon(Icons.security, size: 12, color: Colors.white),
                             const SizedBox(width: 4),
                             Text(
                               'Rol: ${currentRole.displayName}',
-                              style: const TextStyle(color: Colors.tealAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            const Icon(Icons.arrow_drop_down, size: 14, color: Colors.tealAccent),
+                            const Icon(Icons.arrow_drop_down, size: 14, color: Colors.white),
                           ],
                         ),
                       ),
@@ -127,14 +168,16 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
                                 Icon(
                                   r == currentRole ? Icons.check_circle : Icons.circle_outlined,
                                   size: 16,
-                                  color: r == currentRole ? Colors.tealAccent : Colors.grey,
+                                  color: r == currentRole ? ResguardoTheme.primary : ResguardoTheme.textMuted,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   r.displayName,
                                   style: TextStyle(
-                                    color: r == currentRole ? Colors.tealAccent : Colors.white,
+                                    fontFamily: 'Inter',
+                                    color: r == currentRole ? ResguardoTheme.primary : ResguardoTheme.onSurfaceVariant,
                                     fontSize: 12,
+                                    fontWeight: r == currentRole ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                               ],
@@ -151,18 +194,35 @@ class _MainNavigationHubState extends State<MainNavigationHub> {
           body: _screens[_currentIndex],
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFF222A36), width: 1)),
+              border: Border(top: BorderSide(color: ResguardoTheme.outline, width: 1)),
             ),
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
               onTap: (index) => setState(() => _currentIndex = index),
-              backgroundColor: const Color(0xFF13171F),
-              selectedItemColor: Colors.tealAccent,
-              unselectedItemColor: Colors.grey.shade600,
+              backgroundColor: ResguardoTheme.surface,
+              selectedItemColor: ResguardoTheme.primary,
+              unselectedItemColor: ResguardoTheme.textMuted,
               selectedFontSize: 11,
-              unselectedFontSize: 11,
+              unselectedFontSize: 10,
               type: BottomNavigationBarType.fixed,
+              selectedLabelStyle: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w700),
+              unselectedLabelStyle: const TextStyle(fontFamily: 'Inter'),
               items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.warning_amber_rounded),
+                  activeIcon: Icon(Icons.warning),
+                  label: 'SOS / Alertas',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.night_shelter_outlined),
+                  activeIcon: Icon(Icons.night_shelter),
+                  label: 'Albergues',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assignment_outlined),
+                  activeIcon: Icon(Icons.assignment),
+                  label: 'Reportes',
+                ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_search_outlined),
                   activeIcon: Icon(Icons.person_search),
