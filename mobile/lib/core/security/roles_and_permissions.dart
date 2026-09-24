@@ -54,9 +54,27 @@ extension UserRoleExtension on UserRole {
     }
   }
 
+  String get toBackendRole {
+    switch (this) {
+      case UserRole.citizen:
+        return 'USER';
+      case UserRole.volunteer:
+        return 'USER';
+      case UserRole.shelterAdmin:
+        return 'OPERATOR';
+      case UserRole.organizationWorker:
+        return 'OPERATOR';
+      case UserRole.authority:
+        return 'COMMANDER';
+      case UserRole.systemAdmin:
+        return 'SUPER_ADMIN';
+    }
+  }
+
   static UserRole fromCode(String code) {
     switch (code.toUpperCase()) {
       case 'CITIZEN':
+      case 'USER':
         return UserRole.citizen;
       case 'VOLUNTEER':
         return UserRole.volunteer;
@@ -65,9 +83,14 @@ extension UserRoleExtension on UserRole {
       case 'NGO_WORKER':
         return UserRole.organizationWorker;
       case 'AUTHORITY':
+      case 'COMMANDER':
+      case 'OPERATOR':
         return UserRole.authority;
       case 'SYS_ADMIN':
+      case 'SUPER_ADMIN':
         return UserRole.systemAdmin;
+      case 'VIEWER':
+        return UserRole.citizen;
       default:
         return UserRole.citizen;
     }

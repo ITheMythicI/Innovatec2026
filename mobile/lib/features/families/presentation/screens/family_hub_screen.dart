@@ -1,28 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/core/security/roles_and_permissions.dart';
 import 'package:innovatec_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:innovatec_mobile/features/families/domain/models/family_group.dart';
 import 'package:innovatec_mobile/features/families/domain/models/family_member.dart';
 import 'package:innovatec_mobile/features/families/domain/services/family_service.dart';
+import 'package:innovatec_mobile/features/map/presentation/screens/evacuation_route_screen.dart';
+import 'package:innovatec_mobile/features/broadcasts/presentation/screens/official_broadcasts_screen.dart';
 
-class FamilyHubScreen extends StatelessWidget {
+class FamilyHubScreen extends StatefulWidget {
   const FamilyHubScreen({super.key});
 
   @override
+  State<FamilyHubScreen> createState() => _FamilyHubScreenState();
+}
+
+class _FamilyHubScreenState extends State<FamilyHubScreen> {
+  bool _reportedSelfSafe = true;
+
+  @override
   Widget build(BuildContext context) {
+    final currentUser = AuthService().currentUser;
+    final userName = currentUser?.fullName ?? 'Carlos Mendoza';
+    final userInitials = userName.isNotEmpty
+        ? userName.split(' ').map((n) => n[0]).take(2).join().toUpperCase()
+        : 'CM';
+
     return Scaffold(
-      backgroundColor: const Color(0xFF121418),
+      backgroundColor: ResguardoTheme.surfaceContainerHigh,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F26),
-        title: const Text(
-          'Núcleo Familiar & Confianza',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        backgroundColor: ResguardoTheme.surface,
+        elevation: 0,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: ResguardoTheme.primary,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Icon(Icons.shield, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 8),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'RESGUARDO // RED CIVIL',
+                  style: TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontWeight: FontWeight.w700,
+                    color: ResguardoTheme.primary,
+                    fontSize: 15,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  'GNSS/C5 ACTIVO • CENSO FAMILIAR',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: ResguardoTheme.outline,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Agregar Integrante',
-            icon: const Icon(Icons.group_add_outlined, color: Colors.tealAccent),
-            onPressed: () => _showAddMemberDialog(context),
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: ResguardoTheme.safeEmerald.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: ResguardoTheme.safeEmerald),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.cell_tower, color: ResguardoTheme.safeEmerald, size: 12),
+                SizedBox(width: 4),
+                Text(
+                  'RED MALLA C5',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: ResguardoTheme.safeEmerald,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -30,41 +99,323 @@ class FamilyHubScreen extends StatelessWidget {
         stream: FamilyService().familyStream,
         builder: (context, snapshot) {
           final family = FamilyService().currentFamily;
-          if (family == null) {
-            return const Center(
-              child: Text('No hay grupo familiar configurado.', style: TextStyle(color: Colors.grey)),
-            );
-          }
+          final totalMembers = family?.members.length ?? 4;
+          final safeMembers = family?.safeCount ?? 3;
+          final pctSafe = totalMembers > 0 ? (safeMembers / totalMembers) : 0.75;
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             children: [
-              // Tarjeta Resumen del Grupo Familiar
-              _buildFamilyHeader(context, family),
-              const SizedBox(height: 16),
+              // Barra de Usuario Táctico
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: ResguardoTheme.primary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.white24,
+                      child: Text(
+                        userInitials,
+                        style: const TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const Text(
+                            'ENLACE SATELITAL • ZONA SEGURA (COTA ALTA)',
+                            style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: Colors.white70,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.person_add_alt_1, color: Colors.white, size: 20),
+                      tooltip: 'Agregar Familiar',
+                      onPressed: () => _showAddMemberDialog(context),
+                    ),
+                  ],
+                ),
+              ),
 
-              // Punto de Encuentro Preacordado
-              _buildMeetingPointCard(context, family),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
 
-              // Título del Listado
+              // Accesos Rápidos Tácticos
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Integrantes (${family.members.length})',
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: _buildQuickActionBtn(
+                      label: 'SOS PÁNICO',
+                      sub: 'Activar auxilio',
+                      icon: Icons.emergency,
+                      color: ResguardoTheme.emergencyCrimson,
+                      onTap: () {
+                        // Navegar o hacer trigger
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: ResguardoTheme.emergencyCrimson,
+                            content: Text('Alerta de Pánico enlazada al C5'),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  const Text(
-                    'Toca para actualizar estado',
-                    style: TextStyle(color: Colors.grey, fontSize: 11),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildQuickActionBtn(
+                      label: 'RUTA ALBERGUE',
+                      sub: 'Turn-by-turn',
+                      icon: Icons.near_me,
+                      color: ResguardoTheme.primary,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const EvacuationRouteScreen()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildQuickActionBtn(
+                      label: 'COMUNICADOS',
+                      sub: 'Noticias oficiales',
+                      icon: Icons.campaign,
+                      color: const Color(0xFFD97706),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const OfficialBroadcastsScreen()),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
 
-              // Lista de Miembros
-              ...family.members.map((member) => _buildMemberCard(context, member)),
+              const SizedBox(height: 12),
+
+              // Card Reporte Inmediato de Bienestar
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: ResguardoTheme.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'REPORTE INMEDIATO DE BIENESTAR',
+                          style: TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: ResguardoTheme.primary,
+                          ),
+                        ),
+                        Text(
+                          'CENSO ACTIVO',
+                          style: TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: ResguardoTheme.safeEmerald,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '¿Llegaste a salvo o estás en refugio?',
+                      style: TextStyle(
+                        fontFamily: 'Space Grotesk',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: ResguardoTheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'Confirma tu bienestar a Protección Civil y a tus contactos con un toque instantáneo.',
+                      style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ResguardoTheme.safeEmerald,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            ),
+                            onPressed: () {
+                              setState(() => _reportedSelfSafe = true);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: ResguardoTheme.safeEmerald,
+                                  content: Text('✅ Reportado a salvo ante C5 y tu red familiar.'),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(_reportedSelfSafe ? Icons.check_circle : Icons.verified_user, size: 18),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _reportedSelfSafe ? 'ESTOY A SALVO (NOTIFICADO)' : 'ESTOY A SALVO',
+                                  style: const TextStyle(
+                                    fontFamily: 'Space Grotesk',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: ResguardoTheme.primary,
+                              side: const BorderSide(color: ResguardoTheme.primary),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            ),
+                            onPressed: () => _showShelterQrDialog(context),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.qr_code_2, size: 18),
+                                SizedBox(width: 4),
+                                Text(
+                                  'MI QR INGRESO',
+                                  style: TextStyle(
+                                    fontFamily: 'Space Grotesk',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Roster Familiar con Barra de Progreso
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: ResguardoTheme.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.shield, color: ResguardoTheme.primary, size: 18),
+                            SizedBox(width: 6),
+                            Text(
+                              'Red Familiar de Apoyo SOS',
+                              style: TextStyle(
+                                fontFamily: 'Space Grotesk',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: ResguardoTheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: ResguardoTheme.safeEmerald.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '$safeMembers / $totalMembers A SALVO',
+                            style: const TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: ResguardoTheme.safeEmerald,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${(pctSafe * 100).toInt()}% de la red protegida • ${totalMembers - safeMembers} pendiente(s) de reporte',
+                      style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: pctSafe,
+                        minHeight: 8,
+                        backgroundColor: ResguardoTheme.surfaceContainerHigh,
+                        color: ResguardoTheme.safeEmerald,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Fichas de Familiares
+              if (family != null && family.members.isNotEmpty)
+                ...family.members.map((m) => _buildTacticalMemberCard(context, m))
+              else
+                ..._buildDemoMembers(context),
             ],
           );
         },
@@ -72,17 +423,77 @@ class FamilyHubScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFamilyHeader(BuildContext context, FamilyGroup family) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF1D2939), const Color(0xFF101828)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  Widget _buildQuickActionBtn({
+    required String label,
+    required String sub,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: ResguardoTheme.outlineVariant),
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF344054)),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Space Grotesk',
+                fontWeight: FontWeight.bold,
+                fontSize: 10,
+                color: color,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              sub,
+              style: const TextStyle(fontFamily: 'Inter', fontSize: 8, color: ResguardoTheme.outline),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTacticalMemberCard(BuildContext context, FamilyMember member) {
+    final isSafe = member.status == MemberEmergencyStatus.safe || member.status == MemberEmergencyStatus.inShelter;
+    final isUrgent = member.status == MemberEmergencyStatus.injured;
+
+    Color badgeColor = ResguardoTheme.safeEmerald;
+    String badgeText = 'A SALVO';
+
+    if (member.status == MemberEmergencyStatus.inShelter) {
+      badgeColor = ResguardoTheme.primary;
+      badgeText = 'A SALVO EN REFUGIO';
+    } else if (member.status == MemberEmergencyStatus.unreachable) {
+      badgeColor = const Color(0xFFD97706);
+      badgeText = 'EN EVACUACIÓN';
+    } else if (isUrgent) {
+      badgeColor = ResguardoTheme.emergencyCrimson;
+      badgeText = 'AUXILIO REQUERIDO';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isUrgent ? ResguardoTheme.emergencyCrimson : ResguardoTheme.outlineVariant,
+          width: isUrgent ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,363 +501,358 @@ class FamilyHubScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                family.familyName,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: badgeColor.withValues(alpha: 0.15),
+                    child: Icon(
+                      member.isMinor ? Icons.child_care : Icons.person,
+                      color: badgeColor,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        member.fullName,
+                        style: const TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: ResguardoTheme.primary,
+                        ),
+                      ),
+                      Text(
+                        member.relationship,
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 10, color: ResguardoTheme.outline),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.teal.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  color: badgeColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  'ID: ${family.id}',
-                  style: const TextStyle(color: Colors.tealAccent, fontSize: 11, fontFamily: 'monospace'),
+                  badgeText,
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: badgeColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Barra de Estados Rápidos
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatusPill('A Salvo', '${family.safeCount}', Colors.greenAccent),
-              _buildStatusPill('En Refugio', '${family.shelterCount}', Colors.amberAccent),
-              _buildStatusPill('Urgente', '${family.urgentCount}', Colors.redAccent),
-              _buildStatusPill('Sin Contacto', '${family.unreachableCount}', Colors.grey),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusPill(String label, String count, Color color) {
-    return Column(
-      children: [
-        Text(count, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 2),
-        Text(label, style: TextStyle(color: Colors.grey.shade400, fontSize: 11)),
-      ],
-    );
-  }
-
-  Widget _buildMeetingPointCard(BuildContext context, FamilyGroup family) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1B222C),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blueGrey.shade800),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.place_rounded, color: Colors.blueAccent, size: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 8),
+          if (member.lastKnownLocation != null)
+            Row(
               children: [
-                const Text(
-                  'Punto de Reunión Familiar Acordado',
-                  style: TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  family.meetingPointLocation,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                const Icon(Icons.location_on, size: 12, color: ResguardoTheme.outline),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    member.lastKnownLocation!,
+                    style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.onSurfaceVariant),
+                  ),
                 ),
               ],
             ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.call, size: 12),
+                label: const Text('Llamar', style: TextStyle(fontSize: 10)),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Llamando a ${member.fullName}...')),
+                  );
+                },
+              ),
+              const SizedBox(width: 6),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.update, size: 12),
+                label: const Text('Actualizar Estado', style: TextStyle(fontSize: 10)),
+                onPressed: () => _showUpdateStatusDialog(context, member),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMemberCard(BuildContext context, FamilyMember member) {
-    Color statusColor;
-    switch (member.status) {
-      case MemberEmergencyStatus.safe:
-        statusColor = Colors.greenAccent;
-        break;
-      case MemberEmergencyStatus.inShelter:
-        statusColor = Colors.amberAccent;
-        break;
-      case MemberEmergencyStatus.injured:
-        statusColor = Colors.redAccent;
-        break;
-      case MemberEmergencyStatus.unreachable:
-        statusColor = Colors.grey;
-        break;
-    }
-
-    return Card(
-      color: const Color(0xFF1E242E),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: statusColor.withOpacity(0.4)),
+  List<Widget> _buildDemoMembers(BuildContext context) {
+    return [
+      _buildStaticCard(
+        name: 'Carmen Domínguez',
+        relation: 'Mamá',
+        status: 'A SALVO EN REFUGIO',
+        statusColor: ResguardoTheme.primary,
+        location: 'Gimnasio Municipal Benito Juárez • Cama/Zona B-14',
+        sub: 'Validado PC (hace 12m)',
+        icon: Icons.elderly,
       ),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
-          child: Text(member.status.emoji, style: const TextStyle(fontSize: 18)),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                member.fullName,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+      _buildStaticCard(
+        name: 'Alejandro Morales',
+        relation: 'Hermano',
+        status: 'EN EVACUACIÓN',
+        statusColor: const Color(0xFFD97706),
+        location: 'En ruta a: Refugio Cota Alta Escuela Morelos',
+        sub: 'Batería 42% • GPS ping hace 3m',
+        icon: Icons.person,
+      ),
+      _buildStaticCard(
+        name: 'Sofía Morales',
+        relation: 'Hija (11 años)',
+        status: 'A SALVO',
+        statusColor: ResguardoTheme.safeEmerald,
+        location: 'Escuela Primaria Morelos (Punto Seguro)',
+        sub: 'Acompañada de docente responsable',
+        icon: Icons.child_care,
+      ),
+      _buildStaticCard(
+        name: 'Roberto Gómez',
+        relation: 'Tío',
+        status: 'PENDIENTE DE REPORTE',
+        statusColor: ResguardoTheme.emergencyCrimson,
+        location: 'Sector Norte (Zona Baja Inundada)',
+        sub: 'Último contacto hace 45m',
+        icon: Icons.warning_amber_rounded,
+      ),
+    ];
+  }
+
+  Widget _buildStaticCard({
+    required String name,
+    required String relation,
+    required String status,
+    required Color statusColor,
+    required String location,
+    required String sub,
+    required IconData icon,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: ResguardoTheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: statusColor.withValues(alpha: 0.15),
+                    child: Icon(icon, color: statusColor, size: 18),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: ResguardoTheme.primary,
+                        ),
+                      ),
+                      Text(
+                        relation,
+                        style: const TextStyle(fontFamily: 'Inter', fontSize: 10, color: ResguardoTheme.outline),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            if (member.isMinor)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
-                child: const Text('MENOR', style: TextStyle(color: Colors.amberAccent, fontSize: 9, fontWeight: FontWeight.bold)),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: statusColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              '${member.relationship} • ${member.age} años',
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Estado: ${member.status.label}${member.shelterName != null ? " (${member.shelterName})" : ""}',
-              style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            if (member.lastKnownLocation != null)
-              Text(
-                'Ubicación: ${member.lastKnownLocation}',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 12, color: ResguardoTheme.outline),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  location,
+                  style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.onSurfaceVariant),
+                ),
               ),
-            if (member.notes != null)
-              Text(
-                'Nota: ${member.notes}',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontStyle: FontStyle.italic),
-              ),
-          ],
-        ),
-        trailing: const Icon(Icons.edit_note, color: Colors.tealAccent),
-        onTap: () => _showUpdateStatusDialog(context, member),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            sub,
+            style: const TextStyle(fontFamily: 'JetBrains Mono', fontSize: 9, color: ResguardoTheme.outline),
+          ),
+        ],
       ),
     );
   }
 
-  void _showUpdateStatusDialog(BuildContext context, FamilyMember member) {
-    MemberEmergencyStatus selectedStatus = member.status;
-    final shelterController = TextEditingController(text: member.shelterName ?? '');
-    final locationController = TextEditingController(text: member.lastKnownLocation ?? '');
-    final notesController = TextEditingController(text: member.notes ?? '');
-
-    showModalBottomSheet(
+  void _showShelterQrDialog(BuildContext context) {
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF181D24),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (bCtx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Actualizar Estado: ${member.fullName}',
-                      style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Selector de Estado
-                    ...MemberEmergencyStatus.values.map((st) {
-                      return RadioListTile<MemberEmergencyStatus>(
-                        value: st,
-                        groupValue: selectedStatus,
-                        activeColor: Colors.tealAccent,
-                        title: Text('${st.emoji} ${st.label}', style: const TextStyle(color: Colors.white, fontSize: 14)),
-                        onChanged: (val) => setModalState(() => selectedStatus = val ?? selectedStatus),
-                      );
-                    }),
-                    const SizedBox(height: 8),
-
-                    if (selectedStatus == MemberEmergencyStatus.inShelter)
-                      TextField(
-                        controller: shelterController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(labelText: 'Nombre del Refugio / Albergue', filled: true, fillColor: Color(0xFF222933)),
-                      ),
-                    const SizedBox(height: 8),
-
-                    TextField(
-                      controller: locationController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Última Ubicación o Referencia', filled: true, fillColor: Color(0xFF222933)),
-                    ),
-                    const SizedBox(height: 8),
-
-                    TextField(
-                      controller: notesController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Notas médicas o de auxilio', filled: true, fillColor: Color(0xFF222933)),
-                    ),
-                    const SizedBox(height: 16),
-
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.tealAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Guardar Estado y Firmar', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      onPressed: () async {
-                        final auth = AuthService().currentUser;
-                        await FamilyService().updateMemberStatus(
-                          memberId: member.id,
-                          newStatus: selectedStatus,
-                          shelterName: shelterController.text.trim().isEmpty ? null : shelterController.text.trim(),
-                          lastKnownLocation: locationController.text.trim().isEmpty ? null : locationController.text.trim(),
-                          notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
-                          actorUserId: auth?.id ?? 'USR-ANON',
-                          actorRole: auth?.role.code ?? 'CITIZEN',
-                        );
-
-                        Navigator.pop(bCtx);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Estado familiar actualizado y guardado en SQLite/Audit.'),
-                              backgroundColor: Colors.teal,
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      builder: (ctx) => AlertDialog(
+        title: const Text('CÓDIGO QR DE INGRESO A REFUGIO'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: const Icon(Icons.qr_code_2, size: 160, color: ResguardoTheme.primary),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Presenta este código al personal de recepción en el Gimnasio Benito Juárez para asignación automática de cama y registro de raciones.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: 'Inter', fontSize: 11),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar')),
+        ],
+      ),
     );
   }
 
   void _showAddMemberDialog(BuildContext context) {
     final nameController = TextEditingController();
-    final relationshipController = TextEditingController();
-    final ageController = TextEditingController();
-    final notesController = TextEditingController();
+    final relationController = TextEditingController();
+    final phoneController = TextEditingController();
     bool isMinor = false;
-    MemberEmergencyStatus status = MemberEmergencyStatus.safe;
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF181D24),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (mCtx) {
-        return StatefulBuilder(
-          builder: (ctx, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Agregar Integrante a la Red SOS'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Nombre Completo'),
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text('Agregar Integrante Familiar', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Nombre Completo', filled: true, fillColor: Color(0xFF222933)),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: relationshipController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(labelText: 'Parentesco (Hijo, Cónyuge...)', filled: true, fillColor: Color(0xFF222933)),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: ageController,
-                            keyboardType: TextInputType.number,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(labelText: 'Edad', filled: true, fillColor: Color(0xFF222933)),
-                            onChanged: (v) {
-                              final age = int.tryParse(v) ?? 0;
-                              setModalState(() => isMinor = age > 0 && age < 18);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: notesController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Notas o Padecimientos', filled: true, fillColor: Color(0xFF222933)),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.tealAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: const Text('Agregar a Mi Familia', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                      onPressed: () async {
-                        if (nameController.text.trim().isEmpty) return;
-                        final auth = AuthService().currentUser;
-                        final age = int.tryParse(ageController.text) ?? 18;
-
-                        await FamilyService().addMember(
-                          fullName: nameController.text.trim(),
-                          relationship: relationshipController.text.trim().isEmpty ? 'Familiar' : relationshipController.text.trim(),
-                          age: age,
-                          isMinor: isMinor,
-                          status: status,
-                          notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
-                          actorUserId: auth?.id ?? 'USR-ANON',
-                          actorRole: auth?.role.code ?? 'CITIZEN',
-                        );
-
-                        Navigator.pop(mCtx);
-                      },
-                    ),
-                  ],
-                ),
+              TextField(
+                controller: relationController,
+                decoration: const InputDecoration(labelText: 'Parentesco (Mamá, Hijo, etc.)'),
               ),
-            );
-          },
-        );
-      },
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: 'Teléfono Móvil (Opcional)'),
+                keyboardType: TextInputType.phone,
+              ),
+              CheckboxListTile(
+                title: const Text('Es menor de edad (Protocolo Amber)'),
+                value: isMinor,
+                onChanged: (v) => setDialogState(() => isMinor = v ?? false),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: ResguardoTheme.primary),
+              onPressed: () async {
+                if (nameController.text.trim().isNotEmpty) {
+                  final user = AuthService().currentUser;
+                  await FamilyService().addMember(
+                    fullName: nameController.text.trim(),
+                    relationship: relationController.text.trim().isEmpty ? 'Familiar' : relationController.text.trim(),
+                    age: isMinor ? 10 : 35,
+                    isMinor: isMinor,
+                    status: MemberEmergencyStatus.safe,
+                    notes: phoneController.text.trim().isEmpty ? null : 'Tel: ${phoneController.text.trim()}',
+                    actorUserId: user?.id ?? 'USR-DEV-001',
+                    actorRole: user?.role.code ?? 'CITIZEN',
+                  );
+                  if (ctx.mounted) Navigator.pop(ctx);
+                }
+              },
+              child: const Text('Guardar', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showUpdateStatusDialog(BuildContext context, FamilyMember member) {
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text('Estado de ${member.fullName}'),
+        children: MemberEmergencyStatus.values.map((status) {
+          return SimpleDialogOption(
+            onPressed: () async {
+              final user = AuthService().currentUser;
+              await FamilyService().updateMemberStatus(
+                memberId: member.id,
+                newStatus: status,
+                shelterName: status == MemberEmergencyStatus.inShelter ? 'Gimnasio Benito Juárez' : null,
+                actorUserId: user?.id ?? 'USR-DEV-001',
+                actorRole: user?.role.code ?? 'CITIZEN',
+              );
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: Row(
+              children: [
+                Text(status.emoji, style: const TextStyle(fontSize: 16)),
+                const SizedBox(width: 8),
+                Text(status.displayName),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

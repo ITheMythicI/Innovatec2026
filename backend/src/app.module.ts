@@ -12,6 +12,11 @@ import { ReportsModule } from './reports/reports.module';
 import { SyncModule } from './sync/sync.module';
 import { GeographyModule } from './geography/geography.module';
 import { DevicesModule } from './devices/devices.module';
+import { AdminModule } from './admin/admin.module';
+import { BroadcastsModule } from './broadcasts/broadcasts.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -19,6 +24,16 @@ import { DevicesModule } from './devices/devices.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', '..', 'dashboard'),
+      serveRoot: '/dashboard',
+    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     PrismaModule,
     HealthModule,
     AuthModule,
@@ -31,6 +46,8 @@ import { DevicesModule } from './devices/devices.module';
     SyncModule,
     DevicesModule,
     GeographyModule,
+    AdminModule,
+    BroadcastsModule,
   ],
 })
 export class AppModule {}

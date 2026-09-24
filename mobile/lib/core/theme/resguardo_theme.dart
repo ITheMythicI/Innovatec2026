@@ -37,6 +37,7 @@ class ResguardoTheme {
   static const Color warningAmberBorder = Color(0xFFFDE68A);
 
   static const Color outline = Color(0xFFE2E8F0);
+  static const Color outlineVariant = Color(0xFFCBD5E1);
   static const Color outlineFocused = Color(0xFF0A192F);
   static const Color inputBorder = Color(0xFFCBD5E1);
 

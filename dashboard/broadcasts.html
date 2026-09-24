@@ -1,0 +1,809 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#c6c6c6", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#ffb4ab", "background": "#f8f9ff", "error-container": "#ffdad6", "on-tertiary-fixed-variant": "#005320", "on-error-container": "#93000a", "inverse-surface": "#213145", "on-primary-container": "#848484", "surface-bright": "#f8f9ff", "primary": "#000000", "surface": "#f8f9ff", "on-error": "#ffffff", "surface-container-highest": "#d3e3ff", "surface-container-low": "#eff4ff", "on-primary-fixed-variant": "#474747", "tertiary-fixed": "#81fc98", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed": "#002109", "surface-dim": "#cbdbf5", "surface-container": "#e6eeff", "secondary": "#bb0112", "tertiary-container": "#002109", "on-surface": "#0b1c30", "on-secondary-fixed-variant": "#93000b", "on-tertiary-container": "#019842", "surface-tint": "#5e5e5e", "outline-variant": "#cfc4c5", "on-secondary": "#ffffff", "surface-container-high": "#dde9ff", "on-surface-variant": "#44474d", "secondary-container": "#e02928", "secondary-fixed": "#ffdad6", "primary-fixed": "#d6e3ff", "on-secondary-fixed": "#410002", "outline": "#75777e", "on-secondary-container": "#fffbff", "surface-container-lowest": "#ffffff", "surface-variant": "#d3e3ff", "on-primary": "#ffffff", "error": "#ba1a1a", "on-background": "#0b1c30", "primary-fixed-dim": "#c6c6c6", "tertiary-fixed-dim": "#62df7d", "tertiary": "#000000", "on-primary-fixed": "#0d1c32", "primary-container": "#1b1b1b" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-xl": "2.5rem", "margin": "1rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "3rem", "gutter": "1rem", "margin-tablet": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "display": [ "Space Grotesk" ], "headline-lg": [ "Space Grotesk" ], "label-md": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Space Grotesk" ], "display-mobile": [ "Space Grotesk" ], "title-md": [ "Inter" ], "title-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "label-sm": [ "JetBrains Mono" ], "body-lg": [ "Inter" ], "body-sm": [ "Inter" ], "label-lg": [ "JetBrains Mono" ], "headline-md": [ "Space Grotesk" ] }, "fontSize": { "display": [ "48px", { "lineHeight": "56px", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "40px", "fontWeight": "700" } ], "label-md": [ "12px", { "lineHeight": "16px", "fontWeight": "500" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "700" } ], "display-mobile": [ "36px", { "lineHeight": "44px", "fontWeight": "700" } ], "title-md": [ "16px", { "lineHeight": "22px", "fontWeight": "600" } ], "title-lg": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "26px", "fontWeight": "600" } ], "label-sm": [ "10px", { "lineHeight": "14px", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "label-lg": [ "14px", { "lineHeight": "18px", "fontWeight": "500" } ], "headline-md": [ "24px", { "lineHeight": "30px", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><img alt="Resguardo Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XPYkGdukbVJFxhYrtozMICEdZCM0TrfRE9nIr6XtiTc06uVfDxOra68KUjH0r0CdbCkcQAhCs8wMKygOBCLvC0Crm-rfi1F2fZp9ZzSuhD6G50pJQEQsRKoawUIkEfF77E28wWHQXq6SrAYjrst37UWXZwzCMUFrrNmH9kh6p-THqV3yrXpIwr2zs4MGEGXLVnqpimUZ7AyTpG82txHegShl2WKkLlnx2hdq3XbaIr7M8h0Cg-KEcWY4ML"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface leading-none">RESGUARDO</span><span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">CENTRO DE COMANDO &amp; OPERACIONES</span></div><div class="hidden xl:flex items-center gap-space-sm pl-space-md"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm tracking-wider animate-pulse"><span class="w-2 h-2 rounded-full bg-secondary"></span>ESTADO: ALERTA ROJA ACTIVA - ZONA NORTE</span></div></div><div class="flex items-center gap-space-md flex-shrink-0"><button class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md tracking-wider transition-colors shadow-[0_1px_8px_rgba(0,0,0,0.04)] cursor-pointer" onclick="document.getElementById('btn-broadcast-main')?.scrollIntoView({behavior: 'smooth'}); document.getElementById('btn-broadcast-main')?.focus();" title="Ir a Consola de Emisión Masiva (Broadcast)" type="button"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="hidden 2xl:inline">ACTIVAR ALERTA SONORA GENERAL (BROADCAST)</span><span class="2xl:hidden">BROADCAST</span></button><div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm tracking-wider"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>RED ACTIVA 99.8% ONLINE</div><div class="hidden md:flex flex-col text-right font-label-sm text-label-sm"><span class="text-on-surface font-semibold">14:38:22 UTC</span><span class="text-on-surface-variant">08:38:22 LOCAL (CST)</span></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="hidden sm:flex flex-col text-right leading-tight"><span class="font-label-md text-label-md text-on-surface font-semibold">Cmdte. J. Morales</span><span class="font-label-sm text-label-sm text-on-surface-variant">Operador Táctico #04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex flex-col justify-between py-space-md overflow-y-auto"><div class="flex flex-col gap-space-xs px-space-sm"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">CANALES DE CONTROL</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container text-on-surface font-semibold rounded-lg"><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="tablero-general" href="#"><span class="material-symbols-outlined text-[20px]">radar</span><span class="">Tablero General &amp; Mapa</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dispositivos-activacion" href="#"><span class="material-symbols-outlined text-[20px]">volume_up</span><span class="">Dispositivos &amp; Sirenas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="incidentes-sos" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="">Registro de Incidentes &amp; SOS</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="red-familiar" href="#"><span class="material-symbols-outlined text-[20px]">group_work</span><span class="">Red Familiar &amp; Personas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="metricas-analitica" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="">Métricas &amp; Analítica</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg bg-surface-container text-on-surface font-semibold font-body-md text-body-md" data-path="noticias-comunicados-app" href="#noticias-comunicados-app"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-secondary">campaign</span><span class="">Noticias &amp; Alertas App</span></div><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-[10px] font-label-sm font-semibold uppercase text-secondary">Broadcast</span></a></nav></div><div class="px-space-md my-space-xs"><div class="p-space-sm rounded-lg bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2 shadow-sm"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary">send_to_mobile</span><span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface">EMISIÓN NOTICIAS APP</span></div><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span></div><div class="flex items-center justify-between gap-1"><select class="w-full bg-surface-container-lowest font-label-sm text-[10px] text-on-surface px-2 py-1 rounded border border-outline-variant/30 focus:outline-none"><option>Alerta Oficial: Evacuación</option><option>Albergues Habilitados</option><option>Vialidad &amp; Rutas Seguras</option><option>Reporte Meteorológico</option></select></div><div class="flex items-center justify-between text-on-surface-variant font-label-sm text-[10px] px-1"><span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-secondary">priority_high</span>Prioridad Push</span><span class="font-mono text-on-surface font-semibold">Solo Texto Plano</span></div><textarea class="w-full h-16 p-2 rounded bg-surface-container-lowest border border-outline-variant/30 font-body-sm text-[11px] text-on-surface resize-none focus:outline-none" placeholder="Escriba comunicado oficial para la población civil..." rows="2"></textarea><div class="flex items-center justify-between font-label-sm text-[10px] text-on-surface-variant"><span class="flex items-center gap-0.5"><span class="material-symbols-outlined text-[12px] text-on-tertiary-container">cell_tower</span>Alcance: <strong class="text-on-surface ml-0.5">24,850 hab.</strong></span><span class="text-[9px]">SMS + LoRa + App</span></div><button class="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2 rounded bg-primary hover:bg-inverse-surface text-on-primary font-label-sm text-label-sm font-semibold transition-colors shadow-sm" onclick="alert('Emitiendo comunicado urgente a 24,850 dispositivos móviles conectados...')" type="button"><span class="material-symbols-outlined text-[14px]">podcasts</span><span class="">Emitir a App Móvil</span></button></div></div><div class="px-space-md"><div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm font-semibold text-on-surface">ENLACE SAT-CORE</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><p class="font-label-sm text-label-sm text-on-surface-variant">Nivel de latencia: 18ms</p><p class="font-label-sm text-label-sm text-on-surface-variant">Frecuencia: VHF 146.520 MHz</p></div></div></aside><div class="pl-72"><main class="relative pt-16 w-full px-gutter-desktop min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Banner Táctico Superior & Encabezado Operativo -->
+<div class="py-space-md mb-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-space-md">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm tracking-wider">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            DISPATCH EN VIVO :: PROTOCOLO CAP v1.2
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold tracking-wide">CANAL AUTORIZADO C5-PC</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg uppercase tracking-tight text-on-surface leading-none mt-1">
+          EMISIÓN DE COMUNICADOS Y ALERTAS MASIVAS
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-4xl">
+          Consola de difusión multicanal de Protección Civil y C5: Envío sincronizado a App Ciudadana, Red LoRa Mesh, SMS Cell Broadcast y Balizas Sonoras Comunitarias con cifrado perimetral.
+        </p>
+</div>
+<!-- Indicadores de Enlace de Difusión Global -->
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-2 rounded-lg shadow-sm flex-shrink-0">
+<div class="flex flex-col px-3 py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">VELOCIDAD DE DISPERSIÓN</span>
+<span class="font-label-lg text-label-lg font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[18px]">bolt</span>
+            &lt; 3.2s
+          </span>
+</div>
+<div class="w-px h-8 bg-outline-variant/30"></div>
+<div class="flex flex-col px-3 py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">DISPOSITIVOS LISTOS</span>
+<span class="font-label-lg text-label-lg font-bold text-on-tertiary-container flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">cell_tower</span>
+            24,850 hab.
+          </span>
+</div>
+<button class="px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold flex items-center gap-1.5 transition-colors" id="btn-quick-sync">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+          SYNC MALLA
+        </button>
+</div>
+</div>
+<!-- Barra de Métricas de Alcance y Canales Activos -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md mt-space-md">
+<!-- Métrica 1 -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">APP CIUDADANA PUSH</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface mt-0.5">98.4%</span>
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant flex items-center gap-1 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+            24,452 terminales online
+          </span>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[26px]">notifications_active</span>
+</div>
+</div>
+<!-- Métrica 2 -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">SMS / CELL BROADCAST</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface mt-0.5">99.8%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">check_circle</span>
+            Bandas B2/B4/B7 OK
+          </span>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[26px]">cell_tower</span>
+</div>
+</div>
+<!-- Métrica 3 -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">MALLA LoRa OFFLINE</span>
+<span class="font-headline-md text-headline-md font-bold text-tertiary-fixed-dim text-on-surface mt-0.5">18 NODOS</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+            915 MHz Cifrado AES-256
+          </span>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[26px]">hub</span>
+</div>
+</div>
+<!-- Métrica 4 -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-sm flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">SIRENAS Y BALIZAS</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface mt-0.5">148 / 150</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            2 en mantenimiento
+          </span>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[26px]">volume_up</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Consola Central de Creación & Mockup Preview -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg mb-space-xl">
+<!-- LADO IZQUIERDO: Formulario de Creación y Edición (8 Cols) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<!-- Panel de Configuración del Comunicado -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">emergency_share</span>
+<span class="font-title-md text-title-md uppercase tracking-wider text-on-surface font-bold">1. COMPOSITOR TÁCTICO DE EMISIÓN</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm">MODO: COMANDO C5 ACTIVO</span>
+</div>
+<!-- Selector de Severidad / Tipo de Alerta -->
+<div>
+<label class="block font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">
+            NIVEL DE PROTOCOLO Y SEVERIDAD CAP
+          </label>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" id="severity-selector">
+<button class="severity-btn p-3 rounded-lg text-left transition-all bg-secondary text-on-secondary shadow-sm flex flex-col justify-between h-24" data-type="evac" type="button">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider">ROJO // S-1</span>
+</div>
+<div>
+<span class="font-title-md text-title-md font-bold block leading-tight">Evacuación Inmediata</span>
+<span class="font-label-sm text-label-sm opacity-90">Riesgo vital inminente</span>
+</div>
+</button>
+<button class="severity-btn p-3 rounded-lg text-left transition-all bg-surface-container-low hover:bg-surface-container text-on-surface flex flex-col justify-between h-24" data-type="shelter" type="button">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-on-tertiary-container text-[20px]">night_shelter</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-tertiary-container">VERDE // S-4</span>
+</div>
+<div>
+<span class="font-title-md text-title-md font-bold block leading-tight">Albergues &amp; Rutas</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Logística y resguardo</span>
+</div>
+</button>
+<button class="severity-btn p-3 rounded-lg text-left transition-all bg-surface-container-low hover:bg-surface-container text-on-surface flex flex-col justify-between h-24" data-type="weather" type="button">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-secondary-container text-[20px]">storm</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary-container">ÁMBAR // S-2</span>
+</div>
+<div>
+<span class="font-title-md text-title-md font-bold block leading-tight">Meteorológica / Hidro</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Monitoreo y cautela</span>
+</div>
+</button>
+<button class="severity-btn p-3 rounded-lg text-left transition-all bg-surface-container-low hover:bg-surface-container text-on-surface flex flex-col justify-between h-24" data-type="supply" type="button">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-surface-tint text-[20px]">power_off</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-surface-tint">AZUL // S-3</span>
+</div>
+<div>
+<span class="font-title-md text-title-md font-bold block leading-tight">Suministros / Cortes</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Agua, red y energía</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Delimitación Geográfica / Polígono Táctico -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">CUADRANTE / GEOCERCA</label>
+<select class="bg-surface-container-lowest text-on-surface font-body-md text-body-md p-2 rounded-lg outline-none" id="sector-select">
+<option value="s4">Sector 4 - San Jerónimo &amp; Cuauhtémoc (Radio 3.5 km)</option>
+<option value="mnorte">Macro-Zona Norte Completa (6 Sectores - 72,000 hab)</option>
+<option value="cuenca">Corredor Ribereño Presa San Jerónimo (Riesgo Desborde)</option>
+<option value="albergues">Perímetro 500m Albergues Temporales Habilitados</option>
+<option value="custom">Trazar Polígono Dinámico en Cartografía C5...</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">RADIO RADIAL TÁCTICO</label>
+<div class="flex items-center gap-2 bg-surface-container-lowest p-2 rounded-lg">
+<input class="w-full accent-secondary cursor-pointer" id="radius-slider" max="15" min="1" step="0.5" type="range" value="3.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface whitespace-nowrap" id="radius-val">3.5 km</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">ALCANCE ESTIMADO</label>
+<div class="flex items-center justify-between bg-surface-container-lowest p-2 rounded-lg">
+<span class="font-label-md text-label-md font-bold text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+                24,850 hab.
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">100% Censo</span>
+</div>
+</div>
+</div>
+<!-- Formulario de Textos del Comunicado -->
+<div class="flex flex-col gap-space-sm">
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">TÍTULO OFICIAL DEL COMUNICADO</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="title-counter">72 / 100 caracteres</span>
+</div>
+<input class="w-full bg-surface-container-low text-on-surface font-title-lg text-title-lg p-3 rounded-lg outline-none font-bold placeholder-on-surface-variant/50" id="alert-title" type="text" value="EVACUACIÓN URGENTE: Desbordamiento en Río Presa San Jerónimo">
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">INSTRUCCIONES CLARAS A LA POBLACIÓN CIVIL</label>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-secondary font-bold" id="lora-limit-badge">LoRa Mesh: 148/160c</span>
+<span class="text-on-surface-variant/40">|</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="body-counter">312 / 600 caracteres</span>
+</div>
+</div>
+<textarea class="w-full bg-surface-container-low text-on-surface font-body-md text-body-md p-3 rounded-lg outline-none resize-none leading-relaxed" id="alert-body" rows="4">Nivel crítico alcanzado en vertedero #3. Desaloje viviendas en márgenes bajos de inmediato. Diríjase a pie a los albergues del Gimnasio Polivalente Norte y Escuela Secundaria #12. NO INTENTE CRUZAR CAUCES NI PUENTES PEATONALES. Lleve consigo mochila de emergencia con documentos herméticos.</textarea>
+</div>
+<!-- Metadatos de Instrucción de Respuesta Rápida -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">location_on</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Punto Seguro de Reunión Asignado</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant" id="safe-point-text">Gimnasio Polivalente Norte (Cap. 1,200)</span>
+</div>
+</div>
+<button class="px-2 py-1 bg-surface-container-lowest rounded text-on-surface font-label-sm text-label-sm hover:bg-surface-container">Cambiar</button>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">call</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">Línea de Enlace y Rescate C5</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Canal Táctico SOS #08 / 911 Directo</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant px-2 py-0.5 rounded-full bg-tertiary-fixed font-bold">24H ACTIVO</span>
+</div>
+</div>
+</div>
+<!-- Parámetros Tácticos y de Hardware (Checkboxes Tácticos) -->
+<div>
+<label class="block font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">
+            MODALIDADES DE TRANSMISIÓN DE EMERGENCIA
+          </label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded text-secondary focus:ring-0 cursor-pointer accent-secondary" id="chk-wake" type="checkbox">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">screen_lock_portrait</span>
+                  Prioridad Push / Despertar Pantalla
+                </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Omite modo No Molestar, activa vibración continua y audio de alarma oficial.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded text-secondary focus:ring-0 cursor-pointer accent-secondary" id="chk-lora" type="checkbox">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">wifi_off</span>
+                  Malla LoRa Mesh en Texto Plano
+                </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Llega a radios comunitarios y terminales sin internet ni cobertura celular.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded text-secondary focus:ring-0 cursor-pointer accent-secondary" id="chk-gps" type="checkbox">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-on-tertiary-container">near_me</span>
+                  Navegación GPS al Albergue Asignado
+                </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Genera botón dinámico de ruta a pie / vehículo evitando zonas inundadas.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded text-secondary focus:ring-0 cursor-pointer accent-secondary" id="chk-sirens" type="checkbox">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">campaign</span>
+                  Activar Balizas Acústicas y Sirenas
+                </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Dispara 148 sirenas comunitarias con tono estandarizado de evacuación.</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Botonera de Transmisión Táctica -->
+<div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" id="btn-save-draft" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+              Guardar Plantilla
+            </button>
+<button class="w-full sm:w-auto px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 transition-colors" id="btn-test-sim" type="button">
+<span class="material-symbols-outlined text-[18px]">science</span>
+              Simular en C5 (3 Teléfonos)
+            </button>
+</div>
+<button class="w-full sm:w-auto px-6 py-3 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md font-bold tracking-wider flex items-center justify-center gap-2 shadow-md transition-all" id="btn-broadcast-main" type="button">
+<span class="material-symbols-outlined text-[20px] animate-pulse">podcasts</span>
+            EMITIR COMUNICADO OFICIAL AHORA (BROADCAST TOTAL)
+          </button>
+</div>
+</div>
+</div>
+<!-- LADO DERECHO: Previsualización en Vivo de Smartphone (4 Cols) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">smartphone</span>
+<span class="font-title-md text-title-md uppercase tracking-wider text-on-surface font-bold">VISTA EN APP MÓVIL</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+            PREVIEW EN VIVO
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+          Así visualiza el ciudadano la notificación y pantalla completa en la aplicación Resguardo:
+        </p>
+<!-- Smartphone Mockup Container -->
+<div class="w-full max-w-[340px] mx-auto bg-primary text-on-primary rounded-[36px] p-3.5 shadow-xl relative overflow-hidden">
+<!-- Bocina / Notch superior -->
+<div class="w-32 h-4 bg-primary-container rounded-full mx-auto mb-2 flex items-center justify-center">
+<div class="w-3 h-3 rounded-full bg-inverse-surface mr-2"></div>
+<div class="w-8 h-1 bg-outline rounded-full"></div>
+</div>
+<!-- Pantalla de Smartphone -->
+<div class="w-full rounded-[24px] bg-surface text-on-surface overflow-hidden flex flex-col min-h-[560px] relative">
+<!-- Barra de Estado del Móvil -->
+<div class="px-4 py-1.5 flex items-center justify-between text-on-surface-variant font-label-sm text-[10px]">
+<span class="font-semibold" id="mock-time">14:38</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[12px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[12px]">wifi</span>
+<span class="material-symbols-outlined text-[14px]">battery_charging_full</span>
+</div>
+</div>
+<!-- Cabecera de la Notificación Push de Emergencia -->
+<div class="p-3 bg-secondary text-on-secondary flex flex-col gap-1 shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] animate-bounce">campaign</span>
+<span class="font-label-sm text-[10px] uppercase font-bold tracking-wider">RESGUARDO // ALERTA OFICIAL</span>
+</div>
+<span class="font-label-sm text-[9px] opacity-80">AHORA</span>
+</div>
+<span class="font-title-md text-[13px] font-bold leading-tight" id="mock-preview-title">
+                EVACUACIÓN URGENTE: Desbordamiento en Río Presa San Jerónimo
+              </span>
+</div>
+<!-- Cuerpo de la App Ciudadana -->
+<div class="p-3 flex-1 flex flex-col gap-2.5 overflow-y-auto bg-surface-bright">
+<!-- Tag de Severidad Dinámica en Móvil -->
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] font-bold" id="mock-badge">
+                  ALERTA MÁXIMA :: EVACUACIÓN
+                </span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Protección Civil C5</span>
+</div>
+<!-- Mensaje Completo -->
+<div class="bg-surface-container-lowest p-3 rounded-lg shadow-sm">
+<p class="font-body-sm text-[11px] leading-relaxed text-on-surface" id="mock-preview-body">
+                  Nivel crítico alcanzado en vertedero #3. Desaloje viviendas en márgenes bajos de inmediato. Diríjase a pie a los albergues del Gimnasio Polivalente Norte y Escuela Secundaria #12. NO INTENTE CRUZAR CAUCES NI PUENTES PEATONALES. Lleve consigo mochila de emergencia con documentos herméticos.
+                </p>
+</div>
+<!-- Tarjeta de Albergue Seguro con Botón de Ruta -->
+<div class="p-2.5 rounded-lg bg-surface-container flex flex-col gap-1.5 shadow-sm" id="mock-shelter-box">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">pin_drop</span>
+<span class="font-label-sm text-[10px] font-bold text-on-surface uppercase">Ruta Segura Habilitada</span>
+</div>
+<span class="font-body-sm text-[11px] font-semibold text-on-surface">Gimnasio Polivalente Norte</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">A 850m • A pie ~11 min • Capacidad disponible</span>
+<button class="w-full py-1.5 px-2 bg-secondary text-on-secondary rounded font-label-sm text-[10px] font-bold flex items-center justify-center gap-1 mt-0.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[12px]">navigation</span>
+                  INICIAR NAVEGACIÓN GPS SEGURA
+                </button>
+</div>
+<!-- Estado de Conectividad LoRa Local -->
+<div class="p-2 rounded bg-surface-container-low flex items-center justify-between text-on-surface-variant font-label-sm text-[9px]">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+                  Recibido vía LoRa Repetidora #04
+                </span>
+<span class="">Latencia: 0.8s</span>
+</div>
+<!-- Botones de Confirmación Ciudadana -->
+<div class="mt-auto pt-2 flex flex-col gap-1.5">
+<button class="w-full py-2 bg-primary text-on-primary rounded-lg font-label-sm text-[10px] font-bold flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  CONFIRMAR LECTURA Y ESTADO A SALVO
+                </button>
+<button class="w-full py-1.5 bg-surface-container text-secondary rounded-lg font-label-sm text-[10px] font-bold flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">sos</span>
+                  SOLICITAR AUXILIO INMEDIATO (SOS)
+                </button>
+</div>
+</div>
+<!-- Botón home virtual móvil -->
+<div class="py-1 bg-surface-bright flex justify-center">
+<div class="w-20 h-1 bg-outline-variant rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Telemetría de Pruebas Móviles -->
+<div class="mt-space-md p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">verified</span>
+            Cifrado SHA-256 Validado
+          </span>
+<span class="font-mono text-[11px]">CAP-RESG-2025-0814</span>
+</div>
+</div>
+</div>
+</div>
+<!-- SECCIÓN INFERIOR: Bitácora Histórica y Registro de Emisiones -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm mb-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface text-[22px]">history_edu</span>
+<div>
+<h2 class="font-title-lg text-title-lg font-bold text-on-surface uppercase tracking-tight">BITÁCORA DE COMUNICADOS EMITIDOS RECIENTEMENTE</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Registro cronológico de broadcasts con telemetría de recepción y control de contingencias.</p>
+</div>
+</div>
+<!-- Filtros Rápidos de Bitácora -->
+<div class="flex items-center gap-2 flex-wrap">
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">TODOS (42)</button>
+<button class="px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">ACTIVOS (1)</button>
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">PROGRAMADOS (2)</button>
+<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">EXPIRADOS (39)</button>
+</div>
+</div>
+<!-- Tabla Táctica de Comunicados -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<th class="py-2.5 px-3">HORA / ID</th>
+<th class="py-2.5 px-3">COMUNICADO &amp; SEVERIDAD</th>
+<th class="py-2.5 px-3">SECTOR / GEOCERCA</th>
+<th class="py-2.5 px-3">CANALES UTILIZADOS</th>
+<th class="py-2.5 px-3">ALCANCE / LECTURAS</th>
+<th class="py-2.5 px-3">ESTADO</th>
+<th class="py-2.5 px-3 text-right">ACCIONES TÁCTICAS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent font-body-sm text-body-sm text-on-surface">
+<!-- Fila 1 (Alerta Activa) -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-high/20">
+<td class="py-3 px-3">
+<div class="flex flex-col font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">14:22:08 CST</span>
+<span class="text-on-surface-variant">#BC-99042</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col min-w-[220px]">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+<span class="font-title-md text-title-md font-bold text-secondary">Evacuación Preventiva Río San Jerónimo</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Protocolo Rojo S-1 • Inundación fluvial</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="font-label-sm text-label-sm font-semibold">Sector 4 (San Jerónimo)</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Polígono 3.5 km</span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary" title="Push Móvil">notifications_active</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface" title="SMS Broadcast">cell_tower</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim" title="LoRa Malla">hub</span>
+<span class="material-symbols-outlined text-[16px] text-secondary" title="Sirenas">volume_up</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col min-w-[130px]">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">24,452 / 24,850</span>
+<span class="text-on-tertiary-container font-bold">98.4%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-secondary h-full rounded-full" style="width: 98.4%"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5">18,290 confirmaron estado OK</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold flex items-center gap-1 w-max">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                TRANSMITIENDO
+              </span>
+</td>
+<td class="py-3 px-3 text-right whitespace-nowrap">
+<div class="inline-flex items-center gap-1.5">
+<button class="px-2 py-1 rounded bg-secondary hover:bg-secondary-container text-on-secondary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" onclick="alert('Alerta detenida de inmediato. Transmitiendo señal de cese a sirenas y terminales.')" type="button">
+<span class="material-symbols-outlined text-[14px]">stop_circle</span>
+                  Cesar Alerta
+                </button>
+<button class="px-2 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" onclick="alert('Reenviando actualización sobre albergues habilitados...')" type="button">
+<span class="material-symbols-outlined text-[14px]">refresh</span>
+                  Actualizar
+                </button>
+</div>
+</td>
+</tr>
+<!-- Fila 2 (Albergues / Verde) -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3">
+<div class="flex flex-col font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">11:15:30 CST</span>
+<span class="text-on-surface-variant">#BC-99041</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col min-w-[220px]">
+<span class="font-title-md text-title-md font-bold text-on-surface">Apertura Refugio Gimnasio Polivalente</span>
+<span class="font-label-sm text-label-sm text-on-tertiary-container">Protocolo Verde S-4 • Albergues y Rutas Seguras</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="font-label-sm text-label-sm font-semibold">Macro-Zona Norte</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">Polígono 6.0 km</span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-on-surface" title="Push Móvil">notifications_active</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface" title="SMS Broadcast">cell_tower</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim" title="LoRa Malla">hub</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col min-w-[130px]">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">69,820 / 72,000</span>
+<span class="text-on-tertiary-container font-bold">96.9%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-tertiary-fixed-dim h-full rounded-full" style="width: 96.9%"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5">38,102 lecturas verificadas</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-bold flex items-center gap-1 w-max">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+                ARCHIVADO
+              </span>
+</td>
+<td class="py-3 px-3 text-right whitespace-nowrap">
+<div class="inline-flex items-center gap-1.5">
+<button class="px-2 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" onclick="alert('Abriendo telemetría del broadcast #BC-99041...')" type="button">
+<span class="material-symbols-outlined text-[14px]">analytics</span>
+                  Métricas
+                </button>
+</div>
+</td>
+</tr>
+<!-- Fila 3 (Meteorológica) -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-3">
+<div class="flex flex-col font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">08:00:12 CST</span>
+<span class="text-on-surface-variant">#BC-99039</span>
+</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex flex-col min-w-[220px]">
+<span class="font-title-md text-title-md font-bold text-on-surface">Previsión de Tormenta Severa Fase 2</span>
+<span class="font-label-sm text-label-sm text-secondary-container">Protocolo Ámbar S-2 • Cautela por granizo</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="font-label-sm text-label-sm font-semibold">Toda la Zona Urbana</span>
+<span class="block font-label-sm text-[10px] text-on-surface-variant">14 Sectores C5</span>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-on-surface" title="Push Móvil">notifications_active</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface" title="SMS Broadcast">cell_tower</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<div class="flex flex-col min-w-[130px]">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="font-bold text-on-surface">118,200 / 120,000</span>
+<span class="text-on-tertiary-container font-bold">98.5%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-outline h-full rounded-full" style="width: 98.5%"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant mt-0.5">82,400 confirmaciones</span>
+</div>
+</td>
+<td class="py-3 px-3 whitespace-nowrap">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-bold flex items-center gap-1 w-max">
+                EXPIRADO
+              </span>
+</td>
+<td class="py-3 px-3 text-right whitespace-nowrap">
+<div class="inline-flex items-center gap-1.5">
+<button class="px-2 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1" onclick="alert('Abriendo telemetría del broadcast #BC-99039...')" type="button">
+<span class="material-symbols-outlined text-[14px]">analytics</span>
+                  Métricas
+                </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Diálogo Modal Táctico de Confirmación de Transmisión -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/80 backdrop-blur-sm hidden items-center justify-center p-4" id="confirm-modal">
+<div class="bg-surface-container-lowest rounded-xl max-w-lg w-full p-space-lg shadow-2xl flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm text-secondary">
+<span class="material-symbols-outlined text-[32px]">warning</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wider text-secondary">CONFIRMACIÓN PROTOCOLO CAP C5</span>
+<span class="font-title-lg text-title-lg font-bold text-on-surface">¿DISPARAR BROADCAST TOTAL A LA POBLACIÓN?</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low text-on-surface flex flex-col gap-2 font-body-sm text-body-sm">
+<p class="">Está a punto de emitir una alarma con <strong>prioridad de pantalla forzada</strong> y <strong>activación acústica</strong> para:</p>
+<div class="flex items-center justify-between font-label-sm text-label-sm bg-surface-container-lowest p-2 rounded">
+<span class="">Población Objetivo:</span>
+<strong class="text-secondary font-bold">24,850 habitantes censados</strong>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm bg-surface-container-lowest p-2 rounded">
+<span class="">Canales a disparar:</span>
+<strong class="text-on-surface font-bold">App Móvil + Malla LoRa + SMS + 148 Sirenas</strong>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm bg-surface-container-lowest p-2 rounded">
+<span class="">Operador Autorizante:</span>
+<span class="text-on-surface font-semibold">Cmdte. J. Morales (C5 #04)</span>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm mt-2">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-colors" id="modal-cancel-btn" type="button">
+          Cancelar Emisión
+        </button>
+<button class="px-5 py-2 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md font-bold tracking-wider flex items-center gap-1.5 transition-colors shadow-md" id="modal-confirm-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">cell_tower</span>
+          AUTORIZAR Y ENVIAR AHORA
+        </button>
+</div>
+</div>
+</div>
+<!-- Toast Notificador de Emisión Éxitosa -->
+<div class="fixed bottom-6 right-6 z-50 bg-primary text-on-primary px-4 py-3 rounded-lg shadow-xl hidden items-center gap-3" id="toast-success">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[24px]">verified</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-tertiary-fixed-dim">BROADCAST EMITIDO CON ÉXITO</span>
+<span class="font-body-sm text-body-sm text-on-primary/90" id="toast-msg">Mensaje distribuido a 24,850 terminales en 2.8s.</span>
+</div>
+<button class="text-on-primary/60 hover:text-on-primary ml-2" id="toast-close-btn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Micro-Interacciones e Interactividad Táctica de la Pantalla -->
+<script>
+  (function() {
+    const titleInput = document.getElementById('alert-title');
+    const bodyInput = document.getElementById('alert-body');
+    const previewTitle = document.getElementById('mock-preview-title');
+    const previewBody = document.getElementById('mock-preview-body');
+    const titleCounter = document.getElementById('title-counter');
+    const bodyCounter = document.getElementById('body-counter');
+    const loraBadge = document.getElementById('lora-limit-badge');
+    const radiusSlider = document.getElementById('radius-slider');
+    const radiusVal = document.getElementById('radius-val');
+    const severityBtns = document.querySelectorAll('.severity-btn');
+    const mockBadge = document.getElementById('mock-badge');
+    const broadcastBtn = document.getElementById('btn-broadcast-main');
+    const confirmModal = document.getElementById('confirm-modal');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const toast = document.getElementById('toast-success');
+    const toastCloseBtn = document.getElementById('toast-close-btn');
+
+    // Sincronización de Título en Preview
+    if (titleInput && previewTitle && titleCounter) {
+      titleInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        previewTitle.textContent = val || 'Sin Título Asignado';
+        titleCounter.textContent = val.length + ' / 100 caracteres';
+      });
+    }
+
+    // Sincronización de Cuerpo en Preview y Contadores
+    if (bodyInput && previewBody && bodyCounter && loraBadge) {
+      bodyInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        previewBody.textContent = val || 'Ingrese instrucciones de emergencia para la ciudadanía...';
+        bodyCounter.textContent = val.length + ' / 600 caracteres';
+        loraBadge.textContent = 'LoRa Mesh: ' + Math.min(val.length, 160) + '/160c';
+        
+        if (val.length > 160) {
+          loraBadge.classList.remove('text-secondary');
+          loraBadge.classList.add('text-secondary-container');
+        } else {
+          loraBadge.classList.remove('text-secondary-container');
+          loraBadge.classList.add('text-secondary');
+        }
+      });
+    }
+
+    // Slider de Radio Táctico
+    if (radiusSlider && radiusVal) {
+      radiusSlider.addEventListener('input', (e) => {
+        radiusVal.textContent = e.target.value + ' km';
+      });
+    }
+
+    // Cambios de Severidad
+    severityBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        severityBtns.forEach(b => {
+          b.classList.remove('bg-secondary', 'text-on-secondary');
+          b.classList.add('bg-surface-container-low', 'text-on-surface');
+        });
+        btn.classList.remove('bg-surface-container-low', 'text-on-surface');
+        btn.classList.add('bg-secondary', 'text-on-secondary');
+
+        const type = btn.getAttribute('data-type');
+        if (type === 'evac') {
+          mockBadge.className = 'px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] font-bold';
+          mockBadge.textContent = 'ALERTA MÁXIMA :: EVACUACIÓN';
+        } else if (type === 'shelter') {
+          mockBadge.className = 'px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-[10px] font-bold';
+          mockBadge.textContent = 'ALBERGUES DISPONIBLES';
+        } else if (type === 'weather') {
+          mockBadge.className = 'px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-[10px] font-bold';
+          mockBadge.textContent = 'PRECAUCIÓN METEOROLÓGICA';
+        } else {
+          mockBadge.className = 'px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-[10px] font-bold';
+          mockBadge.textContent = 'AVISO DE SERVICIOS';
+        }
+      });
+    });
+
+    // Control de Modal de Confirmación
+    if (broadcastBtn && confirmModal) {
+      broadcastBtn.addEventListener('click', () => {
+        confirmModal.classList.remove('hidden');
+        confirmModal.classList.add('flex');
+      });
+    }
+
+    if (modalCancelBtn && confirmModal) {
+      modalCancelBtn.addEventListener('click', () => {
+        confirmModal.classList.add('hidden');
+        confirmModal.classList.remove('flex');
+      });
+    }
+
+    if (modalConfirmBtn && confirmModal && toast) {
+      modalConfirmBtn.addEventListener('click', () => {
+        confirmModal.classList.add('hidden');
+        confirmModal.classList.remove('flex');
+        
+        toast.classList.remove('hidden');
+        toast.classList.add('flex');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('flex');
+        }, 5000);
+      });
+    }
+
+    if (toastCloseBtn && toast) {
+      toastCloseBtn.addEventListener('click', () => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      });
+    }
+
+    // Botones auxiliares
+    const testSimBtn = document.getElementById('btn-test-sim');
+    if (testSimBtn) {
+      testSimBtn.addEventListener('click', () => {
+        alert('Simulación completada con éxito: 3 dispositivos de prueba C5 recibieron la alerta sonora y notificación push en 1.1 segundos.');
+      });
+    }
+
+    const saveDraftBtn = document.getElementById('btn-save-draft');
+    if (saveDraftBtn) {
+      saveDraftBtn.addEventListener('click', () => {
+        alert('Plantilla oficial guardada exitosamente en el catálogo de respuestas preaprobadas C5.');
+      });
+    }
+
+    const quickSyncBtn = document.getElementById('btn-quick-sync');
+    if (quickSyncBtn) {
+      quickSyncBtn.addEventListener('click', () => {
+        alert('Malla sincronizada: 18 repetidoras LoRa conectadas con 0 paquetes perdidos.');
+      });
+    }
+  })();
+</script></main></div>
+
+
+<script src="/dashboard/js/api.js"></script></body></html>

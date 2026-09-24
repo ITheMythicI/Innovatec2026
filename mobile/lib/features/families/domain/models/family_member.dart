@@ -20,6 +20,8 @@ extension MemberEmergencyStatusExtension on MemberEmergencyStatus {
     }
   }
 
+  String get displayName => label;
+
   String get emoji {
     switch (this) {
       case MemberEmergencyStatus.safe:

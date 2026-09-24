@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/features/emergencies/domain/models/emergency.dart';
 import 'package:innovatec_mobile/features/emergencies/presentation/controllers/emergency_controller.dart';
+import 'package:innovatec_mobile/features/map/presentation/screens/evacuation_route_screen.dart';
 
 class EmergenciesScreen extends StatefulWidget {
   const EmergenciesScreen({super.key});
@@ -13,6 +14,9 @@ class EmergenciesScreen extends StatefulWidget {
 
 class _EmergenciesScreenState extends State<EmergenciesScreen> {
   late final EmergencyController _controller;
+  bool _sirenActive = false;
+  double _sosHoldProgress = 0.0;
+  bool _isHoldingSos = false;
 
   @override
   void initState() {
@@ -58,80 +62,570 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
               ),
             ],
           ),
-          body: Column(
-            children: [
-              // Botón SOS de Emergencia Crítica Rápida (Design.md)
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ResguardoTheme.emergencyCrimson,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Barra Superior Táctica de Modo Pánico (Doc 1)
+                Container(
+                  color: ResguardoTheme.surfaceContainerHigh,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: ResguardoTheme.emergencyCrimson.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: ResguardoTheme.emergencyCrimson),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.warning, color: ResguardoTheme.emergencyCrimson, size: 12),
+                            SizedBox(width: 4),
+                            Text(
+                              'MODO PÁNICO // ACTIVO',
+                              style: TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                color: ResguardoTheme.emergencyCrimson,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    onPressed: () => _triggerInstantSos(context),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-                        SizedBox(width: 8),
-                        Text(
-                          'ACTIVAR ALERTA SOS CRÍTICA',
-                          style: TextStyle(
-                            fontFamily: 'Space Grotesk',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            letterSpacing: 0.5,
+                      const Row(
+                        children: [
+                          Icon(Icons.my_location, size: 12, color: ResguardoTheme.outline),
+                          SizedBox(width: 4),
+                          Text(
+                            '19.4326° N, 99.1332° W',
+                            style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: ResguardoTheme.outline,
+                              fontSize: 9,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            '⚡ 22% ECO',
+                            style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: ResguardoTheme.warningAmber,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Banner de Amenaza Inmediata / Nivel Crítico (Doc 1)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: ResguardoTheme.emergencyCrimson, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ResguardoTheme.emergencyCrimson.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.crisis_alert, color: ResguardoTheme.emergencyCrimson, size: 18),
+                              SizedBox(width: 6),
+                              Text(
+                                'AMENAZA INMEDIATA // CRÍTICO',
+                                style: TextStyle(
+                                  fontFamily: 'JetBrains Mono',
+                                  color: ResguardoTheme.emergencyCrimson,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: ResguardoTheme.emergencyCrimson,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              '+1.4M NIVEL DE AGUA',
+                              style: TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        '¡ALERTA DE INUNDACIÓN EN TU ZONA!',
+                        style: TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: ResguardoTheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Row(
+                        children: [
+                          Icon(Icons.north, color: ResguardoTheme.emergencyCrimson, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            'EVACÚA A ZONAS ALTAS AHORA • RIESGO INMINENTE',
+                            style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                              color: ResguardoTheme.emergencyCrimson,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: ResguardoTheme.outlineVariant),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.shield, size: 14, color: ResguardoTheme.primary),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Última orden Protección Civil: Rompimiento en dique norte. Desalojo obligatorio: Dirigirse al Gimnasio Municipal de inmediato.',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: 11,
+                                  color: ResguardoTheme.onSurfaceVariant,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Los Dos Botones Masivos Tácticos de 100px (Doc 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Column(
+                    children: [
+                      // Botón 1: Pedir Auxilio / SOS Militar + Sat
+                      GestureDetector(
+                        onLongPressStart: (_) {
+                          setState(() {
+                            _isHoldingSos = true;
+                            _sosHoldProgress = 1.0;
+                          });
+                        },
+                        onLongPressEnd: (_) {
+                          setState(() {
+                            _isHoldingSos = false;
+                            _sosHoldProgress = 0.0;
+                          });
+                          _triggerInstantSos(context);
+                        },
+                        onTap: () => _triggerInstantSos(context),
+                        child: Container(
+                          width: double.infinity,
+                          height: 96,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: ResguardoTheme.emergencyCrimson,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: ResguardoTheme.emergencyCrimson.withValues(alpha: 0.35),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.emergency, color: Colors.white, size: 24),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        'PEDIR AUXILIO / SOS',
+                                        style: TextStyle(
+                                          fontFamily: 'Space Grotesk',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black26,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'MILITAR + SAT',
+                                          style: TextStyle(
+                                            fontFamily: 'JetBrains Mono',
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Activa despacho de rescate militar y satelital (Mantén 3s o presiona)',
+                                    style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Colors.white70),
+                                  ),
+                                ],
+                              ),
+                              if (_isHoldingSos)
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(2),
+                                    child: LinearProgressIndicator(
+                                      value: _sosHoldProgress,
+                                      backgroundColor: Colors.white24,
+                                      color: Colors.white,
+                                      minHeight: 4,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Botón 2: Estoy a Salvo (Reporte Censo)
+                      GestureDetector(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: ResguardoTheme.safeEmerald,
+                              content: Text('✅ ESTADO REPORTADO: A SALVO. Posición enviada al censo C5 y a tu red familiar.'),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 96,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: ResguardoTheme.safeEmerald,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: ResguardoTheme.safeEmerald.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified_user, color: Colors.white, size: 24),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'ESTOY A SALVO',
+                                    style: TextStyle(
+                                      fontFamily: 'Space Grotesk',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black26,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text(
+                                      'REPORTE CENSO',
+                                      style: TextStyle(
+                                        fontFamily: 'JetBrains Mono',
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Notifica de inmediato a red familiar y censo de Protección Civil',
+                                style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Colors.white70),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Card: Ruta Directa a Albergue (Gimnasio Benito Juárez)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EvacuationRouteScreen()),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: ResguardoTheme.outlineVariant),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: ResguardoTheme.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(Icons.near_me, color: ResguardoTheme.primary, size: 22),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'RUTA DIRECTA A ALBERGUE',
+                                  style: TextStyle(
+                                    fontFamily: 'JetBrains Mono',
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    color: ResguardoTheme.outline,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Gimnasio Benito Juárez',
+                                  style: TextStyle(
+                                    fontFamily: 'Space Grotesk',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: ResguardoTheme.primary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '▲ 650m cuesta arriba (Ruta seca verificada)',
+                                  style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.safeEmerald),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios, size: 16, color: ResguardoTheme.primary),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              // Filtros de Severidad
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Row(
-                  children: [
-                    _buildFilterChip('Todas', _controller.selectedSeverity == null, () {
-                      _controller.filterBySeverity(null);
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Crítica', _controller.selectedSeverity == EmergencySeverity.critical, () {
-                      _controller.filterBySeverity(EmergencySeverity.critical);
-                    }, color: ResguardoTheme.emergencyCrimson),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Alta', _controller.selectedSeverity == EmergencySeverity.high, () {
-                      _controller.filterBySeverity(EmergencySeverity.high);
-                    }, color: ResguardoTheme.warningAmber),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Media', _controller.selectedSeverity == EmergencySeverity.medium, () {
-                      _controller.filterBySeverity(EmergencySeverity.medium);
-                    }),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Baja', _controller.selectedSeverity == EmergencySeverity.low, () {
-                      _controller.filterBySeverity(EmergencySeverity.low);
-                    }),
-                  ],
+                const SizedBox(height: 10),
+
+                // Controles Tácticos Rápidos: 911, Radio 147.500, Satélite
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: ResguardoTheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            side: const BorderSide(color: ResguardoTheme.outlineVariant),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          ),
+                          icon: const Icon(Icons.phone_in_talk, size: 14, color: ResguardoTheme.emergencyCrimson),
+                          label: const Text(
+                            'EMERGENCIA 911',
+                            style: TextStyle(fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Llamada a Emergencias 911'),
+                                content: const Text('¿Deseas marcar al centro de atención y despacho 911 nacional?'),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(backgroundColor: ResguardoTheme.emergencyCrimson),
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Llamar 911', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: _sirenActive ? ResguardoTheme.emergencyCrimson.withValues(alpha: 0.1) : null,
+                            foregroundColor: _sirenActive ? ResguardoTheme.emergencyCrimson : ResguardoTheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            side: BorderSide(
+                              color: _sirenActive ? ResguardoTheme.emergencyCrimson : ResguardoTheme.outlineVariant,
+                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          ),
+                          icon: Icon(
+                            _sirenActive ? Icons.volume_up : Icons.radio,
+                            size: 14,
+                            color: _sirenActive ? ResguardoTheme.emergencyCrimson : ResguardoTheme.warningAmber,
+                          ),
+                          label: Text(
+                            _sirenActive ? 'SIRENA ACTIVA' : 'RADIO 147.500',
+                            style: const TextStyle(fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            setState(() => _sirenActive = !_sirenActive);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(_sirenActive
+                                    ? '🚨 Sirena 110dB y estrobo activo para señalización visual'
+                                    : '📻 Sintonizado en canal táctico 147.500 MHz'),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-              // Lista de Emergencias
-              Expanded(
-                child: _buildContent(),
-              ),
-            ],
+                // Sección Catálogo de Incidentes Locales
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'CATÁLOGO DE INCIDENTES ACTIVOS',
+                        style: TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: ResguardoTheme.outline,
+                        ),
+                      ),
+                      Text(
+                        '${_controller.emergencies.length} Reportes',
+                        style: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: ResguardoTheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Filtros de Severidad
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Row(
+                    children: [
+                      _buildFilterChip('Todas', _controller.selectedSeverity == null, () {
+                        _controller.filterBySeverity(null);
+                      }),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Crítica', _controller.selectedSeverity == EmergencySeverity.critical, () {
+                        _controller.filterBySeverity(EmergencySeverity.critical);
+                      }, color: ResguardoTheme.emergencyCrimson),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Alta', _controller.selectedSeverity == EmergencySeverity.high, () {
+                        _controller.filterBySeverity(EmergencySeverity.high);
+                      }, color: ResguardoTheme.warningAmber),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Media', _controller.selectedSeverity == EmergencySeverity.medium, () {
+                        _controller.filterBySeverity(EmergencySeverity.medium);
+                      }),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Baja', _controller.selectedSeverity == EmergencySeverity.low, () {
+                        _controller.filterBySeverity(EmergencySeverity.low);
+                      }),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Lista de Emergencias dentro del Scroll
+                _buildContent(),
+              ],
+            ),
           ),
         );
       },
@@ -214,17 +708,15 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
       );
     }
 
-    return RefreshIndicator(
-      color: ResguardoTheme.primary,
-      onRefresh: () => _controller.loadEmergencies(forceRefresh: true),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        itemCount: _controller.emergencies.length,
-        itemBuilder: (context, index) {
-          final emergency = _controller.emergencies[index];
-          return _buildEmergencyCard(emergency);
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: _controller.emergencies.length,
+      itemBuilder: (context, index) {
+        final emergency = _controller.emergencies[index];
+        return _buildEmergencyCard(emergency);
+      },
     );
   }
 

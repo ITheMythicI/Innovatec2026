@@ -140,25 +140,84 @@ enum PoiStatus {
 }
 
 // ==============================================================================
+// ENUMS: USUARIOS Y CONTROL DE ACCESO
+// ==============================================================================
+
+/// Rol principal del usuario en el sistema (embebido en JWT para autorización rápida)
+enum AppRole {
+  SUPER_ADMIN // Acceso total al sistema
+  COMMANDER   // Operación completa del dashboard: broadcast, alertas, análisis
+  OPERATOR    // Campo + dashboard según permisos: emergencias, albergues, reportes
+  VIEWER      // Dashboard de solo lectura
+  USER        // App ciudadana: mapa, albergues, SOS, reportes propios
+}
+
+/// Estado de entrega de alertas/broadcasts
+enum BroadcastStatus {
+  CREATED
+  SENT
+  PARTIALLY_DELIVERED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+enum BroadcastType {
+  NEWS
+  ALERT
+  EVACUATION
+  WARNING
+}
+
+enum BroadcastTarget {
+  GLOBAL
+  GEOGRAPHIC
+  ROLE
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  ACKNOWLEDGED
+  FAILED
+}
+
+enum DeliveryChannel {
+  WEBSOCKET
+  FCM
+  SMS
+  BLE
+}
+
+// ==============================================================================
 // 1. IDENTIDAD Y CONTROL DE ACCESO (RBAC)
 // ==============================================================================
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String
-  fullName     String
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
   phone        String?
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  /// Identificador operativo/táctico opcional (ej: "OP-04", número de placa, matrícula)
+  tacticalId   String?  @unique @map("tactical_id")
+  /// Rol principal embebido en JWT — para autorización rápida sin consulta DB adicional
+  appRole      AppRole  @default(USER) @map("app_role")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   userRoles    UserRole[]
   auditLogs    AuditLog[]
   reports      Report[]
+  broadcasts   Broadcast[]
 
+  @@index([email])
+  @@index([appRole])
   @@map("users")
 }
+
 
 model Role {
   id          String           @id @default(uuid())
@@ -486,13 +545,21 @@ model Device {
   deviceModel      String?   @map("device_model")
   appVersion       String?   @map("app_version")
   publicKey        String?   @map("public_key") // Public key for crypto signature verification
+  /// Última latitud conocida (para broadcast geolocalizado y mapa operacional)
+  lastLatitude     Float?    @map("last_latitude")
+  /// Última longitud conocida
+  lastLongitude    Float?    @map("last_longitude")
+  /// Timestamp de la última actualización de posición (para indicador de frescura)
+  lastPositionAt   DateTime? @map("last_position_at")
   lastSyncAt       DateTime? @map("last_sync_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  syncEvents     SyncEvent[]
-  locationEvents PersonLocationEvent[]
+  syncEvents         SyncEvent[]
+  locationEvents     PersonLocationEvent[]
+  broadcastDeliveries BroadcastDelivery[]
 
+  @@index([lastLatitude, lastLongitude])
   @@map("devices")
 }
 
@@ -536,4 +603,57 @@ model AuditLog {
   @@index([userId, createdAt])
   @@index([action, createdAt])
   @@map("audit_logs")
+}
+
+// ==============================================================================
+// 7. COMUNICADOS Y ALERTAS (BROADCASTS)
+// ==============================================================================
+
+/// Comunicado o alerta emitida desde el dashboard hacia los dispositivos móviles.
+/// Soporta segmentación global, geográfica o por rol.
+model Broadcast {
+  id              String          @id @default(uuid())
+  title           String
+  body            String          @db.Text
+  type            BroadcastType
+  targetMode      BroadcastTarget @default(GLOBAL) @map("target_mode")
+  targetRole      AppRole?        @map("target_role")   // Usado si targetMode = ROLE
+  /// Centro geográfico para targetMode = GEOGRAPHIC
+  geoLatitude     Float?          @map("geo_latitude")
+  geoLongitude    Float?          @map("geo_longitude")
+  geoRadiusMeters Int?            @map("geo_radius_meters")
+  status          BroadcastStatus @default(CREATED)
+  sentAt          DateTime?       @map("sent_at")
+  scheduledAt     DateTime?       @map("scheduled_at")
+  sentByUserId    String          @map("sent_by_user_id")
+  sentBy          User            @relation(fields: [sentByUserId], references: [id])
+  deliveries      BroadcastDelivery[]
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@index([type, status])
+  @@map("broadcasts")
+}
+
+/// Registro de entrega individual de un broadcast a un dispositivo específico.
+/// Permite rastrear el estado por canal (WebSocket, FCM, SMS, BLE).
+model BroadcastDelivery {
+  id          String          @id @default(uuid())
+  broadcastId String          @map("broadcast_id")
+  deviceId    String          @map("device_id")
+  channel     DeliveryChannel @default(WEBSOCKET)
+  status      DeliveryStatus  @default(PENDING)
+  sentAt      DateTime?       @map("sent_at")
+  deliveredAt DateTime?       @map("delivered_at")
+  ackAt       DateTime?       @map("ack_at")
+  failReason  String?         @map("fail_reason")
+  broadcast   Broadcast       @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  device      Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@unique([broadcastId, deviceId, channel])
+  @@index([broadcastId, status])
+  @@index([deviceId, status])
+  @@map("broadcast_deliveries")
 }

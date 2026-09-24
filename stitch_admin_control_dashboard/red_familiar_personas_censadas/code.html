@@ -1,0 +1,805 @@
+<!DOCTYPE html><html lang="es" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#c6c6c6", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#ffb4ab", "background": "#f8f9ff", "error-container": "#ffdad6", "on-tertiary-fixed-variant": "#005320", "on-error-container": "#93000a", "inverse-surface": "#213145", "on-primary-container": "#848484", "surface-bright": "#f8f9ff", "primary": "#000000", "surface": "#f8f9ff", "on-error": "#ffffff", "surface-container-highest": "#d3e3ff", "surface-container-low": "#eff4ff", "on-primary-fixed-variant": "#474747", "tertiary-fixed": "#81fc98", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed": "#002109", "surface-dim": "#cbdbf5", "surface-container": "#e6eeff", "secondary": "#bb0112", "tertiary-container": "#002109", "on-surface": "#0b1c30", "on-secondary-fixed-variant": "#93000b", "on-tertiary-container": "#019842", "surface-tint": "#5e5e5e", "outline-variant": "#cfc4c5", "on-secondary": "#ffffff", "surface-container-high": "#dde9ff", "on-surface-variant": "#44474d", "secondary-container": "#e02928", "secondary-fixed": "#ffdad6", "primary-fixed": "#d6e3ff", "on-secondary-fixed": "#410002", "outline": "#75777e", "on-secondary-container": "#fffbff", "surface-container-lowest": "#ffffff", "surface-variant": "#d3e3ff", "on-primary": "#ffffff", "error": "#ba1a1a", "on-background": "#0b1c30", "primary-fixed-dim": "#c6c6c6", "tertiary-fixed-dim": "#62df7d", "tertiary": "#000000", "on-primary-fixed": "#0d1c32", "primary-container": "#1b1b1b" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-xl": "2.5rem", "margin": "1rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "3rem", "gutter": "1rem", "margin-tablet": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "display": [ "Space Grotesk" ], "headline-lg": [ "Space Grotesk" ], "label-md": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Space Grotesk" ], "display-mobile": [ "Space Grotesk" ], "title-md": [ "Inter" ], "title-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "label-sm": [ "JetBrains Mono" ], "body-lg": [ "Inter" ], "body-sm": [ "Inter" ], "label-lg": [ "JetBrains Mono" ], "headline-md": [ "Space Grotesk" ] }, "fontSize": { "display": [ "48px", { "lineHeight": "56px", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "40px", "fontWeight": "700" } ], "label-md": [ "12px", { "lineHeight": "16px", "fontWeight": "500" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "700" } ], "display-mobile": [ "36px", { "lineHeight": "44px", "fontWeight": "700" } ], "title-md": [ "16px", { "lineHeight": "22px", "fontWeight": "600" } ], "title-lg": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "26px", "fontWeight": "600" } ], "label-sm": [ "10px", { "lineHeight": "14px", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "label-lg": [ "14px", { "lineHeight": "18px", "fontWeight": "500" } ], "headline-md": [ "24px", { "lineHeight": "30px", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><img alt="Resguardo Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XPYkGdukbVJFxhYrtozMICEdZCM0TrfRE9nIr6XtiTc06uVfDxOra68KUjH0r0CdbCkcQAhCs8wMKygOBCLvC0Crm-rfi1F2fZp9ZzSuhD6G50pJQEQsRKoawUIkEfF77E28wWHQXq6SrAYjrst37UWXZwzCMUFrrNmH9kh6p-THqV3yrXpIwr2zs4MGEGXLVnqpimUZ7AyTpG82txHegShl2WKkLlnx2hdq3XbaIr7M8h0Cg-KEcWY4ML"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface leading-none">RESGUARDO</span><span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">CENTRO DE COMANDO &amp; OPERACIONES</span></div><div class="hidden xl:flex items-center gap-space-sm pl-space-md"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm tracking-wider animate-pulse"><span class="w-2 h-2 rounded-full bg-secondary"></span>ESTADO: ALERTA ROJA ACTIVA - ZONA NORTE</span></div></div><div class="flex items-center gap-space-md flex-shrink-0"><a class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md tracking-wider transition-colors shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-path="noticias-alertas-app" href="#noticias-alertas-app" role="button"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="hidden 2xl:inline">ACTIVAR ALERTA SONORA GENERAL (BROADCAST)</span><span class="2xl:hidden">BROADCAST</span></a><div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm tracking-wider"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>RED ACTIVA 99.8% ONLINE</div><div class="hidden md:flex flex-col text-right font-label-sm text-label-sm"><span class="text-on-surface font-semibold">14:38:22 UTC</span><span class="text-on-surface-variant">08:38:22 LOCAL (CST)</span></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="hidden sm:flex flex-col text-right leading-tight"><span class="font-label-md text-label-md text-on-surface font-semibold">Cmdte. J. Morales</span><span class="font-label-sm text-label-sm text-on-surface-variant">Operador Táctico #04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-xs px-space-sm"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">CANALES DE CONTROL</span></div><nav class="flex flex-col gap-1 overflow-y-auto" data-active-classes="bg-surface-container text-on-surface font-semibold rounded-lg"><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="tablero-general" href="#"><span class="material-symbols-outlined text-[20px]">radar</span><span class="">Tablero General &amp; Mapa</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dispositivos-activacion" href="#"><span class="material-symbols-outlined text-[20px]">volume_up</span><span class="">Dispositivos &amp; Sirenas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="incidentes-sos" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="">Registro de Incidentes &amp; SOS</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md bg-surface-container text-on-surface font-semibold" data-path="red-familiar" href="#"><span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">group_work</span><span class="">Red Familiar &amp; Personas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="metricas-analitica" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="">Métricas &amp; Analítica</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface hover:bg-surface-container transition-colors font-body-md text-body-md border border-secondary/20 bg-surface-container-low/50 shadow-sm" data-path="noticias-alertas-app" href="#noticias-alertas-app"><span class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-secondary">campaign</span><span class="font-medium">Noticias &amp; Alertas App</span></span><span class="px-1.5 py-0.5 text-[9px] font-label-sm font-bold bg-secondary text-on-secondary rounded uppercase tracking-wider animate-pulse">BROADCAST</span></a></nav></div><div class="px-space-md"><div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm font-semibold text-on-surface">ENLACE SAT-CORE</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><p class="font-label-sm text-label-sm text-on-surface-variant">Nivel de latencia: 18ms</p><p class="font-label-sm text-label-sm text-on-surface-variant">Frecuencia: VHF 146.520 MHz</p></div></div></aside><div class="pl-72"><main class="relative pt-16 w-full px-gutter-desktop min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Script para activar ítem de navegación lateral 'Red Familiar & Personas' -->
+<script>
+    (function activateSidebarTab() {
+      const links = document.querySelectorAll('aside nav a');
+      links.forEach(link => {
+        if (link.getAttribute('data-path') === 'red-familiar') {
+          link.classList.remove('text-on-surface-variant');
+          link.classList.add('bg-surface-container', 'text-on-surface', 'font-semibold', 'rounded-lg');
+          const icon = link.querySelector('.material-symbols-outlined');
+          if (icon) icon.setAttribute('style', "font-variation-settings: 'FILL' 1;");
+        } else {
+          link.classList.remove('bg-surface-container', 'text-on-surface', 'font-semibold');
+          link.classList.add('text-on-surface-variant');
+        }
+      });
+    })();
+  </script>
+<!-- 1. Cabecera Táctica de Sección & Breadcrumbs -->
+<section class="flex flex-col gap-space-sm pb-space-lg">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+<span class="">Centro de Mando</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="">Coordinación Social &amp; Triage</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-bold">Red Familiar &amp; Personas Censadas</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-widest">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+          BASE DE DATOS VINCULADA: REGISTRO NACIONAL DE PROTECCIÓN CIVIL (C5)
+        </span>
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">FOLIO ACTIVO: #Z-NORTE-2025</span>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-xs">
+<div class="max-w-4xl">
+<h1 class="font-headline-lg text-headline-lg uppercase tracking-tight text-on-surface flex items-center gap-3">
+<span class="p-2 rounded-lg bg-surface-container text-on-surface material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">family_restroom</span>
+          CENSO Y RED FAMILIAR DE BIENESTAR
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+          Monitoreo táctico de núcleos familiares, menores a resguardo, datos de contacto y alertas médicas críticas registradas en la App Ciudadana Resguardo.
+        </p>
+</div>
+<!-- Acciones de Cabecera -->
+<div class="flex items-center gap-space-sm flex-shrink-0">
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md tracking-wider transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span class="">EXPORTAR CENSO (CSV/PDF)</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md tracking-wider transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span class="">REGISTRAR NÚCLEO MANUAL</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 2. KPIs de Censo Familiar -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md mb-space-lg">
+<!-- KPI 1 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Núcleos Registrados</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">corporate_fare</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-none">3,420</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1.5 flex items-center gap-1">
+<span class="text-on-tertiary-fixed-variant font-bold flex items-center"><span class="material-symbols-outlined text-[14px]">trending_up</span>+18%</span> vs corte matutino
+        </p>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Integrantes Censados</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">groups</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-none">12,840</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1.5 leading-snug">
+          Adultos <span class="font-bold text-on-surface">7,120</span> · Menores <span class="font-bold text-on-surface">4,210</span> · Mayores <span class="font-bold text-on-surface">1,510</span>
+</p>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden flex">
+<div class="bg-primary h-full" style="width: 55%"></div>
+<div class="bg-secondary-container h-full" style="width: 33%"></div>
+<div class="bg-surface-tint h-full" style="width: 12%"></div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-sm text-label-sm text-on-error-container uppercase tracking-wider font-semibold">Alerta Menores / Albergues</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">child_care</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg text-secondary tracking-tight leading-none flex items-baseline gap-2">
+<span class="">67</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-normal">Reunificados</span>
+</div>
+<div class="inline-flex items-center gap-1.5 mt-1.5 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+          4 EN PROCESO DE BÚSQUEDA
+        </div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 94%"></div>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Condiciones Médicas Críticas</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">medical_services</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-none">140</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1.5">
+          Insulina <span class="font-semibold text-on-surface">58</span> · Oxígeno <span class="font-semibold text-on-surface">32</span> · Movilidad <span class="font-semibold text-on-surface">50</span>
+</p>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden">
+<div class="bg-outline h-full rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- KPI 5 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant uppercase tracking-wider font-semibold">Estado General de Red</span>
+<span class="material-symbols-outlined text-on-tertiary-container text-[20px]">verified</span>
+</div>
+<div>
+<div class="font-headline-lg text-headline-lg text-on-tertiary-fixed-variant tracking-tight leading-none">91.4%</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1.5 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> 11,735 ciudadanos "A Salvo"
+        </p>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-3 overflow-hidden">
+<div class="bg-tertiary-fixed-dim h-full rounded-full" style="width: 91.4%"></div>
+</div>
+</div>
+</section>
+<!-- 3. Barra de Búsqueda Avanzada y Filtros Tácticos -->
+<section class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm mb-space-lg flex flex-col gap-space-sm">
+<div class="flex flex-col lg:flex-row items-center gap-space-md">
+<!-- Input de Búsqueda Principal -->
+<div class="relative w-full lg:flex-1">
+<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-on-surface-variant" placeholder="Buscar por Apellidos de Familia, Nombre de Integrante, Teléfono, Sector o Folio..." type="text" value="Domínguez Rivera">
+<span class="absolute inset-y-0 right-0 pr-3 flex items-center">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-semibold">ESC</span>
+</span>
+</div>
+<!-- Filtros Dropdowns -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:flex items-center gap-space-sm w-full lg:w-auto">
+<!-- Sector -->
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+<option>Sector 4 - San Jerónimo</option>
+<option>Sector 1 - Centro Histórico</option>
+<option>Sector 2 - Del Valle</option>
+<option>Sector 3 - Pedregal</option>
+<option>Todos los Sectores</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">arrow_drop_down</span>
+</div>
+<!-- Estado de Bienestar -->
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+<option>Estado: Todos los Estados</option>
+<option>SOS Crítico / En Riesgo</option>
+<option>A Salvo Confirmado</option>
+<option>En Albergue Oficial</option>
+<option>Sin Reporte Reciente</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">arrow_drop_down</span>
+</div>
+<!-- Condición Médica -->
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md font-medium focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer">
+<option>Condición: Todas</option>
+<option>Insulina Dependiente</option>
+<option>Oxígeno Dependiente</option>
+<option>Alergias Severas (EpiPen)</option>
+<option>Movilidad Reducida</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[18px]">arrow_drop_down</span>
+</div>
+<!-- Filtro Rápido: Familias con Menores -->
+<button class="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-medium hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-secondary text-[18px]">child_friendly</span>
+<span class="">Familias con Menores</span>
+</button>
+</div>
+</div>
+<!-- Active Filters chips -->
+<div class="flex flex-wrap items-center gap-2 pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Filtros Activos:</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+        Sector: <strong>Sector 4 - San Jerónimo</strong>
+<button class="hover:text-secondary material-symbols-outlined text-[14px]">close</button>
+</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+        Estado: <strong>Alerta / Triage Activo</strong>
+<button class="hover:text-secondary material-symbols-outlined text-[14px]">close</button>
+</span>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary underline ml-2">Restablecer todos</button>
+</div>
+</section>
+<!-- 4. Vista Principal en Dos Columnas Tácticas -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start pb-space-xl">
+<!-- COLUMNA IZQUIERDA: Selector de Núcleos Familiares (4 columnas) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<div class="flex items-center justify-between px-space-xs">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Núcleos Coincidentes</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold">24 Familias</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Orden: Prioridad Triage</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Tarjeta 1: Familia Domínguez Rivera (SELECCIONADA / ACTIVA) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-md cursor-pointer transition-all transform hover:-translate-y-0.5 bg-gradient-to-r from-surface-container-low via-surface-container-lowest to-surface-container-lowest">
+<div class="flex items-start justify-between gap-2 pb-2">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface-variant">#FAM-8821</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+                  ALERTA ACTIVA
+                </span>
+</div>
+<h3 class="font-title-lg text-title-lg font-bold text-on-surface mt-1">Familia Domínguez Rivera</h3>
+</div>
+<span class="px-2 py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm font-bold">4 PERSONAS</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-3">
+<span class="material-symbols-outlined text-[16px] text-on-surface">location_on</span>
+            Av. Río San Jerónimo #402, Int 3B · Sector 4
+          </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex flex-col gap-1.5 text-on-surface">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Titular / Madre:</span>
+<span class="font-semibold">Carmen (58a) · Insulina Dep.</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Hijo Adulto:</span>
+<span class="font-semibold text-secondary">Rodrigo (44a) · Vehículo Atrapado</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Hija Adulta:</span>
+<span class="font-semibold text-on-tertiary-fixed-variant">Dra. Sofía (32a) · Refugio #03</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm pt-1 mt-0.5">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[14px]">child_care</span> Menor:
+              </span>
+<span class="font-bold text-on-surface">Mateo (8a) · En Albergue Olímpico</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-3 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">update</span> Hace 4 min
+            </span>
+<span class="text-on-surface font-semibold flex items-center gap-1">
+              Ver Expediente Detallado <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</span>
+</div>
+</div>
+<!-- Tarjeta 2: Familia Morales Peña -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-start justify-between gap-2 pb-1.5">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant">#FAM-7904</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+                  A SALVO EN ALBERGUE
+                </span>
+</div>
+<h3 class="font-title-md text-title-md font-bold text-on-surface mt-1">Familia Morales Peña</h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">3 PERSONAS</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[16px]">home_pin</span>
+            Albergue #03 Benito Juárez · Módulo C-12
+          </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+            Integrantes: Juan (62a), Rosa (60a), Diego (15a). Sin alertas médicas pendientes.
+          </p>
+<div class="flex items-center justify-between pt-2.5 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Última validación biométrica: 08:12 CST</span>
+<span class="text-on-tertiary-fixed-variant font-semibold">Triaje Concluido</span>
+</div>
+</div>
+<!-- Tarjeta 3: Familia Vargas Lozano -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-start justify-between gap-2 pb-1.5">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant">#FAM-6540</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                  EN DOMICILIO / SIN ENERGÍA
+                </span>
+</div>
+<h3 class="font-title-md text-title-md font-bold text-on-surface mt-1">Familia Vargas Lozano</h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">5 PERSONAS</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+            Calle Del Rosal #129, Col. Progreso · Sector 4
+          </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+            Paciente de 84 años con concentrador de oxígeno (batería de respaldo activa: 4.5 horas restantes).
+          </p>
+<div class="flex items-center justify-between pt-2.5 mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-secondary font-semibold">Monitoreo Energético Crítico</span>
+<span class="">Hace 12 min</span>
+</div>
+</div>
+<!-- Tarjeta 4: Familia Méndez Cárdenas -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-start justify-between gap-2 pb-1.5">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant">#FAM-4219</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+                  EN TRÁNSITO SEGURO
+                </span>
+</div>
+<h3 class="font-title-md text-title-md font-bold text-on-surface mt-1">Familia Méndez Cárdenas</h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">2 PERSONAS</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
+<span class="material-symbols-outlined text-[16px]">navigation</span>
+            Corredor Vial Insurgentes Sur Km 18 · En convoy C5
+          </p>
+<div class="flex items-center justify-between pt-2 mt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Destino: Refugio Pedregal</span>
+<span class="text-on-surface font-medium">ETA: 25 min</span>
+</div>
+</div>
+</div>
+</div>
+<!-- COLUMNA DERECHA: Expediente Detallado del Núcleo Familiar (8 columnas) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg">
+<!-- Panel Maestro de la Familia Seleccionada -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm">
+<!-- Top bar del expediente -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-md text-label-md px-2.5 py-1 rounded bg-primary text-on-primary font-bold">EXPEDIENTE OFICIAL</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-semibold">#FAM-CDMX-8821</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                SITUACIÓN DE TRIAGE: MULTI-UBICACIÓN CON ALERTA MÉDICA
+              </span>
+</div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Familia Domínguez Rivera</h2>
+</div>
+<!-- Acciones Tácticas del Operador -->
+<div class="flex flex-wrap items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md font-bold transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">volume_up</span>
+<span class="">EMITIR PINGS ACÚSTICOS GENERALES</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+<span class="">FICHA REUNIFICACIÓN</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">transfer_within_a_station</span>
+<span class="">ASIGNAR ALBERGUE</span>
+</button>
+</div>
+</div>
+<!-- Telemetría & Georreferencia de Domicilio Registrado -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-space-md">
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Domicilio Oficial Censado</span>
+<div class="mt-1 font-body-sm text-body-sm font-semibold text-on-surface">
+              Av. Río San Jerónimo #402, Int 3B
+            </div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Sector 4, Álvaro Obregón, CDMX</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant pt-2 mt-2 flex items-center justify-between">
+<span class="">Coordenadas: 19.3328° N, -99.2014° W</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">flood</span>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Teléfono Principal de Enlace</span>
+<div class="mt-1 font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">
+              +52 55 9812-4401
+            </div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Titular Carmen Domínguez (Línea con señal intermitente)</div>
+<div class="font-label-sm text-label-sm text-on-tertiary-fixed-variant pt-2 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">cell_tower</span> LoRa Backhaul Activo en Zona
+            </div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Dispersión de Integrantes</span>
+<div class="mt-1 flex items-baseline gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-secondary">3 PUNTOS</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">diferentes reportados</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">1 en domicilio, 1 atrapado, 1 albergue Benito J., 1 menor en albergue Olímpico.</div>
+<div class="font-label-sm text-label-sm text-secondary font-bold pt-2 mt-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> REUNIFICACIÓN URGENTE ACTIVADA
+            </div>
+</div>
+</div>
+</div>
+<!-- DESGLOSE Y FICHAS INDIVIDUALES DE CADA MIEMBRO FAMILIAR -->
+<div>
+<div class="flex items-center justify-between mb-space-sm px-1">
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+            Fichas Tácticas Individuales (4 Miembros Registrados)
+          </h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sincronización Satelital C5: OK</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- FICHA A: Carmen Domínguez Rivera (Titular / Madre) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<!-- Header Miembro -->
+<div class="flex items-start justify-between pb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center font-headline-sm text-headline-sm text-on-surface font-bold">
+                    CD
+                  </div>
+<div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold">TITULAR / MADRE · 58 AÑOS</span>
+<h4 class="font-title-lg text-title-lg font-bold text-on-surface mt-0.5">Carmen Domínguez Rivera</h4>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+                  DESPACHO ASIGNADO
+                </span>
+</div>
+<!-- Contacto y Ubicación -->
+<div class="grid grid-cols-1 gap-2 pt-3 font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Teléfono Directo:</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">+52 55 9812-4401</span>
+</div>
+<div class="flex items-start justify-between gap-2">
+<span class="text-on-surface-variant font-label-sm text-label-sm flex-shrink-0">Ubicación Actual:</span>
+<span class="font-medium text-right text-on-surface">San Jerónimo #402 (Inundación PB · Resguardo en 1er Nivel)</span>
+</div>
+</div>
+<!-- Alerta Médica Crítica -->
+<div class="p-3 rounded-lg bg-error-container text-on-error-container mt-3 flex flex-col gap-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px] text-secondary">warning</span>
+                  Condición Médica Crítica Prioritaria
+                </div>
+<p class="font-body-sm text-body-sm leading-tight">
+<strong>Diabetes Mellitus Tipo 2</strong>: Dependiente de Insulina NPH. Cadena de frío comprometida por corte eléctrico. Requiere suministro de insulina en &lt; 4 horas. Hipertensión arterial en tratamiento.
+                </p>
+</div>
+<!-- Telemetría & Batería -->
+<div class="p-2.5 rounded-lg bg-surface-container-low mt-3 flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">battery_alert</span>
+<span class="">DISPOSITIVO: <strong>RSG-TEL-1029</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-secondary font-bold">Batería: 14% (Crítica)</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-semibold">LoRa / 4G</span>
+</div>
+</div>
+</div>
+<!-- Footer / Operador -->
+<div class="pt-3 mt-3 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Brigada Alfa-4 en ruta (ETA: 11 min)</span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold" type="button">
+<span class="material-symbols-outlined text-[16px]">call</span> LLAMADA DIRECTA
+              </button>
+</div>
+</div>
+<!-- FICHA B: Rodrigo Morales Domínguez (Hijo Adulto) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<!-- Header Miembro -->
+<div class="flex items-start justify-between pb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center font-headline-sm text-headline-sm text-on-surface font-bold">
+                    RM
+                  </div>
+<div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold">HIJO ADULTO · 44 AÑOS</span>
+<h4 class="font-title-lg text-title-lg font-bold text-on-surface mt-0.5">Rodrigo Morales Domínguez</h4>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold animate-pulse">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  BALIZA ACÚSTICA ACTIVA
+                </span>
+</div>
+<!-- Contacto y Ubicación -->
+<div class="grid grid-cols-1 gap-2 pt-3 font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Teléfono Directo:</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">+52 55 4120-7798</span>
+</div>
+<div class="flex items-start justify-between gap-2">
+<span class="text-on-surface-variant font-label-sm text-label-sm flex-shrink-0">Ubicación Actual:</span>
+<span class="font-bold text-right text-secondary">Eje Central Norte &amp; Av. Robles (Vehículo Atrapado)</span>
+</div>
+</div>
+<!-- Condiciones Médicas -->
+<div class="p-3 rounded-lg bg-surface-container text-on-surface mt-3 flex flex-col gap-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">medical_information</span>
+                  Ficha Médica &amp; Alergias
+                </div>
+<p class="font-body-sm text-body-sm leading-tight text-on-surface">
+                  Asma bronquial leve (porta inhalador Salbutamol). <strong>Alergia severa a Penicilina</strong> (marcado en tarjeta de triage).
+                </p>
+</div>
+<!-- Telemetría & Batería -->
+<div class="p-2.5 rounded-lg bg-surface-container-low mt-3 flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-tertiary-fixed-variant">battery_charging_90</span>
+<span class="">DISPOSITIVO: <strong>RSG-TEL-1030</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-on-tertiary-fixed-variant font-bold">Batería: 82%</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-semibold">GPS Malla</span>
+</div>
+</div>
+</div>
+<!-- Footer / Operador -->
+<div class="pt-3 mt-3 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Sirena acústica 105dB en ejecución</span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold" type="button">
+<span class="material-symbols-outlined text-[16px]">near_me</span> GEOLOCALIZAR
+              </button>
+</div>
+</div>
+<!-- FICHA C: Dra. Sofía Montes Domínguez (Hija Adulta / Médica) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<!-- Header Miembro -->
+<div class="flex items-start justify-between pb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center font-headline-sm text-headline-sm text-on-surface font-bold">
+                    SM
+                  </div>
+<div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface font-bold">HIJA ADULTA · 32 AÑOS</span>
+<h4 class="font-title-lg text-title-lg font-bold text-on-surface mt-0.5">Dra. Sofía Montes Domínguez</h4>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+                  A SALVO / CONFIRMADA
+                </span>
+</div>
+<!-- Contacto y Ubicación -->
+<div class="grid grid-cols-1 gap-2 pt-3 font-body-sm text-body-sm">
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Teléfono Directo:</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">+52 55 7712-3091</span>
+</div>
+<div class="flex items-start justify-between gap-2">
+<span class="text-on-surface-variant font-label-sm text-label-sm flex-shrink-0">Ubicación Actual:</span>
+<span class="font-semibold text-right text-on-surface">Albergue Oficial #03 (Gimnasio Benito Juárez)</span>
+</div>
+</div>
+<!-- Nota Operativa -->
+<div class="p-3 rounded-lg bg-surface-container-low text-on-surface mt-3 flex flex-col gap-1">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+                  Personal Médico Voluntario Activo
+                </div>
+<p class="font-body-sm text-body-sm leading-tight text-on-surface">
+                  Médica voluntaria operando en el módulo de triaje pediátrico del Albergue #03. Condición médica personal: Ninguna condición ni patología reportada.
+                </p>
+</div>
+<!-- Telemetría & Batería -->
+<div class="p-2.5 rounded-lg bg-surface-container-low mt-3 flex items-center justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-tertiary-fixed-variant">cell_tower</span>
+<span class="">DISPOSITIVO: <strong>RSG-APP-7814</strong></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-on-tertiary-fixed-variant font-bold">Red Celular 5G</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-semibold">Triage OK</span>
+</div>
+</div>
+</div>
+<!-- Footer / Operador -->
+<div class="pt-3 mt-3 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Último reporte biométrico: 08:31 CST</span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold" type="button">
+<span class="material-symbols-outlined text-[16px]">chat</span> ENVIAR INFORME DE FAMILIA
+              </button>
+</div>
+</div>
+<!-- FICHA D: Mateo Vargas Morales (Menor de Edad / Hijo Protegido CON FOTO Y RASGOS FÍSICOS) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-md flex flex-col justify-between bg-gradient-to-br from-surface-container-lowest via-surface-container-lowest to-surface-container-low">
+<div>
+<!-- Header Distintivo Menor -->
+<div class="flex items-start justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-secondary text-on-secondary font-label-sm text-label-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[15px]">verified_user</span>
+                    MENOR DE EDAD / HIJO PROTEGIDO
+                  </span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">
+                  EN ESPERA DE TUTOR
+                </span>
+</div>
+<!-- Bloque Principal de Identificación con Fotografía -->
+<div class="flex flex-col sm:flex-row gap-space-md pt-2 pb-3">
+<!-- Marco de Fotografía del Menor (100x120px) -->
+<div class="flex flex-col items-center flex-shrink-0">
+<div class="w-[110px] h-[130px] rounded-lg overflow-hidden bg-surface-container-high shadow-md relative">
+<img class="w-full h-full object-cover" data-alt="Close-up official humanitarian identification portrait of an 8-year-old Hispanic boy named Mateo, light brown skin, short straight dark brown hair, dark brown eyes, slight polite smile, neutral clean indoor lighting, wearing a navy blue athletic shirt, sharp focus, professional biometric rescue database photo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPJBF0EX6LJ0oHsspUXoU1ftEotAO3ygBDxVPa3_6_xO9cmmPLZaU3z3-SFJNHBIgWWzL9N2V5gZRf4dkawFeZ6Y3X3faO2fll8g18E8DW9rQotxd9F0bzli-vBTJjD91KkP-ecaD3jMA2RpOKDmOR_4CWC_ERouGyloycwF9bPq0RnFtGG6k5QidMKUbl1iK8YdB8zF-Cs2F5aM5_qYntmwHAnvz20YQjTzmo2r9xLGieolDRqd77Xw">
+<div class="absolute bottom-0 inset-x-0 bg-primary/80 py-0.5 text-center">
+<span class="font-label-sm text-[9px] text-on-primary font-bold tracking-wider">ID VALIDADA</span>
+</div>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-fixed-variant font-bold mt-1 text-center flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">fingerprint</span> BIOMETRÍA C5 OK
+                  </span>
+</div>
+<!-- Datos Esenciales del Menor -->
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-on-surface">Mateo Vargas Morales</h4>
+<p class="font-label-md text-label-md text-on-surface-variant font-semibold">
+                      8 años cumplidos · Nieto / Hijo Menor registrado
+                    </p>
+<div class="mt-2 flex flex-wrap gap-1.5 font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">Pulsera QR: #QR-MT-8821</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-semibold">Tutor: Carmen Domínguez</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container-low mt-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Ubicación de Resguardo Actual:</span>
+<div class="font-title-md text-title-md font-bold text-on-surface flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant text-[18px]">stadium</span>
+                      Albergue Deportivo Olímpico (Área Lúdica 2)
+                    </div>
+</div>
+</div>
+</div>
+<!-- Rasgos Físicos Detallados & Señas Particulares -->
+<div class="p-3 rounded-lg bg-surface-container-low text-on-surface mt-1 flex flex-col gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">accessibility_new</span>
+                  Ficha de Rasgos Físicos &amp; Señas Particulares
+                </span>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 font-label-sm text-label-sm">
+<div>
+<span class="text-on-surface-variant block">Estatura:</span>
+<span class="font-bold text-on-surface">1.28 m</span>
+</div>
+<div>
+<span class="text-on-surface-variant block">Complexión:</span>
+<span class="font-bold text-on-surface">Delgada</span>
+</div>
+<div>
+<span class="text-on-surface-variant block">Tono de Piel:</span>
+<span class="font-bold text-on-surface">Moreno claro</span>
+</div>
+<div>
+<span class="text-on-surface-variant block">Cabello:</span>
+<span class="font-bold text-on-surface">Castaño oscuro, lacio</span>
+</div>
+<div>
+<span class="text-on-surface-variant block">Ojos:</span>
+<span class="font-bold text-on-surface">Café oscuro</span>
+</div>
+<div>
+<span class="text-on-surface-variant block">Cicatriz visible:</span>
+<span class="font-bold text-secondary">1 cm ceja derecha</span>
+</div>
+</div>
+<div class="pt-2 text-on-surface-variant font-body-sm text-body-sm">
+<strong class="text-on-surface">Vestimenta de último reporte:</strong> Playera deportiva azul marino, short deportivo gris, tenis negros con vivos reflejantes verde lima. Pulsera de rescate Resguardo en muñeca izquierda.
+                </div>
+</div>
+<!-- Alergias Críticas del Menor -->
+<div class="p-2.5 rounded-lg bg-error-container text-on-error-container mt-2 flex items-start gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary flex-shrink-0 mt-0.5">crisis_alert</span>
+<p class="font-body-sm text-body-sm leading-tight">
+<strong>Alergia severa: Frutos secos y picaduras de abejas.</strong> Porta auto-inyector EpiPen pediátrico en su mochila de supervivencia entregada a los rescatistas del albergue.
+                </p>
+</div>
+</div>
+<!-- Footer / Acciones para el Menor -->
+<div class="pt-3 mt-3 flex flex-wrap items-center justify-between gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Bajo custodia oficial de Lic. Patricia Vega (DIF)
+              </span>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm font-bold transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">qr_code_scanner</span> VALIDAR ENTREGA A TUTOR
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Registro Cronológico de Historial de Contacto y Movimientos Familiares -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[22px]">history_edu</span>
+              Historial de Auditoría &amp; Enlace del Núcleo #FAM-8821
+            </h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
+              Trazabilidad inmutable de pings acústicos, llamadas satelitales y modificaciones de estado.
+            </p>
+</div>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span> Actualizar Bitácora
+          </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase">
+<th class="py-2.5 px-3 rounded-l">Hora (CST)</th>
+<th class="py-2.5 px-3">Miembro Involucrado</th>
+<th class="py-2.5 px-3">Evento / Acción Registrada</th>
+<th class="py-2.5 px-3">Canal / Operador</th>
+<th class="py-2.5 px-3 rounded-r text-right">Resultado</th>
+</tr>
+</thead>
+<tbody class="text-on-surface">
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-2.5 px-3 font-label-sm text-label-sm font-semibold text-secondary">08:34:12</td>
+<td class="py-2.5 px-3 font-medium">Rodrigo Morales (Hijo)</td>
+<td class="py-2.5 px-3">Activación manual de baliza acústica de rescate vehicular (105 dB)</td>
+<td class="py-2.5 px-3 font-label-sm text-label-sm text-on-surface-variant">App Táctica / RSG-1030</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">Activo</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-2.5 px-3 font-label-sm text-label-sm font-semibold">08:28:45</td>
+<td class="py-2.5 px-3 font-medium">Mateo Vargas (Menor)</td>
+<td class="py-2.5 px-3">Escaneo biométrico facial y lectura de pulsera QR en Albergue Deportivo</td>
+<td class="py-2.5 px-3 font-label-sm text-label-sm text-on-surface-variant">DIF Módulo 2 / Lic. Vega</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold">Validado OK</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-2.5 px-3 font-label-sm text-label-sm font-semibold">08:15:02</td>
+<td class="py-2.5 px-3 font-medium">Carmen Domínguez (Madre)</td>
+<td class="py-2.5 px-3">Llamada de enlace telefónico con operador. Reporte de requerimiento urgente de insulina</td>
+<td class="py-2.5 px-3 font-label-sm text-label-sm text-on-surface-variant">Operador #04 Cmdte. Morales</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm font-bold">Despacho Alfa-4</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-2.5 px-3 font-label-sm text-label-sm font-semibold">07:54:19</td>
+<td class="py-2.5 px-3 font-medium">Dra. Sofía Montes (Hija)</td>
+<td class="py-2.5 px-3">Confirmación de ingreso al Gimnasio Benito Juárez y registro voluntario</td>
+<td class="py-2.5 px-3 font-label-sm text-label-sm text-on-surface-variant">Escáner Facial Entrada #3</td>
+<td class="py-2.5 px-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold">En Albergue</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div></main></div>
+
+
+
+
+
+
+
+
+</body></html>
