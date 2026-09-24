@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/core/security/roles_and_permissions.dart';
 import 'package:innovatec_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:innovatec_mobile/features/people/domain/models/person_report.dart';
@@ -30,17 +31,37 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
     final canVerify = RbacService.hasPermission(currentRole, AppPermission.verifyMissingPersonReport);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121418),
+      backgroundColor: ResguardoTheme.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1F26),
-        title: const Text(
-          'Personas & Rescate',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        backgroundColor: ResguardoTheme.surface,
+        elevation: 0,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Personas & Rescate',
+              style: TextStyle(
+                fontFamily: 'Space Grotesk',
+                fontWeight: FontWeight.w700,
+                color: ResguardoTheme.primary,
+                fontSize: 18,
+              ),
+            ),
+            Text(
+              'BÚSQUEDA, CENSO Y REUNIFICACIÓN OFICIAL',
+              style: TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: ResguardoTheme.textMuted,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            tooltip: 'Crear Reporte',
-            icon: const Icon(Icons.person_add_alt_1, color: Colors.amberAccent),
+            tooltip: 'Crear Reporte de Persona',
+            icon: const Icon(Icons.person_add_alt_1, color: ResguardoTheme.primary),
             onPressed: () => _showCreateReportDialog(context),
           ),
         ],
@@ -50,26 +71,36 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
           // Banner de Protocolo de Menores / RBAC Status
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: canViewSensitive
-                ? Colors.blueGrey.shade900.withOpacity(0.8)
-                : Colors.amber.shade900.withOpacity(0.3),
+            decoration: BoxDecoration(
+              color: canViewSensitive
+                  ? ResguardoTheme.safeEmerald.withValues(alpha: 0.12)
+                  : ResguardoTheme.warningAmberContainer,
+              border: Border(
+                bottom: BorderSide(
+                  color: canViewSensitive
+                      ? ResguardoTheme.safeEmerald.withValues(alpha: 0.3)
+                      : ResguardoTheme.warningAmber.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
             child: Row(
               children: [
                 Icon(
                   canViewSensitive ? Icons.verified_user : Icons.shield_outlined,
-                  color: canViewSensitive ? Colors.tealAccent : Colors.amberAccent,
+                  color: canViewSensitive ? ResguardoTheme.safeEmerald : ResguardoTheme.warningAmber,
                   size: 20,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     canViewSensitive
-                        ? 'Modo Oficial Activo (${currentRole.displayName}): Acceso a datos y validación de menores habilitado.'
-                        : 'Protocolo de Menores Activo: Datos sensibles y contacto de menores protegidos.',
+                        ? 'Modo Oficial Activo (${currentRole.displayName}): Acceso a datos protegidos y validación habilitada.'
+                        : 'Protocolo de Menores Activo: Datos sensibles y contacto de menores protegidos bajo cifrado.',
                     style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
-                      color: canViewSensitive ? Colors.tealAccent : Colors.amber.shade100,
-                      fontWeight: FontWeight.w500,
+                      color: canViewSensitive ? const Color(0xFF065F46) : const Color(0xFF92400E),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -84,14 +115,22 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
               children: [
                 TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    color: ResguardoTheme.primary,
+                    fontSize: 14,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Buscar por nombre, seña, albergue o zona...',
-                    hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    hintStyle: const TextStyle(
+                      fontFamily: 'Inter',
+                      color: ResguardoTheme.textMuted,
+                      fontSize: 13,
+                    ),
+                    prefixIcon: const Icon(Icons.search, color: ResguardoTheme.primary),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            icon: const Icon(Icons.clear, color: ResguardoTheme.textMuted),
                             onPressed: () {
                               _searchController.clear();
                               setState(() {});
@@ -99,10 +138,18 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                           )
                         : null,
                     filled: true,
-                    fillColor: const Color(0xFF1E242D),
+                    fillColor: ResguardoTheme.surface,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: ResguardoTheme.outline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: ResguardoTheme.outline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: ResguardoTheme.primary, width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                   ),
@@ -113,52 +160,31 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      FilterChip(
-                        label: const Text('Todos'),
-                        selected: _selectedTypeFilter == null,
-                        selectedColor: Colors.blueAccent.withOpacity(0.3),
-                        labelStyle: TextStyle(
-                          color: _selectedTypeFilter == null ? Colors.blueAccent : Colors.grey.shade400,
-                          fontSize: 12,
-                        ),
-                        onSelected: (_) => setState(() => _selectedTypeFilter = null),
-                        backgroundColor: const Color(0xFF1E242D),
+                      _buildFilterChip(
+                        label: 'Todos',
+                        isSelected: _selectedTypeFilter == null,
+                        onSelected: () => setState(() => _selectedTypeFilter = null),
                       ),
                       const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('🚨 Desaparecidos'),
-                        selected: _selectedTypeFilter == PersonReportType.missing,
-                        selectedColor: Colors.redAccent.withOpacity(0.3),
-                        labelStyle: TextStyle(
-                          color: _selectedTypeFilter == PersonReportType.missing ? Colors.redAccent : Colors.grey.shade400,
-                          fontSize: 12,
-                        ),
-                        onSelected: (_) => setState(() => _selectedTypeFilter = PersonReportType.missing),
-                        backgroundColor: const Color(0xFF1E242D),
+                      _buildFilterChip(
+                        label: 'Desaparecidos',
+                        isSelected: _selectedTypeFilter == PersonReportType.missing,
+                        onSelected: () => setState(() => _selectedTypeFilter = PersonReportType.missing),
+                        accentColor: ResguardoTheme.emergencyCrimson,
                       ),
                       const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('🏠 En Albergue / Encontrados'),
-                        selected: _selectedTypeFilter == PersonReportType.foundSheltered,
-                        selectedColor: Colors.greenAccent.withOpacity(0.3),
-                        labelStyle: TextStyle(
-                          color: _selectedTypeFilter == PersonReportType.foundSheltered ? Colors.greenAccent : Colors.grey.shade400,
-                          fontSize: 12,
-                        ),
-                        onSelected: (_) => setState(() => _selectedTypeFilter = PersonReportType.foundSheltered),
-                        backgroundColor: const Color(0xFF1E242D),
+                      _buildFilterChip(
+                        label: 'En Albergue / Encontrados',
+                        isSelected: _selectedTypeFilter == PersonReportType.foundSheltered,
+                        onSelected: () => setState(() => _selectedTypeFilter = PersonReportType.foundSheltered),
+                        accentColor: ResguardoTheme.safeEmerald,
                       ),
                       const SizedBox(width: 8),
-                      FilterChip(
-                        label: const Text('👶 Solo Menores'),
-                        selected: _minorsOnly,
-                        selectedColor: Colors.amberAccent.withOpacity(0.3),
-                        labelStyle: TextStyle(
-                          color: _minorsOnly ? Colors.amberAccent : Colors.grey.shade400,
-                          fontSize: 12,
-                        ),
-                        onSelected: (val) => setState(() => _minorsOnly = val),
-                        backgroundColor: const Color(0xFF1E242D),
+                      _buildFilterChip(
+                        label: 'Solo Menores',
+                        isSelected: _minorsOnly,
+                        onSelected: () => setState(() => _minorsOnly = !_minorsOnly),
+                        accentColor: ResguardoTheme.warningAmber,
                       ),
                     ],
                   ),
@@ -184,16 +210,25 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_search_outlined, size: 64, color: Colors.grey.shade600),
+                        const Icon(Icons.person_search_outlined, size: 56, color: ResguardoTheme.textMuted),
                         const SizedBox(height: 12),
-                        Text(
+                        const Text(
                           'No se encontraron registros',
-                          style: TextStyle(color: Colors.grey.shade400, fontSize: 16),
+                          style: TextStyle(
+                            fontFamily: 'Space Grotesk',
+                            fontWeight: FontWeight.bold,
+                            color: ResguardoTheme.primary,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          'La base de datos local funciona 100% offline.',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        const Text(
+                          'La base de datos local funciona 100% offline y encriptada.',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: ResguardoTheme.textMuted,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -216,22 +251,57 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
     );
   }
 
-  Widget _buildReportCard(BuildContext context, PersonReport report, UserRole currentRole, bool canVerify) {
-    final isMissing = report.type == PersonReportType.missing;
-    final accentColor = isMissing ? Colors.redAccent : Colors.greenAccent;
-
-    return Card(
-      color: const Color(0xFF1B2028),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: report.isMinor ? Colors.amber.withOpacity(0.5) : accentColor.withOpacity(0.3),
-          width: 1.2,
+  Widget _buildFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onSelected,
+    Color? accentColor,
+  }) {
+    final activeColor = accentColor ?? ResguardoTheme.primary;
+    return GestureDetector(
+      onTap: onSelected,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : ResguardoTheme.surface,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? activeColor : ResguardoTheme.outline,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'JetBrains Mono',
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: isSelected ? Colors.white : ResguardoTheme.primary,
+          ),
         ),
       ),
-      margin: const EdgeInsets.only(bottom: 12),
+    );
+  }
+
+  Widget _buildReportCard(BuildContext context, PersonReport report, UserRole currentRole, bool canVerify) {
+    final isMissing = report.type == PersonReportType.missing;
+    final accentColor = isMissing ? ResguardoTheme.emergencyCrimson : ResguardoTheme.safeEmerald;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: ResguardoTheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: report.isMinor
+              ? ResguardoTheme.warningAmber
+              : (isMissing ? ResguardoTheme.emergencyCrimson.withValues(alpha: 0.5) : ResguardoTheme.outline),
+          width: report.isMinor ? 1.5 : 1,
+        ),
+        boxShadow: const [ResguardoTheme.shadowLevel2],
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(8),
         onTap: () => _showReportDetails(context, report, currentRole),
         child: Padding(
           padding: const EdgeInsets.all(14.0),
@@ -245,8 +315,8 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      color: accentColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -259,7 +329,12 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           isMissing ? 'DESAPARECIDO' : 'EN ALBERGUE',
-                          style: TextStyle(color: accentColor, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            color: accentColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -268,17 +343,22 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.amber.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(6),
+                        color: ResguardoTheme.warningAmberContainer,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.child_care, size: 14, color: Colors.amberAccent),
+                          Icon(Icons.child_care, size: 14, color: ResguardoTheme.warningAmber),
                           SizedBox(width: 4),
                           Text(
                             'MENOR DE EDAD',
-                            style: TextStyle(color: Colors.amberAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: ResguardoTheme.warningAmber,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -291,12 +371,21 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
               // Nombre y edad
               Text(
                 report.fullName,
-                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontFamily: 'Space Grotesk',
+                  color: ResguardoTheme.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
                 '${report.age} años • Género: ${report.gender}',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  color: ResguardoTheme.textMuted,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 8),
 
@@ -304,10 +393,10 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    isMissing ? Icons.location_on_outlined : Icons.apartment_outlined,
-                    size: 16,
-                    color: Colors.grey.shade400,
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 15,
+                    color: ResguardoTheme.primary,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -315,7 +404,11 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                       isMissing
                           ? 'Último avistamiento: ${report.lastKnownLocation}'
                           : 'Ubicación actual: ${report.currentShelterName ?? report.lastKnownLocation}',
-                      style: TextStyle(color: Colors.grey.shade300, fontSize: 12),
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: ResguardoTheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -327,10 +420,14 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                 report.physicalDescription,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  color: ResguardoTheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
 
-              const Divider(color: Color(0xFF2C3440), height: 20),
+              const Divider(color: ResguardoTheme.outlineVariant, height: 20),
 
               // Footer con botón de acción
               Row(
@@ -338,7 +435,11 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                 children: [
                   Text(
                     'ID: ${report.id}',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 10, fontFamily: 'monospace'),
+                    style: const TextStyle(
+                      color: ResguardoTheme.textMuted,
+                      fontSize: 10,
+                      fontFamily: 'JetBrains Mono',
+                    ),
                   ),
                   TextButton.icon(
                     style: TextButton.styleFrom(
@@ -346,8 +447,16 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    icon: const Icon(Icons.arrow_forward, size: 14, color: Colors.blueAccent),
-                    label: const Text('Ver Ficha', style: TextStyle(color: Colors.blueAccent, fontSize: 12)),
+                    icon: const Icon(Icons.arrow_forward, size: 14, color: ResguardoTheme.primary),
+                    label: const Text(
+                      'Ver Ficha',
+                      style: TextStyle(
+                        fontFamily: 'Space Grotesk',
+                        color: ResguardoTheme.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onPressed: () => _showReportDetails(context, report, currentRole),
                   ),
                 ],
@@ -364,20 +473,20 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
     Color text;
     switch (status) {
       case VerificationStatus.unverified:
-        bg = Colors.grey.shade800;
-        text = Colors.grey.shade400;
+        bg = ResguardoTheme.surfaceContainerHigh;
+        text = ResguardoTheme.textMuted;
         break;
       case VerificationStatus.underReview:
-        bg = Colors.orange.withOpacity(0.2);
-        text = Colors.orangeAccent;
+        bg = ResguardoTheme.warningAmberContainer;
+        text = ResguardoTheme.warningAmber;
         break;
       case VerificationStatus.verifiedByAuthority:
-        bg = Colors.teal.withOpacity(0.2);
-        text = Colors.tealAccent;
+        bg = ResguardoTheme.safeEmerald.withValues(alpha: 0.15);
+        text = ResguardoTheme.safeEmerald;
         break;
       case VerificationStatus.reunited:
-        bg = Colors.purple.withOpacity(0.2);
-        text = Colors.purpleAccent;
+        bg = const Color(0xFFEDE9FE);
+        text = const Color(0xFF7C3AED);
         break;
     }
 
@@ -389,7 +498,12 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
       ),
       child: Text(
         status.label,
-        style: TextStyle(color: text, fontSize: 10, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontFamily: 'JetBrains Mono',
+          color: text,
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -409,9 +523,9 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF181D24),
+      backgroundColor: ResguardoTheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) {
         return DraggableScrollableSheet(
@@ -428,7 +542,10 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                   child: Container(
                     width: 40,
                     height: 4,
-                    decoration: BoxDecoration(color: Colors.grey.shade700, borderRadius: BorderRadius.circular(2)),
+                    decoration: BoxDecoration(
+                      color: ResguardoTheme.outline,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -438,33 +555,50 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                     Expanded(
                       child: Text(
                         report.fullName,
-                        style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          color: ResguardoTheme.primary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     _buildStatusBadge(report.status),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text('ID de Reporte: ${report.id}', style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontFamily: 'monospace')),
-                const Divider(color: Color(0xFF2E3846), height: 28),
+                const SizedBox(height: 4),
+                Text(
+                  'ID de Reporte: ${report.id}',
+                  style: const TextStyle(
+                    color: ResguardoTheme.textMuted,
+                    fontSize: 11,
+                    fontFamily: 'JetBrains Mono',
+                  ),
+                ),
+                const Divider(color: ResguardoTheme.outlineVariant, height: 24),
 
                 if (report.isMinor)
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade900.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.amberAccent.withOpacity(0.6)),
+                      color: ResguardoTheme.warningAmberContainer,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: ResguardoTheme.warningAmber.withValues(alpha: 0.5)),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.shield, color: Colors.amberAccent),
+                        Icon(Icons.shield, color: ResguardoTheme.warningAmber),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'PROTOCOLO DE MENOR: La entrega de este menor requiere validación obligatoria con credenciales oficiales.',
-                            style: TextStyle(color: Colors.amberAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              color: Color(0xFF92400E),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -486,7 +620,7 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                 if (report.officialReunificationNotes != null)
                   _buildDetailRow('Notas Oficiales', report.officialReunificationNotes!),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Botones de acción oficial
                 if (canVerify)
@@ -495,17 +629,26 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                     children: [
                       const Text(
                         'Acciones Oficiales de Rescate y Reunificación',
-                        style: TextStyle(color: Colors.tealAccent, fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          color: ResguardoTheme.primary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal.shade700,
+                          backgroundColor: ResguardoTheme.safeEmerald,
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                         ),
                         icon: const Icon(Icons.verified, color: Colors.white),
-                        label: const Text('Validar y Marcar Verificado', style: TextStyle(color: Colors.white)),
+                        label: const Text(
+                          'Validar y Marcar Verificado',
+                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold),
+                        ),
                         onPressed: () {
                           Navigator.pop(ctx);
                           _showOfficialActionDialog(context, report, VerificationStatus.verifiedByAuthority);
@@ -514,12 +657,16 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                       const SizedBox(height: 8),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple.shade700,
+                          backgroundColor: const Color(0xFF7C3AED),
+                          foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                         ),
                         icon: const Icon(Icons.family_restroom, color: Colors.white),
-                        label: const Text('Registrar Reunificación Oficial / Entrega', style: TextStyle(color: Colors.white)),
+                        label: const Text(
+                          'Registrar Reunificación Oficial / Entrega',
+                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold),
+                        ),
                         onPressed: () {
                           Navigator.pop(ctx);
                           _showOfficialActionDialog(context, report, VerificationStatus.reunited);
@@ -531,13 +678,14 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E242D),
-                      borderRadius: BorderRadius.circular(10),
+                      color: ResguardoTheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: ResguardoTheme.outlineVariant),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Para solicitar la entrega o validación de esta persona, acuda a la mesa de control del albergue con una identificación oficial.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                      style: TextStyle(fontFamily: 'Inter', color: ResguardoTheme.onSurfaceVariant, fontSize: 12),
                     ),
                   ),
               ],
@@ -554,9 +702,25 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: Colors.grey.shade500, fontSize: 11, fontWeight: FontWeight.bold)),
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              fontFamily: 'JetBrains Mono',
+              color: ResguardoTheme.textMuted,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 3),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              color: ResguardoTheme.primary,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -570,10 +734,18 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
       context: context,
       builder: (dCtx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1C222B),
+          backgroundColor: ResguardoTheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: ResguardoTheme.primary, width: 1.5),
+          ),
           title: Text(
             newStatus == VerificationStatus.reunited ? 'Autorizar Entrega / Reunificación' : 'Verificación Oficial',
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(
+              fontFamily: 'Space Grotesk',
+              fontWeight: FontWeight.bold,
+              color: ResguardoTheme.primary,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -581,31 +753,38 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
             children: [
               Text(
                 'Persona: ${report.fullName}',
-                style: const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontFamily: 'Space Grotesk',
+                  color: ResguardoTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: notesController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
                 maxLines: 3,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Firma / Folio de acta y observaciones',
-                  labelStyle: TextStyle(color: Colors.grey.shade400),
-                  filled: true,
-                  fillColor: const Color(0xFF13171D),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ],
           ),
           actions: [
             TextButton(
-              child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+              child: const Text('Cancelar', style: TextStyle(color: ResguardoTheme.textMuted)),
               onPressed: () => Navigator.pop(dCtx),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.tealAccent),
-              child: const Text('Firmar y Registrar', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ResguardoTheme.safeEmerald,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Firmar y Registrar',
+                style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold),
+              ),
               onPressed: () async {
                 if (notesController.text.trim().isEmpty) return;
                 Navigator.pop(dCtx);
@@ -621,9 +800,9 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
 
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Operación registrada exitosamente en la cadena de auditoría inmutable.'),
-                      backgroundColor: Colors.teal.shade800,
+                      backgroundColor: ResguardoTheme.safeEmerald,
                     ),
                   );
                 }
@@ -653,8 +832,8 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF181D24),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: ResguardoTheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (mCtx) {
         return StatefulBuilder(
           builder: (ctx, setModalState) {
@@ -670,9 +849,25 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: ResguardoTheme.outline,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     const Text(
                       'Nuevo Reporte de Persona',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontFamily: 'Space Grotesk',
+                        color: ResguardoTheme.primary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 14),
 
@@ -681,12 +876,12 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                       segments: const [
                         ButtonSegment(
                           value: PersonReportType.missing,
-                          label: Text('Desaparecido', style: TextStyle(fontSize: 12)),
+                          label: Text('Desaparecido', style: TextStyle(fontFamily: 'Space Grotesk', fontSize: 12)),
                           icon: Icon(Icons.warning, size: 14),
                         ),
                         ButtonSegment(
                           value: PersonReportType.foundSheltered,
-                          label: Text('En Refugio', style: TextStyle(fontSize: 12)),
+                          label: Text('En Refugio', style: TextStyle(fontFamily: 'Space Grotesk', fontSize: 12)),
                           icon: Icon(Icons.home, size: 14),
                         ),
                       ],
@@ -697,8 +892,8 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
 
                     TextField(
                       controller: nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Nombre Completo', filled: true, fillColor: Color(0xFF222933)),
+                      style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                      decoration: const InputDecoration(labelText: 'Nombre Completo'),
                     ),
                     const SizedBox(height: 8),
 
@@ -708,8 +903,8 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                           child: TextField(
                             controller: ageController,
                             keyboardType: TextInputType.number,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(labelText: 'Edad', filled: true, fillColor: Color(0xFF222933)),
+                            style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                            decoration: const InputDecoration(labelText: 'Edad'),
                             onChanged: (v) {
                               final age = int.tryParse(v) ?? 0;
                               setModalState(() => isMinor = age > 0 && age < 18);
@@ -719,14 +914,13 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: gender,
-                            dropdownColor: const Color(0xFF222933),
-                            style: const TextStyle(color: Colors.white),
+                            initialValue: gender,
+                            style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
                             items: ['Masculino', 'Femenino', 'Otro']
                                 .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                                 .toList(),
                             onChanged: (v) => setModalState(() => gender = v ?? 'Masculino'),
-                            decoration: const InputDecoration(labelText: 'Género', filled: true, fillColor: Color(0xFF222933)),
+                            decoration: const InputDecoration(labelText: 'Género'),
                           ),
                         ),
                       ],
@@ -736,12 +930,23 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                     if (isMinor)
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Colors.amber.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
+                        decoration: BoxDecoration(
+                          color: ResguardoTheme.warningAmberContainer,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                         child: const Row(
                           children: [
-                            Icon(Icons.child_care, color: Colors.amberAccent, size: 16),
+                            Icon(Icons.child_care, color: ResguardoTheme.warningAmber, size: 16),
                             SizedBox(width: 6),
-                            Text('Detectado como Menor de Edad (Protegido)', style: TextStyle(color: Colors.amberAccent, fontSize: 11)),
+                            Text(
+                              'Detectado como Menor de Edad (Protegido por Cifrado)',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Color(0xFF92400E),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -749,11 +954,11 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
 
                     TextField(
                       controller: locationController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
                       decoration: InputDecoration(
-                        labelText: reportType == PersonReportType.missing ? 'Último lugar visto (Colonia/Calle)' : 'Lugar donde se encontró',
-                        filled: true,
-                        fillColor: const Color(0xFF222933),
+                        labelText: reportType == PersonReportType.missing
+                            ? 'Último lugar visto (Colonia/Calle)'
+                            : 'Lugar donde se encontró',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -763,31 +968,31 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: TextField(
                           controller: shelterController,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(labelText: 'Nombre del Albergue o Refugio', filled: true, fillColor: Color(0xFF222933)),
+                          style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                          decoration: const InputDecoration(labelText: 'Nombre del Albergue o Refugio'),
                         ),
                       ),
 
                     TextField(
                       controller: descController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
                       maxLines: 2,
-                      decoration: const InputDecoration(labelText: 'Descripción física y vestimenta', filled: true, fillColor: Color(0xFF222933)),
+                      decoration: const InputDecoration(labelText: 'Descripción física y vestimenta'),
                     ),
                     const SizedBox(height: 8),
 
                     TextField(
                       controller: marksController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Señas particulares (Cicatrices/Tatuajes)', filled: true, fillColor: Color(0xFF222933)),
+                      style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                      decoration: const InputDecoration(labelText: 'Señas particulares (Cicatrices/Tatuajes)'),
                     ),
                     const SizedBox(height: 8),
 
                     TextField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Teléfono de contacto familiar', filled: true, fillColor: Color(0xFF222933)),
+                      style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                      decoration: const InputDecoration(labelText: 'Teléfono de contacto familiar'),
                     ),
                     const SizedBox(height: 8),
 
@@ -796,16 +1001,16 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
                         Expanded(
                           child: TextField(
                             controller: reporterController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(labelText: 'Nombre de quien reporta', filled: true, fillColor: Color(0xFF222933)),
+                            style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                            decoration: const InputDecoration(labelText: 'Nombre de quien reporta'),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
                             controller: relationshipController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(labelText: 'Parentesco', filled: true, fillColor: Color(0xFF222933)),
+                            style: const TextStyle(fontFamily: 'Inter', color: ResguardoTheme.primary),
+                            decoration: const InputDecoration(labelText: 'Parentesco'),
                           ),
                         ),
                       ],
@@ -814,15 +1019,25 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
 
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amberAccent,
+                        backgroundColor: ResguardoTheme.primary,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                       ),
-                      child: const Text('Registrar Reporte (Offline-First)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Registrar Reporte (Offline-First)',
+                        style: TextStyle(
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
                       onPressed: () async {
                         if (nameController.text.trim().isEmpty || locationController.text.trim().isEmpty) return;
 
                         final auth = AuthService().currentUser;
                         final age = int.tryParse(ageController.text) ?? 18;
+                        final messenger = ScaffoldMessenger.of(context);
 
                         await PeopleService().createReport(
                           type: reportType,
@@ -843,10 +1058,10 @@ class _MissingPersonsScreenState extends State<MissingPersonsScreen> {
 
                         if (mCtx.mounted) Navigator.pop(mCtx);
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text('Reporte guardado localmente y firmado criptográficamente.'),
-                              backgroundColor: Colors.green,
+                              backgroundColor: ResguardoTheme.safeEmerald,
                             ),
                           );
                         }

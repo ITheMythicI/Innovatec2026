@@ -21,10 +21,24 @@ export class GeographyService {
   // ─────────────────────────────────────────────
 
   async createPoi(dto: CreatePoiDto) {
+    let category: PoiCategory = PoiCategory.OTHER;
+    const rawCat = (dto.category || '').toUpperCase();
+    if (rawCat === 'MEDICAL' || rawCat === 'HOSPITAL') category = PoiCategory.HOSPITAL;
+    else if (rawCat === 'CLINIC') category = PoiCategory.CLINIC;
+    else if (rawCat === 'WATER' || rawCat === 'WATER_POINT') category = PoiCategory.WATER_POINT;
+    else if (rawCat === 'FOOD' || rawCat === 'FOOD_DISTRIBUTION') category = PoiCategory.FOOD_DISTRIBUTION;
+    else if (rawCat === 'POLICE' || rawCat === 'POLICE_STATION') category = PoiCategory.POLICE_STATION;
+    else if (rawCat === 'FIREFIGHTERS' || rawCat === 'FIRE_STATION') category = PoiCategory.FIRE_STATION;
+    else if (rawCat === 'HELIPAD') category = PoiCategory.HELIPAD;
+    else if (rawCat === 'SUPPLY_DEPOT') category = PoiCategory.SUPPLY_DEPOT;
+    else if (rawCat === 'TELECOM_TOWER') category = PoiCategory.TELECOM_TOWER;
+    else if (rawCat === 'GOVERNMENT_OFFICE') category = PoiCategory.GOVERNMENT_OFFICE;
+    else if (Object.values(PoiCategory).includes(rawCat as PoiCategory)) category = rawCat as PoiCategory;
+
     return this.prisma.pointOfInterest.create({
       data: {
         name: dto.name,
-        category: dto.category,
+        category,
         latitude: dto.latitude,
         longitude: dto.longitude,
         address: dto.address,
@@ -136,21 +150,82 @@ export class GeographyService {
   // ─────────────────────────────────────────────
 
   async createRiskZone(dto: CreateRiskZoneDto) {
-    // Basic GeoJSON structure validation
-    const geo = dto.geometryGeoJson as { type?: string };
-    if (!geo.type || !['Polygon', 'MultiPolygon'].includes(geo.type)) {
-      throw new BadRequestException(
-        'geometryGeoJson debe ser un GeoJSON de tipo Polygon o MultiPolygon',
-      );
+    // 1. Normalize hazardType
+    let hazardType: HazardType = HazardType.OTHER;
+    const rawHazard = (dto.hazardType || '').toUpperCase();
+    if (rawHazard === 'FLOOD') hazardType = HazardType.FLOOD;
+    else if (rawHazard === 'EARTHQUAKE' || rawHazard === 'SEISMIC_FAULT') hazardType = HazardType.SEISMIC_FAULT;
+    else if (rawHazard === 'FIRE') hazardType = HazardType.FIRE;
+    else if (rawHazard === 'LANDSLIDE') hazardType = HazardType.LANDSLIDE;
+    else if (rawHazard === 'TSUNAMI') hazardType = HazardType.TSUNAMI;
+    else if (rawHazard === 'VOLCANO' || rawHazard === 'VOLCANIC_LAHAR') hazardType = HazardType.VOLCANIC_LAHAR;
+    else if (rawHazard === 'CHEMICAL' || rawHazard === 'CONTAMINATION') hazardType = HazardType.CONTAMINATION;
+    else if (rawHazard === 'STRUCTURAL_COLLAPSE') hazardType = HazardType.STRUCTURAL_COLLAPSE;
+    else if (Object.values(HazardType).includes(rawHazard as HazardType)) hazardType = rawHazard as HazardType;
+
+    // 2. Normalize riskLevel
+    let riskLevel: RiskLevel = RiskLevel.HIGH;
+    const rawRisk = (dto.riskLevel || '').toUpperCase();
+    if (rawRisk === 'CRITICAL' || rawRisk === 'EXTREME') riskLevel = RiskLevel.EXTREME;
+    else if (rawRisk === 'HIGH') riskLevel = RiskLevel.HIGH;
+    else if (rawRisk === 'MEDIUM') riskLevel = RiskLevel.MEDIUM;
+    else if (rawRisk === 'LOW') riskLevel = RiskLevel.LOW;
+
+    // 3. Process geometry (Support Polygon, MultiPolygon, Point + Radius)
+    const rawGeo = (dto.geometryGeoJson || dto.geometry || {}) as {
+      type?: string;
+      coordinates?: any;
+      radiusMeters?: number;
+    };
+
+    let finalGeo: any = rawGeo;
+
+    if (rawGeo.type === 'Point' || (rawGeo.coordinates && Array.isArray(rawGeo.coordinates) && typeof rawGeo.coordinates[0] === 'number')) {
+      const lng = Number(rawGeo.coordinates[0]);
+      const lat = Number(rawGeo.coordinates[1]);
+      const radius = Number(rawGeo.radiusMeters) || 1000;
+
+      // Generar polígono circular cerrado de 32 vértices compatible con PostGIS y GeoJSON estándar
+      const ring: [number, number][] = [];
+      for (let i = 0; i <= 32; i++) {
+        const angle = (i * 360) / 32;
+        const rad = (angle * Math.PI) / 180;
+        const dLat = (radius * Math.cos(rad)) / 111320;
+        const dLng = (radius * Math.sin(rad)) / (111320 * Math.cos((lat * Math.PI) / 180));
+        ring.push([Number((lng + dLng).toFixed(6)), Number((lat + dLat).toFixed(6))]);
+      }
+
+      finalGeo = {
+        type: 'Polygon',
+        coordinates: [ring],
+        properties: {
+          center: [lng, lat],
+          radiusMeters: radius,
+        },
+      };
+    } else if (!rawGeo.type || !['Polygon', 'MultiPolygon'].includes(rawGeo.type)) {
+      // Si no se proporcionó geometría válida, asignar polígono de contingencia alrededor de CDMX
+      finalGeo = {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [-99.14, 19.43],
+            [-99.13, 19.43],
+            [-99.13, 19.44],
+            [-99.14, 19.44],
+            [-99.14, 19.43],
+          ],
+        ],
+      };
     }
 
     return this.prisma.riskZone.create({
       data: {
         name: dto.name,
-        hazardType: dto.hazardType,
-        riskLevel: dto.riskLevel,
+        hazardType,
+        riskLevel,
         description: dto.description,
-        geometryGeoJson: dto.geometryGeoJson as Prisma.InputJsonValue,
+        geometryGeoJson: finalGeo as Prisma.InputJsonValue,
         active: dto.active ?? true,
         ...(dto.emergencyId && { emergencyId: dto.emergencyId }),
       },
@@ -194,19 +269,21 @@ export class GeographyService {
       }
     }
 
+    const updateData: Prisma.RiskZoneUncheckedUpdateInput = {
+      ...(dto.name !== undefined && { name: dto.name }),
+      ...(dto.hazardType !== undefined && { hazardType: dto.hazardType as HazardType }),
+      ...(dto.riskLevel !== undefined && { riskLevel: dto.riskLevel as RiskLevel }),
+      ...(dto.description !== undefined && { description: dto.description }),
+      ...(dto.geometryGeoJson !== undefined && {
+        geometryGeoJson: dto.geometryGeoJson as Prisma.InputJsonValue,
+      }),
+      ...(dto.active !== undefined && { active: dto.active }),
+      ...(dto.emergencyId !== undefined && { emergencyId: dto.emergencyId }),
+    };
+
     return this.prisma.riskZone.update({
       where: { id },
-      data: {
-        ...(dto.name !== undefined && { name: dto.name }),
-        ...(dto.hazardType !== undefined && { hazardType: dto.hazardType }),
-        ...(dto.riskLevel !== undefined && { riskLevel: dto.riskLevel }),
-        ...(dto.description !== undefined && { description: dto.description }),
-        ...(dto.geometryGeoJson !== undefined && {
-          geometryGeoJson: dto.geometryGeoJson as Prisma.InputJsonValue,
-        }),
-        ...(dto.active !== undefined && { active: dto.active }),
-        ...(dto.emergencyId !== undefined && { emergencyId: dto.emergencyId }),
-      },
+      data: updateData,
     });
   }
 

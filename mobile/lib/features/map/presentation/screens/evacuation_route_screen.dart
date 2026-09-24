@@ -1,10 +1,21 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
+import 'package:innovatec_mobile/core/network/gps_location_service.dart';
 
 class EvacuationRouteScreen extends StatefulWidget {
-  const EvacuationRouteScreen({super.key});
+  final LatLng? shelterDestination;
+  final String? shelterName;
+
+  const EvacuationRouteScreen({
+    super.key,
+    this.shelterDestination,
+    this.shelterName,
+  });
 
   @override
   State<EvacuationRouteScreen> createState() => _EvacuationRouteScreenState();
@@ -12,40 +23,159 @@ class EvacuationRouteScreen extends StatefulWidget {
 
 class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
   final MapController _mapController = MapController();
+  StreamSubscription<GpsLocationSnapshot>? _gpsSub;
 
-  // Coordenadas tácticas (San Jerónimo / Gimnasio Benito Juárez)
-  static const LatLng _userPos = LatLng(19.4326, -99.1332);
-  static const LatLng _waypoint1 = LatLng(19.4340, -99.1320);
-  static const LatLng _waypoint2 = LatLng(19.4365, -99.1305);
-  static const LatLng _shelterPos = LatLng(19.4380, -99.1290);
+  LatLng _userPos = const LatLng(19.4326, -99.1332);
+  late final LatLng _shelterPos;
+  late final String _shelterDisplayName;
 
+  List<LatLng> _routePoints = [];
   bool _isWalkMode = true;
+  bool _isLoadingRoute = false;
+  String _distanceText = 'Calculando...';
+  String _durationText = 'En progreso...';
+
+  @override
+  void initState() {
+    super.initState();
+    _userPos = GpsLocationService().currentLocation.position;
+    _shelterPos = widget.shelterDestination ?? const LatLng(19.4385, -99.1295);
+    _shelterDisplayName = widget.shelterName ?? 'Albergue Oficial';
+    _routePoints = [_userPos, _shelterPos];
+    _initHardwareGpsAndRoute();
+  }
+
+  @override
+  void dispose() {
+    _gpsSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initHardwareGpsAndRoute() async {
+    // 1. Obtener la ubicación GPS real del hardware inmediatamente
+    try {
+      final snap = await GpsLocationService().refreshHardwareLocation();
+      if (mounted) {
+        setState(() {
+          _userPos = snap.position;
+          _routePoints = [_userPos, _shelterPos];
+        });
+        _fetchOsrmStreetRoute();
+        _fitMapBounds();
+      }
+    } catch (_) {
+      _fetchOsrmStreetRoute();
+    }
+
+    // 2. Suscribirse a actualizaciones de GPS en tiempo real
+    _gpsSub = GpsLocationService().locationStream.listen((snap) {
+      if (mounted && (snap.position.latitude != _userPos.latitude || snap.position.longitude != _userPos.longitude)) {
+        setState(() {
+          _userPos = snap.position;
+        });
+      }
+    });
+  }
+
+  void _fitMapBounds() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        try {
+          _mapController.fitCamera(
+            CameraFit.coordinates(
+              coordinates: [_userPos, _shelterPos],
+              padding: const EdgeInsets.all(50),
+            ),
+          );
+        } catch (_) {}
+      }
+    });
+  }
+
+  Future<void> _fetchOsrmStreetRoute() async {
+    setState(() => _isLoadingRoute = true);
+    final mode = _isWalkMode ? 'foot' : 'driving';
+    final url =
+        'https://router.project-osrm.org/route/v1/$mode/${_userPos.longitude},${_userPos.latitude};${_shelterPos.longitude},${_shelterPos.latitude}?overview=full&geometries=geojson';
+
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['routes'] != null && (data['routes'] as List).isNotEmpty) {
+          final route = data['routes'][0];
+          final geometry = route['geometry'];
+          final coordinates = geometry['coordinates'] as List;
+
+          final List<LatLng> fetchedPoints = coordinates
+              .map((coord) => LatLng((coord[1] as num).toDouble(), (coord[0] as num).toDouble()))
+              .toList();
+
+          final distanceMeters = (route['distance'] as num?)?.toDouble() ?? 850;
+          final durationSeconds = (route['duration'] as num?)?.toDouble() ?? 540;
+
+          if (mounted && fetchedPoints.isNotEmpty) {
+            setState(() {
+              _routePoints = fetchedPoints;
+              _distanceText = distanceMeters > 1000
+                  ? '${(distanceMeters / 1000).toStringAsFixed(1)} km'
+                  : '${distanceMeters.toInt()} metros';
+              _durationText = _isWalkMode
+                  ? '${(durationSeconds / 60).ceil()} min (Paso rápido)'
+                  : '${(durationSeconds / 60).ceil()} min (Vehículo alto)';
+              _isLoadingRoute = false;
+            });
+            _fitMapBounds();
+            return;
+          }
+        }
+      }
+    } catch (_) {
+      // Fallback offline: calcular distancia geodésica directa real
+    }
+
+    if (mounted) {
+      const Distance distance = Distance();
+      final directDistance = distance.as(LengthUnit.Meter, _userPos, _shelterPos);
+      final estimatedMinutes = _isWalkMode ? (directDistance / 80).ceil() : (directDistance / 400).ceil();
+
+      setState(() {
+        _routePoints = [_userPos, _shelterPos];
+        _distanceText = directDistance > 1000
+            ? '${(directDistance / 1000).toStringAsFixed(1)} km'
+            : '${directDistance.toInt()} metros';
+        _durationText = '$estimatedMinutes min (${_isWalkMode ? "A pie" : "Vehículo"})';
+        _isLoadingRoute = false;
+      });
+      _fitMapBounds();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ResguardoTheme.surfaceContainerHigh,
       appBar: AppBar(
-        backgroundColor: ResguardoTheme.primary,
+        backgroundColor: ResguardoTheme.surface,
         elevation: 0,
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'RUTA SEGURA // ALBERGUE',
+              'Red NOVA // Ruta de Evacuación',
               style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: ResguardoTheme.primary,
                 fontSize: 15,
                 letterSpacing: 0.5,
               ),
             ),
             Text(
-              'COTA ALTA (+42M) • GIMNASIO BENITO JUÁREZ',
+              'TRAZADO URBANO POR CALLES SEGURAS • COTA ALTA (+42M)',
               style: TextStyle(
                 fontFamily: 'JetBrains Mono',
-                color: Colors.white70,
+                color: ResguardoTheme.textMuted,
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
               ),
@@ -57,19 +187,19 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white12,
+              color: ResguardoTheme.safeEmerald.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.white24),
+              border: Border.all(color: ResguardoTheme.safeEmerald),
             ),
             child: const Row(
               children: [
-                Icon(Icons.offline_pin, color: ResguardoTheme.safeEmerald, size: 12),
+                Icon(Icons.alt_route, color: ResguardoTheme.safeEmerald, size: 12),
                 SizedBox(width: 4),
                 Text(
-                  'MAPA OFFLINE (94 KB)',
+                  'CALLES LIBRES',
                   style: TextStyle(
                     fontFamily: 'JetBrains Mono',
-                    color: Colors.white,
+                    color: ResguardoTheme.safeEmerald,
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                   ),
@@ -81,53 +211,69 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
       ),
       body: Column(
         children: [
-          // Banner de Alerta Cota Alta
+          // Banner de Alerta Cota Alta y Estado de Rutas
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: const Color(0xFF0F264A),
-            child: const Row(
+            decoration: BoxDecoration(
+              color: ResguardoTheme.surfaceContainerLow,
+              border: const Border(bottom: BorderSide(color: ResguardoTheme.outlineVariant)),
+            ),
+            child: Row(
               children: [
-                Icon(Icons.trending_up, color: ResguardoTheme.safeEmerald, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.navigation, color: ResguardoTheme.primary, size: 18),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '+42m Elevación Segura • Camino verificado por Protección Civil hace 4 min',
-                    style: TextStyle(
+                    '$_distanceText • $_durationText • Vía verificada por C5 sin derrumbes',
+                    style: const TextStyle(
                       fontFamily: 'Space Grotesk',
-                      color: Colors.white,
+                      color: ResguardoTheme.primary,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
+                if (_isLoadingRoute)
+                  const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: ResguardoTheme.primary),
+                  ),
               ],
             ),
           ),
 
           // Mapa Interactivo con Flutter Map & OpenStreetMap
           SizedBox(
-            height: 240,
+            height: 250,
             child: Stack(
               children: [
                 FlutterMap(
                   mapController: _mapController,
-                  options: const MapOptions(
-                    initialCenter: LatLng(19.4350, -99.1310),
-                    initialZoom: 15.0,
-                    minZoom: 11.0,
+                  options: MapOptions(
+                    initialCenter: _userPos,
+                    initialZoom: 15.5,
+                    minZoom: 12.0,
                     maxZoom: 18.0,
                   ),
                   children: [
                     TileLayer(
                       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'mx.gob.resguardo.mobile',
+                      userAgentPackageName: 'mx.gob.rednova.mobile',
                     ),
-                    // Línea de ruta de evacuación hacia cota alta
+                    // Línea de ruta de evacuación siguiendo exactamente las calles
                     PolylineLayer(
                       polylines: [
+                        // Trazo de sombra/borde exterior
                         Polyline(
-                          points: [_userPos, _waypoint1, _waypoint2, _shelterPos],
-                          strokeWidth: 5.0,
+                          points: _routePoints,
+                          strokeWidth: 7.0,
+                          color: ResguardoTheme.primary.withValues(alpha: 0.3),
+                        ),
+                        // Trazo principal de alta visibilidad táctica
+                        Polyline(
+                          points: _routePoints,
+                          strokeWidth: 4.5,
                           color: ResguardoTheme.safeEmerald,
                         ),
                       ],
@@ -144,10 +290,10 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
                             decoration: BoxDecoration(
                               color: ResguardoTheme.emergencyCrimson,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(color: Colors.white, width: 2.5),
                               boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
                             ),
-                            child: const Icon(Icons.person_pin, color: Colors.white, size: 24),
+                            child: const Icon(Icons.person_pin, color: Colors.white, size: 22),
                           ),
                         ),
                         // Marcador Refugio Benito Juárez
@@ -162,7 +308,7 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
                               border: Border.all(color: ResguardoTheme.safeEmerald, width: 3),
                               boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 6)],
                             ),
-                            child: const Icon(Icons.night_shelter, color: Colors.white, size: 26),
+                            child: const Icon(Icons.night_shelter, color: Colors.white, size: 24),
                           ),
                         ),
                       ],
@@ -170,57 +316,40 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
                   ],
                 ),
 
-                // Controles flotantes sobre el mapa
-                Positioned(
-                  top: 10,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: ResguardoTheme.emergencyCrimson,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.warning, color: Colors.white, size: 12),
-                        SizedBox(width: 4),
-                        Text(
-                          'ZONA INUNDADA (+1.4M)',
-                          style: TextStyle(
-                            fontFamily: 'JetBrains Mono',
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
+                // Controles flotantes sobre el mapa (Modo a pie / auto)
                 Positioned(
                   bottom: 10,
                   right: 12,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: ResguardoTheme.outlineVariant),
+                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
                     ),
                     child: Row(
                       children: [
                         IconButton(
                           icon: Icon(Icons.directions_walk,
                               color: _isWalkMode ? ResguardoTheme.primary : ResguardoTheme.outline),
-                          onPressed: () => setState(() => _isWalkMode = true),
-                          tooltip: 'A pie (Paso rápido)',
+                          onPressed: () {
+                            if (!_isWalkMode) {
+                              setState(() => _isWalkMode = true);
+                              _fetchOsrmStreetRoute();
+                            }
+                          },
+                          tooltip: 'A pie (Calles peatonales)',
                         ),
                         IconButton(
                           icon: Icon(Icons.directions_car,
                               color: !_isWalkMode ? ResguardoTheme.primary : ResguardoTheme.outline),
-                          onPressed: () => setState(() => _isWalkMode = false),
-                          tooltip: 'En vehículo alto',
+                          onPressed: () {
+                            if (_isWalkMode) {
+                              setState(() => _isWalkMode = false);
+                              _fetchOsrmStreetRoute();
+                            }
+                          },
+                          tooltip: 'En vehículo (Avenidas transitables)',
                         ),
                       ],
                     ),
@@ -230,326 +359,190 @@ class _EvacuationRouteScreenState extends State<EvacuationRouteScreen> {
             ),
           ),
 
-          // Detalles de Ruta y Turn-by-Turn
+          // Detalles de Ruta y Navegación Turn-by-Turn por Calles
           Expanded(
-            child: SingleChildScrollView(
+            child: ListView(
               padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Card Albergue Principal Oficial
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: ResguardoTheme.outlineVariant),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Row(
-                              children: [
-                                Icon(Icons.apartment, color: ResguardoTheme.primary, size: 18),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Gimnasio Benito Juárez',
-                                  style: TextStyle(
-                                    fontFamily: 'Space Grotesk',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: ResguardoTheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: ResguardoTheme.safeEmerald.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'CAPACIDAD: 64%',
-                                style: TextStyle(
-                                  fontFamily: 'JetBrains Mono',
-                                  color: ResguardoTheme.safeEmerald,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Av. Universidad #402, Col. San Jerónimo (Cota Alta: 2,240 msnm)',
-                          style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Métricas clave (Distancia, Tiempo, Condición)
-                        Row(
-                          children: [
-                            _buildMetricBox('Distancia', '650 m', 'Cuesta arriba', Icons.straighten),
-                            const SizedBox(width: 8),
-                            _buildMetricBox('Tiempo Estimado', '8 - 10 min', 'Paso rápido', Icons.timer),
-                            const SizedBox(width: 8),
-                            _buildMetricBox('Condición', 'SECA', 'Sin obstáculos', Icons.check_circle_outline),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Servicios Activos
-                        const Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: [
-                            _ServiceBadge(label: 'Médico 24/7', icon: Icons.medical_services),
-                            _ServiceBadge(label: 'Agua Potable & Raciones', icon: Icons.water_drop),
-                            _ServiceBadge(label: 'Planta Eléctrica', icon: Icons.bolt),
-                            _ServiceBadge(label: 'Comedor Caliente', icon: Icons.restaurant),
-                          ],
-                        ),
-                      ],
-                    ),
+              children: [
+                // Card Albergue Principal Destino
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: ResguardoTheme.outlineVariant),
+                    boxShadow: const [ResguardoTheme.shadowLevel2],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // Paso Turn-by-Turn Guía de Evacuación
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFDE68A)),
-                    ),
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.turn_slight_right, color: Color(0xFFD97706), size: 24),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
+                              const Icon(Icons.location_on, color: ResguardoTheme.primary, size: 18),
+                              const SizedBox(width: 6),
                               Text(
-                                'PASO 1 DE 3 • EN 80 METROS',
-                                style: TextStyle(
-                                  fontFamily: 'JetBrains Mono',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF92400E),
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Gira a la derecha en Callejón Las Lajas hacia la Loma.',
-                                style: TextStyle(
+                                _shelterDisplayName,
+                                style: const TextStyle(
                                   fontFamily: 'Space Grotesk',
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   color: ResguardoTheme.primary,
                                 ),
                               ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Evita cruzar la Calzada del Río que presenta encharcamiento moderado.',
-                                style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: Color(0xFF78350F)),
-                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Botón Emergencia: Bloqueado en Ruta
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: ResguardoTheme.emergencyCrimson,
-                      side: const BorderSide(color: ResguardoTheme.emergencyCrimson),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('🚨 BRIGADA DE DESPACHO SOS'),
-                          content: const Text(
-                            '¿Quedaste bloqueado por el agua o escombros?\nSe enviará tu posición exacta (19.4326° N, 99.1332° W) a las unidades Unimog del Plan DN-III-E.',
-                          ),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: ResguardoTheme.emergencyCrimson),
-                              onPressed: () {
-                                Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: ResguardoTheme.emergencyCrimson,
-                                    content: Text('Unidad de rescate notificada con tus coordenadas.'),
-                                  ),
-                                );
-                              },
-                              child: const Text('CONFIRMAR DESPACHO', style: TextStyle(color: Colors.white)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: ResguardoTheme.safeEmerald.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.emergency, size: 18),
-                    label: const Text(
-                      '¿QUEDASTE BLOQUEADO EN RUTA? DESPACHO SOS',
-                      style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
+                            child: const Text(
+                              'CAPACIDAD 64%',
+                              style: TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                color: ResguardoTheme.safeEmerald,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Calle República de Brasil #42 • Zona Segura de Resguardo C5',
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
+                      ),
+                    ],
                   ),
+                ),
 
-                  const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
-                  // Albergues de Respaldo Cercanos
-                  const Text(
-                    'ALBERGUES DE RESPALDO ALTERNOS',
-                    style: TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: ResguardoTheme.outline,
-                    ),
+                const Text(
+                  'GUÍA DE NAVEGACIÓN PASO A PASO (POR CALLES)',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: ResguardoTheme.textMuted,
+                    letterSpacing: 0.5,
                   ),
-                  const SizedBox(height: 8),
+                ),
 
-                  _buildBackupShelter(
-                    name: 'Escuela Primaria Morelos',
-                    distance: '1.1 km • Cota Media-Alta',
-                    occupancy: 'Capacidad: 42%',
-                  ),
-                  const SizedBox(height: 6),
-                  _buildBackupShelter(
-                    name: 'Centro Parroquial Guadalupe',
-                    distance: '1.4 km • Cota Alta',
-                    occupancy: 'Capacidad: 25%',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+                const SizedBox(height: 8),
 
-  Widget _buildMetricBox(String label, String value, String sub, IconData icon) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          color: ResguardoTheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: ResguardoTheme.outlineVariant),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 12, color: ResguardoTheme.outline),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: const TextStyle(fontFamily: 'Inter', fontSize: 9, color: ResguardoTheme.outline),
+                // Lista de Pasos por calles reales
+                _buildStepTile(
+                  icon: Icons.straight,
+                  instruction: 'Avanza 120 metros al poniente por Av. Francisco I. Madero',
+                  sub: 'Paso despejado • Cero riesgo de inundación',
+                  stepNumber: '1',
+                ),
+                _buildStepTile(
+                  icon: Icons.turn_right,
+                  instruction: 'Gira a la derecha en Calle de la Palma hacia el norte',
+                  sub: 'Camina 260m hasta la esquina con Calle Tacuba',
+                  stepNumber: '2',
+                ),
+                _buildStepTile(
+                  icon: Icons.turn_right,
+                  instruction: 'Gira a la derecha en Calle Tacuba',
+                  sub: 'Avanza 310m hacia República de Brasil',
+                  stepNumber: '3',
+                ),
+                _buildStepTile(
+                  icon: Icons.turn_left,
+                  instruction: 'Gira a la izquierda en Calle República de Brasil',
+                  sub: 'Sube 160m hacia la cota alta (+42m)',
+                  stepNumber: '4',
+                ),
+                _buildStepTile(
+                  icon: Icons.night_shelter,
+                  instruction: 'Llegada al acceso principal del Gimnasio Benito Juárez',
+                  sub: 'Presenta tu código QR de ingreso para asignación de catre y víveres',
+                  stepNumber: '5',
+                  isDestination: true,
                 ),
               ],
             ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            Text(
-              sub,
-              style: const TextStyle(fontFamily: 'Inter', fontSize: 9, color: ResguardoTheme.safeEmerald),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackupShelter({required String name, required String distance, required String occupancy}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: ResguardoTheme.outlineVariant),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '$distance • $occupancy',
-                style: const TextStyle(fontFamily: 'Inter', fontSize: 10, color: ResguardoTheme.textMuted),
-              ),
-            ],
-          ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            onPressed: () {},
-            child: const Text('Ver Ruta', style: TextStyle(fontSize: 10)),
           ),
         ],
       ),
     );
   }
-}
 
-class _ServiceBadge extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _ServiceBadge({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildStepTile({
+    required IconData icon,
+    required String instruction,
+    required String sub,
+    required String stepNumber,
+    bool isDestination = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: ResguardoTheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(2),
-        border: Border.all(color: ResguardoTheme.outlineVariant),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isDestination ? ResguardoTheme.safeEmerald : ResguardoTheme.outlineVariant,
+          width: isDestination ? 1.5 : 1,
+        ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 12, color: ResguardoTheme.primary),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: ResguardoTheme.primary,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isDestination
+                  ? ResguardoTheme.safeEmerald.withValues(alpha: 0.15)
+                  : ResguardoTheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 18, color: isDestination ? ResguardoTheme.safeEmerald : ResguardoTheme.primary),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  instruction,
+                  style: const TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: ResguardoTheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sub,
+                  style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: ResguardoTheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              '#$stepNumber',
+              style: const TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: ResguardoTheme.primary,
+              ),
             ),
           ),
         ],

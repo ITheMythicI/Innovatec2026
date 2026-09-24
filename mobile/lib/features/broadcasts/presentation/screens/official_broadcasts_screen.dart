@@ -195,8 +195,8 @@ class _OfficialBroadcastsScreenState extends State<OfficialBroadcastsScreen> {
                 SnackBar(
                   backgroundColor: _isPlayingRadio ? ResguardoTheme.emergencyCrimson : ResguardoTheme.primary,
                   content: Text(_isPlayingRadio
-                      ? '📻 Conectado al repetidor táctico C5 (Canal Nacional 147.500 MHz)'
-                      : '📻 Radio en espera (Modo ahorro de energía activo)'),
+                      ? '[RADIO] Conectado al repetidor táctico C5 (Canal Nacional 147.500 MHz)'
+                      : '[RADIO] Radio en espera (Modo ahorro de energía activo)'),
                   duration: const Duration(seconds: 3),
                 ),
               );

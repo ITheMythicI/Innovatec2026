@@ -1,142 +1,226 @@
-<!DOCTYPE html><html lang="es" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#c6c6c6", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#ffb4ab", "background": "#f8f9ff", "error-container": "#ffdad6", "on-tertiary-fixed-variant": "#005320", "on-error-container": "#93000a", "inverse-surface": "#213145", "on-primary-container": "#848484", "surface-bright": "#f8f9ff", "primary": "#000000", "surface": "#f8f9ff", "on-error": "#ffffff", "surface-container-highest": "#d3e3ff", "surface-container-low": "#eff4ff", "on-primary-fixed-variant": "#474747", "tertiary-fixed": "#81fc98", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed": "#002109", "surface-dim": "#cbdbf5", "surface-container": "#e6eeff", "secondary": "#bb0112", "tertiary-container": "#002109", "on-surface": "#0b1c30", "on-secondary-fixed-variant": "#93000b", "on-tertiary-container": "#019842", "surface-tint": "#5e5e5e", "outline-variant": "#cfc4c5", "on-secondary": "#ffffff", "surface-container-high": "#dde9ff", "on-surface-variant": "#44474d", "secondary-container": "#e02928", "secondary-fixed": "#ffdad6", "primary-fixed": "#d6e3ff", "on-secondary-fixed": "#410002", "outline": "#75777e", "on-secondary-container": "#fffbff", "surface-container-lowest": "#ffffff", "surface-variant": "#d3e3ff", "on-primary": "#ffffff", "error": "#ba1a1a", "on-background": "#0b1c30", "primary-fixed-dim": "#c6c6c6", "tertiary-fixed-dim": "#62df7d", "tertiary": "#000000", "on-primary-fixed": "#0d1c32", "primary-container": "#1b1b1b" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-xl": "2.5rem", "margin": "1rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "3rem", "gutter": "1rem", "margin-tablet": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "display": [ "Space Grotesk" ], "headline-lg": [ "Space Grotesk" ], "label-md": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Space Grotesk" ], "display-mobile": [ "Space Grotesk" ], "title-md": [ "Inter" ], "title-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "label-sm": [ "JetBrains Mono" ], "body-lg": [ "Inter" ], "body-sm": [ "Inter" ], "label-lg": [ "JetBrains Mono" ], "headline-md": [ "Space Grotesk" ] }, "fontSize": { "display": [ "48px", { "lineHeight": "56px", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "40px", "fontWeight": "700" } ], "label-md": [ "12px", { "lineHeight": "16px", "fontWeight": "500" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "700" } ], "display-mobile": [ "36px", { "lineHeight": "44px", "fontWeight": "700" } ], "title-md": [ "16px", { "lineHeight": "22px", "fontWeight": "600" } ], "title-lg": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "26px", "fontWeight": "600" } ], "label-sm": [ "10px", { "lineHeight": "14px", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "label-lg": [ "14px", { "lineHeight": "18px", "fontWeight": "500" } ], "headline-md": [ "24px", { "lineHeight": "30px", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><img alt="Resguardo Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XPYkGdukbVJFxhYrtozMICEdZCM0TrfRE9nIr6XtiTc06uVfDxOra68KUjH0r0CdbCkcQAhCs8wMKygOBCLvC0Crm-rfi1F2fZp9ZzSuhD6G50pJQEQsRKoawUIkEfF77E28wWHQXq6SrAYjrst37UWXZwzCMUFrrNmH9kh6p-THqV3yrXpIwr2zs4MGEGXLVnqpimUZ7AyTpG82txHegShl2WKkLlnx2hdq3XbaIr7M8h0Cg-KEcWY4ML"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface leading-none">RESGUARDO</span><span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">CENTRO DE COMANDO &amp; OPERACIONES</span></div><div class="hidden xl:flex items-center gap-space-sm pl-space-md"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm tracking-wider animate-pulse"><span class="w-2 h-2 rounded-full bg-secondary"></span>ESTADO: ALERTA ROJA ACTIVA - ZONA NORTE</span></div></div><div class="flex items-center gap-space-md flex-shrink-0"><button class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md tracking-wider transition-colors shadow-[0_1px_8px_rgba(0,0,0,0.04)] cursor-pointer" type="button" data-path="noticias-alertas" title="Emisión de Noticias y Comunicados a la App Móvil"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="hidden 2xl:inline">ACTIVAR ALERTA SONORA GENERAL (BROADCAST)</span><span class="2xl:hidden">BROADCAST</span></button><div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm tracking-wider"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>RED ACTIVA 99.8% ONLINE</div><div class="hidden md:flex flex-col text-right font-label-sm text-label-sm"><span class="text-on-surface font-semibold">14:38:22 UTC</span><span class="text-on-surface-variant">08:38:22 LOCAL (CST)</span></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="hidden sm:flex flex-col text-right leading-tight"><span class="font-label-md text-label-md text-on-surface font-semibold">Cmdte. J. Morales</span><span class="font-label-sm text-label-sm text-on-surface-variant">Operador Táctico #04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-xs px-space-sm"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">CANALES DE CONTROL</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container text-on-surface font-semibold rounded-lg"><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="tablero-general" href="#"><span class="material-symbols-outlined text-[20px]">radar</span><span class="">Tablero General &amp; Mapa</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dispositivos-activacion" href="#"><span class="material-symbols-outlined text-[20px]">volume_up</span><span class="">Dispositivos &amp; Sirenas</span></a><a aria-current="page" class="flex items-center gap-space-md px-space-md py-2.5 transition-colors bg-surface-container text-on-surface font-semibold rounded-lg" data-path="incidentes-sos" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="">Registro de Incidentes &amp; SOS</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="red-familiar" href="#"><span class="material-symbols-outlined text-[20px]">group_work</span><span class="">Red Familiar &amp; Personas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="metricas-analitica" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="">Métricas &amp; Analítica</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md cursor-pointer" data-path="noticias-alertas" href="#" title="Emisión de Noticias &amp; Comunicados a la App Móvil"><span class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-secondary">campaign</span><span class="">Noticias &amp; Alertas App</span></span><span class="px-1.5 py-0.5 text-[9px] font-label-sm font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase tracking-wider">BROADCAST</span></a></nav></div><div class="px-space-md"><div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm font-semibold text-on-surface">ENLACE SAT-CORE</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><p class="font-label-sm text-label-sm text-on-surface-variant">Nivel de latencia: 18ms</p><p class="font-label-sm text-label-sm text-on-surface-variant">Frecuencia: VHF 146.520 MHz</p></div></div></aside><div class="pl-72"><main class="relative pt-16 w-full px-gutter-desktop min-h-screen bg-surface"><div class="flex flex-col w-full pb-space-xl">
-<!-- TOP CONTEXT STRIP & METRIC CARDS -->
-<div class="w-full mb-space-lg flex flex-col gap-space-md">
-<!-- Breadcrumb & Tactical Status Indicator -->
-<div class="flex flex-wrap items-center justify-between gap-space-sm">
-<div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
-<span class="material-symbols-outlined text-[16px]">shield</span>
-<span class="">CENTRO DE MANDO</span>
-<span class="">/</span>
-<span class="text-on-surface font-semibold">INCIDENTES, SOS &amp; TRIAGE DE BIENESTAR</span>
-</div>
-<div class="flex items-center gap-space-sm">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold tracking-wider animate-pulse">
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-          COORDINACIÓN REGIONAL ZONA 01 // TIEMPO REAL
-        </span>
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
-<span class="material-symbols-outlined text-[14px]">satellite_alt</span> LORAWAN + SAT-MESH
-        </span>
-</div>
-</div>
-<!-- 4 Tonal Stat Pods -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
-<!-- Total -->
-<div class="p-space-md rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Incidentes (24h)</span>
-<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight">142</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Reportes procesados</span>
-</div>
-<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-on-surface">
-<span class="material-symbols-outlined text-[24px]">folder_special</span>
-</div>
-</div>
-<!-- En despacho -->
-<div class="p-space-md rounded-lg bg-secondary-fixed text-on-secondary-fixed shadow-sm flex items-center justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-secondary-fixed-variant">En Despacho / Triage</span>
-<span class="font-headline-lg text-headline-lg text-secondary tracking-tight">18</span>
-<span class="font-label-sm text-label-sm text-on-secondary-fixed font-medium mt-0.5">4 brigadas en sitio</span>
-</div>
-<div class="w-12 h-12 rounded-lg bg-surface-container-lowest/80 text-secondary flex items-center justify-center">
-<span class="material-symbols-outlined text-[24px]">emergency_home</span>
-</div>
-</div>
-<!-- Rescatados -->
-<div class="p-space-md rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">A Salvo / En Albergue</span>
-<span class="font-headline-lg text-headline-lg text-on-tertiary-container tracking-tight">114</span>
-<span class="font-label-sm text-label-sm text-on-tertiary-container mt-0.5 flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px]">check_circle</span> 80% bienestar confirmado
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_dashboard" name="shell-type">
+  <title>Red NOVA — Registro de Incidentes & SOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dde9ff",
+            "primary": "#000000",
+            "secondary": "#bb0112",
+            "secondary-container": "#e02928",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "outline": "#75777e",
+            "outline-variant": "#cfc4c5",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#44474d",
+            "safe-emerald": "#059669",
+            "safe-container": "#d1fae5",
+            "on-safe": "#065f46"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+  <!-- HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/40 shadow-sm">
+    <div class="h-16 w-full px-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-headline font-bold text-lg shadow-sm">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface leading-none">RED NOVA</span>
+          <span class="font-mono text-[10px] text-on-surface-variant tracking-wider font-semibold">REGISTRO DE INCIDENTES & SOS</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-safe-container text-on-safe font-mono text-xs font-bold tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+          TRIAGE EN TIEMPO REAL
+        </div>
+        <div class="flex items-center gap-2.5 pl-2">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-headline text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left leading-tight">
+            <span id="header-operator-name" class="font-headline text-xs font-bold text-on-surface">Cmdte. J. Morales</span>
+            <span id="header-operator-role" class="font-mono text-[10px] text-on-surface-variant">SUPER_ADMIN [C5-01]</span>
+          </div>
+          <button onclick="ApiClient.clearSession(); window.location.href='/dashboard/login.html';" class="p-1 text-on-surface-variant hover:text-secondary" title="Cerrar Sesión">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/40 shadow-sm z-40 flex flex-col justify-between py-4 overflow-y-auto">
+    <div class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 mb-1">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">CANALES DE CONTROL</span>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="tablero-general" href="/dashboard/panel.html">
+          <span class="material-symbols-outlined text-[20px]">radar</span>
+          <span>Tablero General & Mapa</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="dispositivos-activacion" href="/dashboard/devices.html">
+          <span class="material-symbols-outlined text-[20px]">volume_up</span>
+          <span>Dispositivos & Sirenas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-headline font-bold text-sm shadow-sm" data-path="incidentes-sos" href="/dashboard/incidents.html">
+          <span class="material-symbols-outlined text-[20px] text-primary">emergency</span>
+          <span>Registro de Incidentes & SOS</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="red-familiar" href="/dashboard/people.html">
+          <span class="material-symbols-outlined text-[20px]">group_work</span>
+          <span>Red Familiar & Personas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="metricas-analitica" href="/dashboard/analytics.html">
+          <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <span>Métricas & Analítica</span>
+        </a>
+        <a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm border-l-2 border-secondary" data-path="noticias-alertas-app" href="/dashboard/broadcasts.html">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-secondary">campaign</span>
+            <span class="font-medium">Noticias & Alertas App</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase">BROADCAST</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="pl-64">
+    <main class="pt-16 w-full px-6 min-h-screen pb-12">
+      <div class="w-full mt-4 mb-6 flex flex-col gap-4">
+        <!-- BREADCRUMB -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2 font-mono text-xs text-on-surface-variant">
+            <span class="material-symbols-outlined text-[16px]">shield</span>
+            <span>RED NOVA C5</span>
+            <span>/</span>
+            <span class="text-on-surface font-bold">DESPACHO DE INCIDENTES & TRIAGE SOS</span>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container font-mono text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            DISPATCH ACTIVO
           </span>
-</div>
-<div class="w-12 h-12 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center">
-<span class="material-symbols-outlined text-[24px]">verified_user</span>
-</div>
-</div>
-<!-- Falsas Alarmas -->
-<div class="p-space-md rounded-lg bg-surface-container-lowest shadow-sm flex items-center justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Descartados / Falsos</span>
-<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight">10</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Inspección completada</span>
-</div>
-<div class="w-12 h-12 rounded-lg bg-surface-container-low text-on-surface-variant flex items-center justify-center">
-<span class="material-symbols-outlined text-[24px]">cancel</span>
-</div>
-</div>
-</div>
-<!-- TACTICAL SEARCH & MULTI-FILTER DOCK -->
-<div class="p-space-md rounded-lg bg-surface-container-lowest shadow-sm flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-space-md">
-<div class="flex-1 flex items-center gap-space-sm bg-surface-container-low px-space-md py-2 rounded-lg">
-<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
-<input class="w-full bg-transparent font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none" placeholder="Filtrar por ID (#INC-4420), ciudadano, coordenada GPS o sector..." type="text" value="San Jerónimo">
-<span class="font-label-sm text-label-sm text-on-surface-variant uppercase px-2 py-0.5 rounded bg-surface-container-lowest">ESC PARA LIMPIAR</span>
-</div>
-<div class="flex flex-wrap items-center gap-space-xs sm:gap-space-sm">
-<div class="flex items-center gap-1 bg-surface-container-low px-space-sm py-1.5 rounded-lg text-on-surface">
-<span class="material-symbols-outlined text-[16px] text-on-surface-variant">location_on</span>
-<span class="font-label-sm text-label-sm uppercase">Sector:</span>
-<select class="bg-transparent font-label-sm text-label-sm text-on-surface font-semibold focus:outline-none cursor-pointer">
-<option>Todos los Sectores</option>
-<option selected="">Sector 4 - San Jerónimo</option>
-<option>Sector 1 - Insurgentes Centro</option>
-<option>Sector 9 - Deportivo Olímpico</option>
-</select>
-</div>
-<div class="flex items-center gap-1 bg-surface-container-low px-space-sm py-1.5 rounded-lg text-on-surface">
-<span class="material-symbols-outlined text-[16px] text-on-surface-variant">priority_high</span>
-<span class="font-label-sm text-label-sm uppercase">Severidad:</span>
-<select class="bg-transparent font-label-sm text-label-sm text-on-surface font-semibold focus:outline-none cursor-pointer">
-<option>Todas las Severidades</option>
-<option selected="">Crítico (SOS Activo)</option>
-<option>Grave (Riesgo Estructural)</option>
-<option>Moderado / Asistencia</option>
-</select>
-</div>
-<button class="inline-flex items-center gap-space-xs px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors">
-<span class="material-symbols-outlined text-[16px]">tune</span>
-<span class="">MÁS FILTROS</span>
-</button>
-</div>
-</div>
-</div>
-<!-- MAIN SPLIT DESK DISPATCH INTERFACE -->
-<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
-<!-- LEFT PANEL: TACTICAL QUEUE (5 COLS) -->
-<div class="xl:col-span-5 flex flex-col gap-space-md">
-<div class="flex items-center justify-between px-space-xs">
-<div class="flex items-center gap-space-sm">
-<span class="font-title-md text-title-md text-on-surface font-bold">COLA DE TRIAGE &amp; EVENTOS SOS</span>
-<span id="queue-prioritarios-badge" class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold">CARGANDO...</span>
-</div>
-<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
-          EN VIVO
-        </span>
-</div>
-<!-- Dynamic Tactical Queue -->
-<div id="tactical-queue-container" class="flex flex-col gap-space-md">
-  <div class="p-8 text-center bg-surface-container-lowest rounded-lg border border-outline-variant/30 text-on-surface-variant">
-    <span class="material-symbols-outlined text-[32px] animate-spin text-primary mb-2">sync</span>
-    <p class="font-title-md font-bold text-on-surface">Conectando con el Servidor C5...</p>
-  </div>
-</div>
-</div>
+        </div>
 
-<!-- RIGHT PANEL: DETAILED SELECTED INCIDENT DOSSIER (7 COLS) -->
-<div class="xl:col-span-7 flex flex-col gap-space-md" id="selected-incident-dossier">
-  <div class="p-8 text-center bg-surface-container-lowest rounded-lg border border-outline-variant/30 text-on-surface-variant">
-    <p class="font-title-md font-bold text-on-surface">Seleccione un incidente de la cola para ver el expediente</p>
-  </div>
-</div>
-</div>
-</div></main></div>
+        <!-- STAT PODS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs text-on-surface-variant uppercase font-bold">Total Incidentes</span>
+              <span class="font-headline font-bold text-2xl text-on-surface mt-1">142</span>
+              <span class="font-body text-[11px] text-on-surface-variant mt-0.5">Reportes en sistema</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-[22px]">folder_special</span>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-error-container text-on-error-container shadow-sm flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase font-bold">En Despacho / SOS</span>
+              <span class="font-headline font-bold text-2xl text-secondary mt-1">18</span>
+              <span class="font-body text-[11px] font-medium mt-0.5">4 brigadas en sitio</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-white text-secondary flex items-center justify-center shadow-sm">
+              <span class="material-symbols-outlined text-[22px]">emergency</span>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs text-on-surface-variant uppercase font-bold">A Salvo / En Refugio</span>
+              <span class="font-headline font-bold text-2xl text-safe-emerald mt-1">114</span>
+              <span class="font-body text-[11px] text-safe-emerald mt-0.5 flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">check_circle</span> 80% bienestar
+              </span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-safe-container text-on-safe flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">verified_user</span>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-surface-container-lowest border border-outline-variant/30 shadow-sm flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs text-on-surface-variant uppercase font-bold">Descartados</span>
+              <span class="font-headline font-bold text-2xl text-on-surface mt-1">10</span>
+              <span class="font-body text-[11px] text-on-surface-variant mt-0.5">Inspección concluida</span>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-surface-container-low text-on-surface-variant flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">cancel</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<script src="/dashboard/js/auth.js"></script>
-<script src="/dashboard/js/api.js"></script>
-<script src="/dashboard/js/incidents.js"></script>
-</body></html>
+      <!-- MAIN SPLIT DESK INTERFACE -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        <!-- COLA DE TRIAGE -->
+        <div class="xl:col-span-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-headline font-bold text-sm text-on-surface uppercase">Cola de Triage & Eventos SOS</span>
+              <span id="queue-prioritarios-badge" class="font-mono text-[10px] px-2 py-0.5 rounded-full bg-secondary text-white font-bold">18 CRÍTICOS</span>
+            </div>
+            <span class="font-mono text-xs text-secondary flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span> EN VIVO
+            </span>
+          </div>
+          <div id="tactical-queue-container" class="flex flex-col gap-3">
+            <div class="p-8 text-center bg-surface-container-lowest rounded-xl border border-outline-variant/30 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[32px] animate-spin text-primary mb-2">sync</span>
+              <p class="font-headline font-bold text-on-surface">Conectando con el Servidor Red NOVA C5...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPEDIENTE DEL INCIDENTE SELECCIONADO -->
+        <div class="xl:col-span-7 flex flex-col gap-4" id="selected-incident-dossier">
+          <div class="p-8 text-center bg-surface-container-lowest rounded-xl border border-outline-variant/30 text-on-surface-variant">
+            <p class="font-headline font-bold text-on-surface">Seleccione un incidente de la cola para ver el expediente completo y despachar brigadas.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/dashboard/js/auth.js"></script>
+  <script src="/dashboard/js/api.js"></script>
+  <script src="/dashboard/js/incidents.js"></script>
+</body>
+</html>

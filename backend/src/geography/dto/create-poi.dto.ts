@@ -9,8 +9,8 @@ export class CreatePoiDto {
   name: string;
 
   @ApiProperty({ enum: PoiCategory, example: PoiCategory.HOSPITAL })
-  @IsEnum(PoiCategory)
-  category: PoiCategory;
+  @IsNotEmpty()
+  category: PoiCategory | string;
 
   @ApiPropertyOptional({ enum: PoiStatus, default: PoiStatus.OPERATIONAL, example: PoiStatus.OPERATIONAL })
   @IsEnum(PoiStatus)

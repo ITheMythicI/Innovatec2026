@@ -25,16 +25,29 @@ export class CreateShelterDto {
   @Max(180)
   longitude: number;
 
-  @ApiProperty({ description: 'Capacidad máxima de personas', example: 250 })
+  @ApiPropertyOptional({ description: 'Capacidad máxima de personas', example: 250 })
   @IsInt()
   @Min(1)
-  capacity: number;
+  @IsOptional()
+  capacity?: number;
+
+  @ApiPropertyOptional({ description: 'Alias de capacidad total', example: 250 })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  totalCapacity?: number;
 
   @ApiPropertyOptional({ description: 'Ocupación actual', default: 0, example: 20 })
   @IsInt()
   @Min(0)
   @IsOptional()
   currentOccupancy?: number;
+
+  @ApiPropertyOptional({ description: 'Alias de ocupación actual', default: 0, example: 20 })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  occupancy?: number;
 
   @ApiPropertyOptional({ enum: ShelterStatus, default: ShelterStatus.OPEN, example: ShelterStatus.OPEN })
   @IsEnum(ShelterStatus)

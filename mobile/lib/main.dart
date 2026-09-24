@@ -24,7 +24,7 @@ class InnovatecApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Resguardo - Innovatec 2026',
+      title: 'Red NOVA - Innovatec 2026',
       debugShowCheckedModeBanner: false,
       theme: ResguardoTheme.lightTheme,
       home: const MainNavigationHub(),

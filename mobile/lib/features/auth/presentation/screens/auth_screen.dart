@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/core/security/roles_and_permissions.dart';
+import 'package:innovatec_mobile/core/network/gps_location_service.dart';
+import 'package:innovatec_mobile/core/utils/qr_code_widget.dart';
+import 'package:innovatec_mobile/features/auth/domain/models/auth_user.dart';
 import 'package:innovatec_mobile/features/auth/domain/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -141,7 +144,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     });
 
     try {
-      await AuthService().registerUser(
+      final user = await AuthService().registerUser(
         email: _regEmailController.text.trim(),
         password: _regPasswordController.text,
         fullName: _regNameController.text.trim(),
@@ -150,14 +153,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: ResguardoTheme.safeEmerald,
-            content: Text('Registro civil completado exitosamente: ${_regNameController.text}'),
-          ),
-        );
+        await _showRegistrationSuccessModal(context, user);
         widget.onAuthSuccess?.call();
-        Navigator.of(context).maybePop();
+        if (mounted) Navigator.of(context).maybePop();
       }
     } catch (e) {
       setState(() {
@@ -166,6 +164,90 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _showRegistrationSuccessModal(BuildContext context, AuthUser user) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: ResguardoTheme.primary, width: 2),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.verified, color: ResguardoTheme.safeEmerald, size: 22),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'CREDENCIAL DIGITAL REGISTRADA',
+                style: TextStyle(
+                  fontFamily: 'Space Grotesk',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: ResguardoTheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ResguardoTheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: ResguardoTheme.outline),
+                ),
+                child: Text(
+                  'CÓDIGO ÚNICO: ${user.uniqueCitizenCode}',
+                  style: const TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: ResguardoTheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TacticalQrWidget(
+                data: 'RED-NOVA:${user.uniqueCitizenCode}|${user.fullName}|${user.role.code}',
+                size: 170,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Este código QR único se ha guardado en tus credenciales. Será utilizado por brigadistas en albergues para reconocimiento inmediato y censo de personas a salvo sin conexión a internet.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 11,
+                  color: ResguardoTheme.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ResguardoTheme.primary,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 44),
+            ),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'CONTINUAR AL CENTRO DE OPERACIONES',
+              style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _addFamilyMember() {
@@ -622,8 +704,11 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 ),
                 icon: const Icon(Icons.my_location, color: ResguardoTheme.primary, size: 20),
-                onPressed: () {
-                  _regAddressController.text = '19.4326° N, 99.1332° W (Cota Alta)';
+                onPressed: () async {
+                  final loc = await GpsLocationService().refreshHardwareLocation();
+                  if (mounted) {
+                    _regAddressController.text = loc.formattedCoords;
+                  }
                 },
               ),
             ),
@@ -655,19 +740,19 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               items: const [
                 DropdownMenuItem(
                   value: UserRole.citizen,
-                  child: Text('👤 Ciudadano (Acceso Estándar de Resguardo)'),
+                  child: Text('Ciudadano (Acceso Estándar de Resguardo)'),
                 ),
                 DropdownMenuItem(
                   value: UserRole.volunteer,
-                  child: Text('🤝 Brigadista Voluntario Acreditado'),
+                  child: Text('Brigadista Voluntario Acreditado'),
                 ),
                 DropdownMenuItem(
                   value: UserRole.shelterAdmin,
-                  child: Text('🏢 Administrador de Refugio / Albergue'),
+                  child: Text('Administrador de Refugio / Albergue'),
                 ),
                 DropdownMenuItem(
                   value: UserRole.authority,
-                  child: Text('🛡️ Operativo Oficial / Protección Civil'),
+                  child: Text('Operativo Oficial / Protección Civil'),
                 ),
               ],
               onChanged: (val) {
@@ -763,7 +848,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             style: TextStyle(fontFamily: 'Inter', fontSize: 11),
           ),
           value: _includeFamily,
-          activeColor: ResguardoTheme.primary,
+          activeThumbColor: ResguardoTheme.primary,
           contentPadding: EdgeInsets.zero,
           onChanged: (val) => setState(() => _includeFamily = val),
         ),
@@ -797,12 +882,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           const Text('CATEGORÍA DE ATENCIÓN:', style: TextStyle(fontFamily: 'JetBrains Mono', fontSize: 10)),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
-            value: _famType,
+            initialValue: _famType,
             decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
             items: const [
-              DropdownMenuItem(value: 'Niñez / Amber', child: Text('🧒 Niñez / Protocolo Amber')),
-              DropdownMenuItem(value: 'Geriátrica', child: Text('👴 Geriátrica / Movilidad reducida')),
-              DropdownMenuItem(value: 'Adulto', child: Text('👤 Adulto operativo')),
+              DropdownMenuItem(value: 'Niñez / Amber', child: Text('Niñez / Protocolo Amber')),
+              DropdownMenuItem(value: 'Geriátrica', child: Text('Geriátrica / Movilidad reducida')),
+              DropdownMenuItem(value: 'Adulto', child: Text('Adulto operativo')),
             ],
             onChanged: (val) => setState(() => _famType = val ?? 'Adulto'),
           ),
@@ -1029,7 +1114,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           style: const TextStyle(fontFamily: 'Inter', fontSize: 11, color: ResguardoTheme.textMuted),
         ),
         value: value,
-        activeColor: ResguardoTheme.primary,
+        activeThumbColor: ResguardoTheme.primary,
         onChanged: onChanged,
       ),
     );

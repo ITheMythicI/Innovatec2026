@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
+import 'package:innovatec_mobile/core/network/gps_location_service.dart';
 import 'package:innovatec_mobile/features/emergencies/domain/models/emergency.dart';
 import 'package:innovatec_mobile/features/emergencies/presentation/controllers/emergency_controller.dart';
 import 'package:innovatec_mobile/features/map/presentation/screens/evacuation_route_screen.dart';
@@ -107,9 +108,11 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                               fontSize: 9,
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
+                          Icon(Icons.bolt, size: 12, color: ResguardoTheme.warningAmber),
+                          SizedBox(width: 2),
                           Text(
-                            '⚡ 22% ECO',
+                            '22% ECO',
                             style: TextStyle(
                               fontFamily: 'JetBrains Mono',
                               color: ResguardoTheme.warningAmber,
@@ -122,6 +125,76 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                     ],
                   ),
                 ),
+
+                // Alerta Acústica de Rescate Activa con Desactivación Rápida
+                if (_sirenActive)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: ResguardoTheme.emergencyCrimson,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black45, blurRadius: 10, offset: Offset(0, 4)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.volume_up, color: Colors.white, size: 24),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'ALARMA ACÚSTICA DE RESCATE EN CURSO (115 dB)',
+                                style: TextStyle(
+                                  fontFamily: 'Space Grotesk',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Emisión continua de señal sonora y baliza para localización por brigadistas.',
+                          style: TextStyle(fontFamily: 'Inter', color: Colors.white70, fontSize: 11),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: ResguardoTheme.emergencyCrimson,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          ),
+                          icon: const Icon(Icons.volume_off, color: ResguardoTheme.emergencyCrimson, size: 20),
+                          label: const Text(
+                            'DESACTIVAR ALARMA / SILENCIAR AHORA',
+                            style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13,
+                            ),
+                          ),
+                          onPressed: () {
+                            setState(() => _sirenActive = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: ResguardoTheme.primary,
+                                content: Text('Alarma acústica silenciada y restablecida a modo estándar.'),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
 
                 // Banner de Amenaza Inmediata / Nivel Crítico (Doc 1)
                 Container(
@@ -346,7 +419,7 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               backgroundColor: ResguardoTheme.safeEmerald,
-                              content: Text('✅ ESTADO REPORTADO: A SALVO. Posición enviada al censo C5 y a tu red familiar.'),
+                              content: Text('[OK] ESTADO REPORTADO: A SALVO. Posición enviada al censo C5 y a tu red familiar.'),
                             ),
                           );
                         },
@@ -548,8 +621,8 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(_sirenActive
-                                    ? '🚨 Sirena 110dB y estrobo activo para señalización visual'
-                                    : '📻 Sintonizado en canal táctico 147.500 MHz'),
+                                    ? '[ALERTA] Sirena 110dB y estrobo activo para señalización visual'
+                                    : '[RADIO] Sintonizado en canal táctico 147.500 MHz'),
                               ),
                             );
                           },
@@ -872,6 +945,7 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
 
   void _triggerInstantSos(BuildContext context) async {
     final folioId = 'SOS-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final gps = GpsLocationService().currentLocation;
     
     final newSos = Emergency(
       id: const Uuid().v4(),
@@ -880,8 +954,8 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
       type: EmergencyType.other,
       severity: EmergencySeverity.critical,
       status: EmergencyStatus.active,
-      latitude: 19.4326,
-      longitude: -99.1332,
+      latitude: gps.latitude,
+      longitude: gps.longitude,
       startedAt: DateTime.now().toUtc(),
       createdAt: DateTime.now().toUtc(),
       updatedAt: DateTime.now().toUtc(),
@@ -948,9 +1022,9 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'GPS: 19.4326° N, 99.1332° W • ZONA NORTE',
-                    style: TextStyle(
+                  Text(
+                    'GPS: ${gps.formattedCoords}',
+                    style: const TextStyle(
                       fontFamily: 'JetBrains Mono',
                       fontSize: 10,
                       color: ResguardoTheme.primary,
@@ -1070,8 +1144,8 @@ class _EmergenciesScreenState extends State<EmergenciesScreen> {
                       type: selectedType,
                       severity: selectedSev,
                       status: EmergencyStatus.active,
-                      latitude: 19.4326,
-                      longitude: -99.1332,
+                      latitude: GpsLocationService().currentLocation.latitude,
+                      longitude: GpsLocationService().currentLocation.longitude,
                       startedAt: DateTime.now().toUtc(),
                       createdAt: DateTime.now().toUtc(),
                       updatedAt: DateTime.now().toUtc(),

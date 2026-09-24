@@ -1,5 +1,3 @@
-import '../tables/audit_logs_table.dart';
-
 abstract class AuditDao {
   Future<void> insertLog(Map<String, dynamic> data);
   Future<List<Map<String, dynamic>>> getLogs({int limit = 100});

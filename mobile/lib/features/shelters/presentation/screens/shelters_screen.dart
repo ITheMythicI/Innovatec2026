@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
 import 'package:innovatec_mobile/features/shelters/domain/models/shelter.dart';
 import 'package:innovatec_mobile/features/shelters/presentation/controllers/shelter_controller.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:innovatec_mobile/features/map/presentation/screens/evacuation_route_screen.dart';
 
 class SheltersScreen extends StatefulWidget {
@@ -427,7 +428,12 @@ class _SheltersScreenState extends State<SheltersScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const EvacuationRouteScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) => EvacuationRouteScreen(
+                                    shelterDestination: LatLng(shelter.latitude, shelter.longitude),
+                                    shelterName: shelter.name,
+                                  ),
+                                ),
                               );
                             },
                           ),
@@ -460,7 +466,7 @@ class _SheltersScreenState extends State<SheltersScreen> {
                                   content: Text(
                                     isCheckedIn
                                         ? 'Has salido del albergue ${shelter.name}. Cupo liberado.'
-                                        : '✅ ¡Check-in confirmado en ${shelter.name}! Censo actualizado en el C5.',
+                                        : 'Check-in confirmado en ${shelter.name}. Censo actualizado en la Red NOVA C5.',
                                   ),
                                 ),
                               );

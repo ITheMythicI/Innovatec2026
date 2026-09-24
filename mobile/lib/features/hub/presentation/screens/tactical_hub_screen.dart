@@ -219,7 +219,7 @@ class TacticalHubScreen extends StatelessWidget {
                     SyncManager.instance.synchronizePendingEvents();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('🔄 Sincronizando eventos y telemetría con el servidor central...'),
+                        content: Text('[SYNC] Sincronizando eventos y telemetría con el servidor central...'),
                         backgroundColor: ResguardoTheme.primary,
                       ),
                     );

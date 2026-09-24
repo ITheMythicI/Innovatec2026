@@ -1,4 +1,3 @@
-import 'dart:convert';
 import '../security/crypto_service.dart';
 
 /// Tipo de evento para el registro de auditoría en desastres.

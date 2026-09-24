@@ -53,7 +53,7 @@ async function bootstrap() {
   SwaggerModule.setup(`${globalPrefix}/docs`, app, document);
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   logger.log(`================================================================`);
   logger.log(`🚀 Innovatec Backend corriendo en: http://localhost:${port}/${globalPrefix}`);

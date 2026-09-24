@@ -113,7 +113,7 @@ function renderPeopleList(filterQuery = '') {
             CURP: ${escapeHtml(p.curp || 'No registrada')} · ${p.age ? `${p.age} años` : 'Edad N/D'}
           </p>
           <p class="font-label-sm text-label-sm text-on-surface-variant">
-            ${isMinor ? '⚠️ <strong>Menor de edad protegido</strong> · ' : ''}Contacto: ${escapeHtml(p.phone || 'Sin teléfono')}
+            ${isMinor ? '[PROTEGIDO] <strong>Menor de edad</strong> · ' : ''}Contacto: ${escapeHtml(p.phone || 'Sin teléfono')}
           </p>
           <div class="flex items-center justify-between pt-2.5 mt-2 text-on-surface-variant font-label-sm text-label-sm border-t border-outline-variant/20">
             <span>Fecha de Censo: ${new Date(p.createdAt).toLocaleDateString()}</span>

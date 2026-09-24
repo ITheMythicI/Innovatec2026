@@ -21,19 +21,6 @@ extension MemberEmergencyStatusExtension on MemberEmergencyStatus {
   }
 
   String get displayName => label;
-
-  String get emoji {
-    switch (this) {
-      case MemberEmergencyStatus.safe:
-        return '🟢';
-      case MemberEmergencyStatus.inShelter:
-        return '🟡';
-      case MemberEmergencyStatus.injured:
-        return '🔴';
-      case MemberEmergencyStatus.unreachable:
-        return '⚪';
-    }
-  }
 }
 
 /// Representa a un integrante de un círculo familiar o de confianza.

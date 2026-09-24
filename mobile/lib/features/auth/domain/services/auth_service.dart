@@ -121,7 +121,7 @@ class AuthService {
     String? tacticalId,
   }) async {
     try {
-      final response = await ApiClient.instance.post(
+      await ApiClient.instance.post(
         '/auth/register',
         body: {
           'email': email.trim(),

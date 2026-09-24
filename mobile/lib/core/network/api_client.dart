@@ -9,15 +9,18 @@ class ApiClient {
   static ApiClient? _instance;
   static ApiClient get instance => _instance ??= ApiClient();
 
-  final String baseUrl;
+  String _baseUrl;
   final http.Client _client;
   String? _authToken;
 
   ApiClient({
     String? baseUrl,
     http.Client? client,
-  })  : baseUrl = baseUrl ?? AppConfig.defaultApiBaseUrl,
+  })  : _baseUrl = baseUrl ?? AppConfig.defaultApiBaseUrl,
         _client = client ?? http.Client();
+
+  String get baseUrl => _baseUrl;
+  void setBaseUrl(String url) => _baseUrl = url;
 
   void setAuthToken(String? token) {
     _authToken = token;
@@ -39,26 +42,37 @@ class ApiClient {
     return headers;
   }
 
-  /// Realiza una petición GET al backend. Retorna `dynamic` (Map o List).
+  /// Realiza una petición GET al backend con auto-detección y failover de hosts.
   Future<dynamic> get(String endpoint, {Map<String, String>? headers, Map<String, dynamic>? queryParams}) async {
-    try {
-      var uri = Uri.parse('$baseUrl$endpoint');
-      if (queryParams != null && queryParams.isNotEmpty) {
-        final stringParams = queryParams.map((k, v) => MapEntry(k, v.toString()));
-        uri = uri.replace(queryParameters: stringParams);
+    final candidateHosts = [
+      _baseUrl,
+      ...AppConfig.candidateApiBaseUrls.where((u) => u != _baseUrl),
+    ];
+
+    Object? lastError;
+
+    for (final host in candidateHosts) {
+      try {
+        var uri = Uri.parse('$host$endpoint');
+        if (queryParams != null && queryParams.isNotEmpty) {
+          final stringParams = queryParams.map((k, v) => MapEntry(k, v.toString()));
+          uri = uri.replace(queryParameters: stringParams);
+        }
+
+        final response = await _client
+            .get(uri, headers: _buildHeaders(headers))
+            .timeout(AppConfig.connectTimeout);
+
+        _baseUrl = host; // Fijar el host que respondió exitosamente
+        return _processResponse(response);
+      } catch (e) {
+        lastError = e;
+        continue;
       }
-
-      final response = await _client
-          .get(uri, headers: _buildHeaders(headers))
-          .timeout(AppConfig.connectTimeout);
-
-      return _processResponse(response);
-    } on http.ClientException catch (e) {
-      throw NetworkFailure('No fue posible conectar con el servidor backend ($baseUrl)', e);
-    } catch (e) {
-      if (e is Failure) rethrow;
-      throw ServerFailure('Error inesperado de comunicación', null, e);
     }
+
+    if (lastError is Failure) throw lastError;
+    throw NetworkFailure('No fue posible conectar con el backend en ningún host candidato', lastError);
   }
 
   /// Realiza una petición POST al backend.
@@ -67,21 +81,31 @@ class ApiClient {
     dynamic body,
     Map<String, String>? headers,
   }) async {
-    try {
-      final uri = Uri.parse('$baseUrl$endpoint');
-      final encodedBody = body != null ? json.encode(body) : null;
+    final candidateHosts = [
+      _baseUrl,
+      ...AppConfig.candidateApiBaseUrls.where((u) => u != _baseUrl),
+    ];
 
-      final response = await _client
-          .post(uri, headers: _buildHeaders(headers), body: encodedBody)
-          .timeout(AppConfig.connectTimeout);
+    Object? lastError;
+    for (final host in candidateHosts) {
+      try {
+        final uri = Uri.parse('$host$endpoint');
+        final encodedBody = body != null ? json.encode(body) : null;
 
-      return _processResponse(response);
-    } on http.ClientException catch (e) {
-      throw NetworkFailure('No fue posible conectar con el servidor backend', e);
-    } catch (e) {
-      if (e is Failure) rethrow;
-      throw ServerFailure('Error inesperado de comunicación', null, e);
+        final response = await _client
+            .post(uri, headers: _buildHeaders(headers), body: encodedBody)
+            .timeout(AppConfig.connectTimeout);
+
+        _baseUrl = host;
+        return _processResponse(response);
+      } catch (e) {
+        lastError = e;
+        continue;
+      }
     }
+
+    if (lastError is Failure) throw lastError;
+    throw NetworkFailure('No fue posible conectar con el backend', lastError);
   }
 
   /// Realiza una petición PATCH al backend.
@@ -90,21 +114,31 @@ class ApiClient {
     dynamic body,
     Map<String, String>? headers,
   }) async {
-    try {
-      final uri = Uri.parse('$baseUrl$endpoint');
-      final encodedBody = body != null ? json.encode(body) : null;
+    final candidateHosts = [
+      _baseUrl,
+      ...AppConfig.candidateApiBaseUrls.where((u) => u != _baseUrl),
+    ];
 
-      final response = await _client
-          .patch(uri, headers: _buildHeaders(headers), body: encodedBody)
-          .timeout(AppConfig.connectTimeout);
+    Object? lastError;
+    for (final host in candidateHosts) {
+      try {
+        final uri = Uri.parse('$host$endpoint');
+        final encodedBody = body != null ? json.encode(body) : null;
 
-      return _processResponse(response);
-    } on http.ClientException catch (e) {
-      throw NetworkFailure('No fue posible conectar con el servidor backend', e);
-    } catch (e) {
-      if (e is Failure) rethrow;
-      throw ServerFailure('Error inesperado de comunicación', null, e);
+        final response = await _client
+            .patch(uri, headers: _buildHeaders(headers), body: encodedBody)
+            .timeout(AppConfig.connectTimeout);
+
+        _baseUrl = host;
+        return _processResponse(response);
+      } catch (e) {
+        lastError = e;
+        continue;
+      }
     }
+
+    if (lastError is Failure) throw lastError;
+    throw NetworkFailure('No fue posible conectar con el backend', lastError);
   }
 
   /// Realiza una petición DELETE al backend.
@@ -128,7 +162,7 @@ class ApiClient {
     }
   }
 
-  Future<dynamic> _processResponse(http.Response response) async {
+  dynamic _processResponse(http.Response response) {
     final responseBody = response.body;
     final statusCode = response.statusCode;
 

@@ -1,579 +1,522 @@
-<!DOCTYPE html><html lang="es" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;} #tactical-map { z-index: 10; } .leaflet-pane { z-index: 10; } .leaflet-top, .leaflet-bottom { z-index: 15; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#c6c6c6", "on-tertiary": "#ffffff", "secondary-fixed-dim": "#ffb4ab", "background": "#f8f9ff", "error-container": "#ffdad6", "on-tertiary-fixed-variant": "#005320", "on-error-container": "#93000a", "inverse-surface": "#213145", "on-primary-container": "#848484", "surface-bright": "#f8f9ff", "primary": "#000000", "surface": "#f8f9ff", "on-error": "#ffffff", "surface-container-highest": "#d3e3ff", "surface-container-low": "#eff4ff", "on-primary-fixed-variant": "#474747", "tertiary-fixed": "#81fc98", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed": "#002109", "surface-dim": "#cbdbf5", "surface-container": "#e6eeff", "secondary": "#bb0112", "tertiary-container": "#002109", "on-surface": "#0b1c30", "on-secondary-fixed-variant": "#93000b", "on-tertiary-container": "#019842", "surface-tint": "#5e5e5e", "outline-variant": "#cfc4c5", "on-secondary": "#ffffff", "surface-container-high": "#dde9ff", "on-surface-variant": "#44474d", "secondary-container": "#e02928", "secondary-fixed": "#ffdad6", "primary-fixed": "#d6e3ff", "on-secondary-fixed": "#410002", "outline": "#75777e", "on-secondary-container": "#fffbff", "surface-container-lowest": "#ffffff", "surface-variant": "#d3e3ff", "on-primary": "#ffffff", "error": "#ba1a1a", "on-background": "#0b1c30", "primary-fixed-dim": "#c6c6c6", "tertiary-fixed-dim": "#62df7d", "tertiary": "#000000", "on-primary-fixed": "#0d1c32", "primary-container": "#1b1b1b" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xs": "0.25rem", "space-xl": "2.5rem", "margin": "1rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "margin-desktop": "3rem", "gutter": "1rem", "margin-tablet": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "display": [ "Space Grotesk" ], "headline-lg": [ "Space Grotesk" ], "label-md": [ "JetBrains Mono" ], "body-md": [ "Inter" ], "headline-lg-mobile": [ "Space Grotesk" ], "display-mobile": [ "Space Grotesk" ], "title-md": [ "Inter" ], "title-lg": [ "Inter" ], "headline-sm": [ "Space Grotesk" ], "label-sm": [ "JetBrains Mono" ], "body-lg": [ "Inter" ], "body-sm": [ "Inter" ], "label-lg": [ "JetBrains Mono" ], "headline-md": [ "Space Grotesk" ] }, "fontSize": { "display": [ "48px", { "lineHeight": "56px", "fontWeight": "700" } ], "headline-lg": [ "32px", { "lineHeight": "40px", "fontWeight": "700" } ], "label-md": [ "12px", { "lineHeight": "16px", "fontWeight": "500" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "700" } ], "display-mobile": [ "36px", { "lineHeight": "44px", "fontWeight": "700" } ], "title-md": [ "16px", { "lineHeight": "22px", "fontWeight": "600" } ], "title-lg": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "headline-sm": [ "20px", { "lineHeight": "26px", "fontWeight": "600" } ], "label-sm": [ "10px", { "lineHeight": "14px", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "label-lg": [ "14px", { "lineHeight": "18px", "fontWeight": "500" } ], "headline-md": [ "24px", { "lineHeight": "30px", "fontWeight": "600" } ] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md min-w-0"><img alt="Resguardo Shield Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XPYkGdukbVJFxhYrtozMICEdZCM0TrfRE9nIr6XtiTc06uVfDxOra68KUjH0r0CdbCkcQAhCs8wMKygOBCLvC0Crm-rfi1F2fZp9ZzSuhD6G50pJQEQsRKoawUIkEfF77E28wWHQXq6SrAYjrst37UWXZwzCMUFrrNmH9kh6p-THqV3yrXpIwr2zs4MGEGXLVnqpimUZ7AyTpG82txHegShl2WKkLlnx2hdq3XbaIr7M8h0Cg-KEcWY4ML"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface leading-none">RESGUARDO</span><span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider">CENTRO DE COMANDO &amp; OPERACIONES</span></div><div class="hidden xl:flex items-center gap-space-sm pl-space-md"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm tracking-wider animate-pulse"><span class="w-2 h-2 rounded-full bg-secondary"></span>ESTADO: ALERTA ROJA ACTIVA - ZONA NORTE</span></div></div><div class="flex items-center gap-space-md flex-shrink-0"><button class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md tracking-wider transition-colors shadow-[0_1px_8px_rgba(0,0,0,0.04)] cursor-pointer" type="button" data-path="noticias-alertas-app" title="Ir a Emisión de Noticias, Alertas y Comunicados Móviles (Broadcast)" onclick="window.parent?.postMessage({type:&quot;navigate&quot;, screen:&quot;Emisión de Noticias y Comunicados a la App Móvil&quot;}, &quot;*&quot;); window.location.hash=&quot;noticias&quot;;"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="hidden 2xl:inline">ACTIVAR ALERTA SONORA GENERAL (BROADCAST)</span><span class="2xl:hidden">BROADCAST</span></button><div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-tertiary-fixed-variant font-label-sm text-label-sm tracking-wider"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>RED ACTIVA 99.8% ONLINE</div><div class="hidden md:flex flex-col text-right font-label-sm text-label-sm"><span class="text-on-surface font-semibold">14:38:22 UTC</span><span class="text-on-surface-variant">08:38:22 LOCAL (CST)</span></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="hidden sm:flex flex-col text-right leading-tight"><span class="font-label-md text-label-md text-on-surface font-semibold">Cmdte. J. Morales</span><span class="font-label-sm text-label-sm text-on-surface-variant">Operador Táctico #04</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex flex-col justify-between py-space-md overflow-y-auto"><div class="flex flex-col gap-space-xs px-space-sm"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">CANALES DE CONTROL</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-container text-on-surface font-semibold rounded-lg"><a aria-current="page" class="flex items-center gap-space-md px-space-md py-2.5 transition-colors bg-surface-container text-on-surface font-semibold rounded-lg" data-path="tablero-general" href="#"><span class="material-symbols-outlined text-[20px]">radar</span><span class="">Tablero General &amp; Mapa</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dispositivos-activacion" href="#"><span class="material-symbols-outlined text-[20px]">volume_up</span><span class="">Dispositivos &amp; Sirenas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="incidentes-sos" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="">Registro de Incidentes &amp; SOS</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="red-familiar" href="#"><span class="material-symbols-outlined text-[20px]">group_work</span><span class="">Red Familiar &amp; Personas</span></a><a class="flex items-center gap-space-md px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md" data-path="metricas-analitica" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="">Métricas &amp; Analítica</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body-md text-body-md group cursor-pointer" data-path="noticias-alertas-app" href="#noticias-alertas-app" onclick="window.parent?.postMessage({type:&quot;navigate&quot;, screen:&quot;Emisión de Noticias y Comunicados a la App Móvil&quot;}, &quot;*&quot;); window.location.hash=&quot;noticias&quot;; return false;"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-secondary">campaign</span><span class="">Noticias &amp; Alertas App</span></div><span class="px-1.5 py-0.5 text-[9px] font-label-sm font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase tracking-wider">BROADCAST</span></a></nav></div><div class="px-space-md"><div class="p-space-md rounded-lg bg-surface-container-low flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm font-semibold text-on-surface">ENLACE SAT-CORE</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><p class="font-label-sm text-label-sm text-on-surface-variant">Nivel de latencia: 18ms</p><p class="font-label-sm text-label-sm text-on-surface-variant">Frecuencia: VHF 146.520 MHz</p></div></div></aside><div class="pl-72"><main class="relative pt-16 w-full px-gutter-desktop min-h-screen bg-surface"><div class="flex flex-col w-full pb-space-xl">
-<!-- TOP COMMAND BAR & EMERGENCY BROADCAST STRIP -->
-<section class="w-full flex flex-col gap-space-sm mb-space-lg">
-<!-- Breadcrumb & Tactical Status Bar -->
-<div class="flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-lowest px-space-md py-2 rounded-lg shadow-sm">
-<div class="flex items-center gap-space-sm">
-<span class="inline-flex items-center justify-center w-6 h-6 rounded bg-primary text-on-primary font-label-sm text-label-sm">
-<span class="material-symbols-outlined text-[16px]">security</span>
-</span>
-<span class="font-headline-sm text-headline-sm uppercase tracking-tight text-on-surface">PANEL DE CONTROL</span>
-<span class="text-outline-variant">/</span>
-<span class="font-label-md text-label-md text-on-surface-variant uppercase">ZONA METROPOLITANA Y SECTOR NORTE</span>
-</div>
-<div class="flex items-center gap-space-md">
-<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm">
-<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
-          ENLACE DE DESPACHO: PRIORIDAD ALTA
-        </div>
-<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">INCIDENTE ACTIVO: CÓDIGO MET-291-B</span>
-</div>
-</div>
-<!-- SOUND ACTIVATION CONTROL STRIP -->
-<div class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
-<div class="flex flex-wrap items-center justify-between gap-space-md">
-<div class="flex items-center gap-space-sm">
-<div class="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-on-secondary flex-shrink-0">
-<span class="material-symbols-outlined text-[24px]">crisis_alert</span>
-</div>
-<div><div class="flex flex-wrap items-center gap-2"><h2 class="font-headline-sm text-headline-sm text-on-surface leading-snug">ACTIVACIÓN REMOTA DE ALARMA SONORA (PING AUDIBLE FORZADO)</h2><span class="px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold whitespace-nowrap">95 dB SPL</span></div><p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Emisión sincronizada en altavoces de dispositivos móviles para rescate bajo escombros e inundaciones</p></div>
-</div>
-<!-- Telemetry Status Tag -->
-<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface">
-<span class="material-symbols-outlined text-secondary text-[18px]">cell_tower</span>
-<span class="font-label-sm text-label-sm">Último pulso acústico: <span class="font-semibold text-secondary">Hace 4 min</span> (1,248 terminales confirmaron recepción ACK)</span>
-</div>
-</div>
-<!-- Action Panel & Parameter Controls -->
-<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md items-center bg-surface-container-low p-space-md rounded-lg">
-<!-- Target Selector -->
-<div class="xl:col-span-4 flex flex-col gap-1">
-<label class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant" for="sector-selector">Sector Geográfico de Disparo</label>
-<div class="relative">
-<select class="w-full bg-surface-container-lowest text-on-surface font-body-md text-[13px] pl-3 pr-8 py-2 rounded-lg appearance-none cursor-pointer focus:outline-none shadow-sm text-ellipsis overflow-hidden" id="sector-selector"><option value="s4">Sector 4 - Cuauhtémoc &amp; San Jerónimo (1,420 disp.)</option><option value="all">Todos los terminales registrados (8,940 disp.)</option><option value="sos">Solo usuarios con SOS pendiente (34 disp.)</option><option value="north">Sector Norte - Perímetro de Desborde Río San Javier</option></select>
-<span class="material-symbols-outlined pointer-events-none absolute right-3 top-2.5 text-on-surface-variant text-[20px]">expand_more</span>
-</div>
-</div>
-<!-- Override Switch & Frequency Badge -->
-<div class="xl:col-span-3 flex items-center justify-between xl:justify-center gap-space-md px-2">
-<div class="flex items-center gap-2">
-<button aria-checked="true" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full bg-secondary transition-colors duration-200 ease-in-out focus:outline-none" id="toggle-bypass" role="switch" type="button">
-<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-surface-container-lowest shadow ring-0 transition duration-200 ease-in-out mt-0.5 ml-0.5"></span>
-</button>
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm font-semibold text-on-surface">Bypass Modo Silencio</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Sobrescribe "No Molestar"</span>
-</div>
-</div>
-<div class="h-8 w-px bg-outline-variant hidden sm:block"></div>
-<div class="hidden sm:flex flex-col text-right">
-<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Patrón Acústico</span>
-<span class="font-label-md text-label-md font-semibold text-on-surface">3 Pings + Flash LED</span>
-</div>
-</div>
-<!-- Fire Button -->
-<div class="xl:col-span-5 flex flex-wrap sm:flex-nowrap items-center gap-space-sm justify-end">
-<button class="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-sm text-[11px] font-bold tracking-wide uppercase transition shadow-md group text-center leading-tight" id="broadcast-trigger-btn" type="button"><span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform flex-shrink-0">volume_up</span><span class="leading-tight">EMITIR TONO DE RECONOCIMIENTO (95dB)</span></button>
-<button class="inline-flex items-center justify-center px-3 py-2.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-sm text-label-sm tracking-wider uppercase transition" id="test-audio-btn" type="button">
-<span class="material-symbols-outlined text-[18px]">hearing</span>
-<span class="ml-1 hidden md:inline">Prueba Local</span>
-</button>
-</div>
-</div>
-</div>
-</section>
-<!-- TOP TELEMETRY KPI METRICS (4 CARDS) -->
-<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
-<!-- Card 1: Dispositivos Conectados -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
-<div class="flex items-start justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Terminales Conectados</span>
-<span id="kpi-devices-count" class="font-bold text-[28px] leading-tight text-on-surface tracking-tight mt-1">--</span>
-</div>
-<span class="p-2 rounded-lg bg-surface-container text-on-surface">
-<span class="material-symbols-outlined text-[22px]">sensors</span>
-</span>
-</div>
-<div class="mt-space-md pt-space-xs flex flex-col gap-2">
-<div class="flex items-center justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Malla LoRa + Satelital + 4G/5G</span>
-<span class="font-semibold text-on-tertiary-container">Conectado</span>
-</div>
-<!-- Progress Sparkline mini -->
-<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-<div class="bg-primary h-1.5 rounded-full" style="width: 98.4%"></div>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container mt-1">
-<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
-<span class="">Telemetría activa</span>
-</div>
-</div>
-</div>
-<!-- Card 2: Alertas SOS Activas (Critical Red) -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden">
-<div class="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
-<div class="flex items-start justify-between">
-<div class="flex flex-col">
-<div class="flex items-center gap-2">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Alertas SOS Activas</span>
-<span class="px-2 py-0.2 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">PRIORIDAD 1</span>
-</div>
-<span id="kpi-active-emergencies" class="font-bold text-[28px] leading-tight text-secondary tracking-tight mt-1">--</span>
-</div>
-<span class="p-2 rounded-lg bg-error-container text-on-error-container">
-<span class="material-symbols-outlined text-[22px]">e911_emergency</span>
-</span>
-</div>
-<div class="mt-space-md pt-space-xs flex flex-col gap-2">
-<div class="flex items-center justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Reportes Pendientes</span>
-<span id="kpi-reports-pending" class="font-semibold text-secondary">--</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-<div class="bg-secondary h-1.5 rounded-full" style="width: 65%"></div>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary mt-1">
-<span class="material-symbols-outlined text-[14px]">crisis_alert</span>
-<span class="">Monitoreo continuo PostGIS</span>
-</div>
-</div>
-</div>
-<!-- Card 3: Confirmados A Salvo (Emerald) -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden">
-<div class="absolute top-0 left-0 right-0 h-1 bg-tertiary-fixed-dim"></div>
-<div class="flex items-start justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Personas Censadas</span>
-<span id="kpi-people-count" class="font-bold text-[28px] leading-tight text-on-surface tracking-tight mt-1">--</span>
-</div>
-<span class="p-2 rounded-lg bg-surface-container text-on-tertiary-container">
-<span class="material-symbols-outlined text-[22px]">verified_user</span>
-</span>
-</div>
-<div class="mt-space-md pt-space-xs flex flex-col gap-2">
-<div class="flex items-center justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Padrón en zona de contingencia</span>
-<span class="font-semibold text-on-tertiary-container">89.2% Censado</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-<div class="bg-on-tertiary-container h-1.5 rounded-full" style="width: 89.2%"></div>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container mt-1">
-<span class="material-symbols-outlined text-[14px]">check_circle</span>
-<span class="">1,830 registrados en albergues oficiales</span>
-</div>
-</div>
-</div>
-<!-- Card 4: Tiempo Medio de Respuesta -->
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
-<div class="flex items-start justify-between">
-<div class="flex flex-col">
-<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Tiempo Medio de Respuesta</span>
-<span class="font-bold text-[28px] leading-tight text-on-surface tracking-tight mt-1">6m 42s</span>
-</div>
-<span class="p-2 rounded-lg bg-surface-container text-on-surface">
-<span class="material-symbols-outlined text-[22px]">timer</span>
-</span>
-</div>
-<div class="mt-space-md pt-space-xs flex flex-col gap-2">
-<div class="flex items-center justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Objetivo de despacho: &lt; 10m</span>
-<span class="font-semibold text-on-surface">-3m 18s vs media</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
-<div class="bg-primary h-1.5 rounded-full" style="width: 67%"></div>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container mt-1">
-<span class="material-symbols-outlined text-[14px]">trending_down</span>
-<span class="">Rescate acelerado gracias a sonares de audio</span>
-</div>
-</div>
-</div>
-</section>
-<!-- MAIN OPERATIONAL GRID (Split: Map & Acoustic Range / Live SOS Incident Dispatch) -->
-<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-md mb-space-lg">
-<!-- LEFT / CENTRAL COLUMN: TACTICAL RADAR MAP & ACOUSTIC RANGING CONTROLS (7 Cols) -->
-<div class="xl:col-span-7 flex flex-col gap-space-md">
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col h-full">
-<!-- Map Header & Indicators -->
-<div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary text-[22px]">radar</span>
-<h3 class="font-headline-sm text-headline-sm text-on-surface">MAPA DE INCIDENTES Y PINGS ACÚSTICOS</h3>
-</div>
-<!-- Live Map Legend -->
-<div class="flex items-center gap-3 flex-wrap font-label-sm text-label-sm">
-<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> SOS Activo</span>
-<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed-dim"></span> A Salvo</span>
-<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> Sirena Comunal</span>
-<span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-ping"></span> Audio Sonando</span>
-</div>
-</div>
-<!-- Tactical Map Viewport (Interactive Leaflet OSM) -->
-<div id="tactical-map" class="relative w-full h-[460px] rounded-lg overflow-hidden border border-tactical-cardBorder shadow-inner select-none">
-</div>
-<!-- Audio Recognition Range & Pulse Parameters Tool -->
-<div class="mt-space-md pt-space-sm flex flex-col gap-space-sm">
-<div class="flex items-center justify-between">
-<h4 class="font-headline-sm text-headline-sm text-on-surface">PARÁMETROS DE EMISIÓN ACÚSTICA</h4>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Calibración para Penetración de Estructuras</span>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md bg-surface-container-low p-space-sm rounded-lg">
-<!-- Slider 1: Radio -->
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Radio de Disparo Acústico</span>
-<span class="font-semibold text-on-surface">1,500 metros</span>
-</div>
-<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="5000" min="200" type="range" value="1500">
-<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant text-[10px]">
-<span class="">200m</span>
-<span class="">5,000m</span>
-</div>
-</div>
-<!-- Slider 2: Frecuencia de Pulso -->
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Frecuencia Tonal</span>
-<span class="font-semibold text-on-surface">2.4 kHz (Modulada)</span>
-</div>
-<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="4" min="1" step="0.1" type="range" value="2.4">
-<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant text-[10px]">
-<span class="">1.0 kHz</span>
-<span class="">4.0 kHz</span>
-</div>
-</div>
-<!-- Slider 3: Duración y Estrobo -->
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Duración Ciclo Sonoro</span>
-<span class="font-semibold text-on-surface">45 Segundos</span>
-</div>
-<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" max="120" min="10" type="range" value="45">
-<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant text-[10px]">
-<span class="">10s</span>
-<span class="">120s</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- RIGHT COLUMN: LIVE SOS DISPATCH FEED & SOUND TRIGGER TABLE (5 Cols) -->
-<div class="xl:col-span-5 flex flex-col gap-space-md">
-<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col h-full">
-<!-- Header & Category Filter Tabs -->
-<div class="flex flex-col gap-space-xs pb-space-sm">
-<div class="flex items-center justify-between">
-<h3 class="font-headline-sm text-headline-sm text-on-surface">REGISTRO EN TIEMPO REAL: SOLICITUDES Y TERMINALES</h3>
-<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary font-bold">
-<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
-              EN VIVO
-            </span>
-</div>
-<!-- Filter Tabs -->
-<div class="flex items-center gap-1 overflow-x-auto py-1">
-<button class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold whitespace-nowrap" type="button">Todos (42)</button>
-<button class="px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold whitespace-nowrap" type="button">SOS Crítico (18)</button>
-<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm whitespace-nowrap" type="button">Audio Activado (7)</button>
-<button class="px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm whitespace-nowrap" type="button">A Salvo (1,250)</button>
-</div>
-</div>
-<!-- Terminal Incident Cards List -->
-<div class="flex flex-col gap-space-sm flex-grow overflow-y-auto max-h-[580px] pr-1">
-<!-- Terminal 1: Critical Inundation with Low Battery -->
-<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition shadow-sm">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md font-bold text-on-surface">#RSG-8821</span>
-<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">SOS ACTIVO</span>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary font-semibold">
-<span class="material-symbols-outlined text-[16px]">battery_1_bar</span>
-<span class="">14% (Crítico)</span>
-</div>
-</div>
-<div class="flex flex-col">
-<span class="font-body-md text-body-md font-semibold text-on-surface">Carmen Domínguez <span class="font-normal text-on-surface-variant text-body-sm">(68 años)</span></span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Ubicación: Sector San Jerónimo #402 (Inundación en PB)</span>
-</div>
-<div class="flex flex-wrap items-center gap-2 pt-1"><button class="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-sm text-[11px] font-bold tracking-tight transition shadow-sm leading-tight" type="button"><span class="material-symbols-outlined text-[16px] flex-shrink-0">volume_up</span><span class="">ACTIVAR SONIDO (95dB)</span></button><button class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-primary hover:bg-on-surface-variant text-on-primary font-label-sm text-[11px] font-semibold transition leading-tight whitespace-nowrap" type="button"><span class="material-symbols-outlined text-[16px] flex-shrink-0">send</span><span class="">Despachar Brigada</span></button></div>
-</div>
-<!-- Terminal 2: Sound Already Blasting in Trapped Vehicle -->
-<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition shadow-sm">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md font-bold text-on-surface">#RSG-9043</span>
-<span class="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm font-semibold flex items-center gap-1">
-<span class="material-symbols-outlined text-[12px] animate-spin">campaign</span>
-                  SONANDO HACE 2m
-                </span>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-semibold">
-<span class="material-symbols-outlined text-[16px]">battery_5_bar</span>
-<span class="">82%</span>
-</div>
-</div>
-<div class="flex flex-col">
-<span class="font-body-md text-body-md font-semibold text-on-surface">Rodrigo Morales <span class="font-normal text-on-surface-variant text-body-sm">(44 años)</span></span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Ubicación: Eje Central Norte &amp; Av. Robles (Atrapado en auto)</span>
-</div>
-<div class="flex flex-wrap items-center gap-2 pt-1"><button class="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-container-highest hover:bg-surface-dim text-on-surface font-label-sm text-[11px] font-bold tracking-tight transition leading-tight" type="button"><span class="material-symbols-outlined text-[16px] text-secondary flex-shrink-0">volume_off</span><span class="">DETENER ALARMA SONORA</span></button><button class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-sm text-[11px] font-semibold transition leading-tight whitespace-nowrap" type="button"><span class="material-symbols-outlined text-[16px] flex-shrink-0">call</span><span class="">Comms Voz</span></button></div>
-</div>
-<!-- Terminal 3: Resolved & Sheltered -->
-<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md font-bold text-on-surface">#RSG-7712</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">A SALVO</span>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-tertiary-container font-semibold">
-<span class="material-symbols-outlined text-[16px]">battery_full</span>
-<span class="">95%</span>
-</div>
-</div>
-<div class="flex flex-col">
-<span class="font-body-md text-body-md font-semibold text-on-surface">Dra. Sofía Montes</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Ubicación: Refugio Oficial #03 (Gimnasio Benito Juárez)</span>
-</div>
-<div class="flex items-center justify-between pt-1 font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Confirmado por escáner de triaje</span>
-<button class="text-primary hover:underline font-semibold inline-flex items-center gap-0.5" type="button">
-                Ver Historial de Telemetría
-                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-</button>
-</div>
-</div>
-<!-- Terminal 4: Degraded Signal Alert -->
-<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs hover:bg-surface-container transition">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md font-bold text-on-surface">#RSG-6504</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold">SEÑAL DEGRADADA</span>
-</div>
-<div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
-<span class="material-symbols-outlined text-[16px]">battery_3_bar</span>
-<span class="">48%</span>
-</div>
-</div>
-<div class="flex flex-col">
-<span class="font-body-md text-body-md font-semibold text-on-surface">Alejandro Morales</span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Último paquete recibido: Viaducto Sur (Enlace LoRa P2P)</span>
-</div>
-<div class="flex items-center gap-2 pt-1"><button class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-sm text-[11px] font-bold tracking-tight transition leading-tight text-center" type="button"><span class="material-symbols-outlined text-[16px] text-secondary flex-shrink-0">wifi_tethering</span><span class="">FORZAR PING SONORO VÍA REPETIDORA VECINA</span></button></div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- BOTTOM SECTION: ANALYTICS & SYSTEM TELEMETRY AUDIT -->
-<section class="grid grid-cols-1 xl:grid-cols-12 gap-space-md">
-<!-- Left Chart: Temporal SOS Alerts vs Rescue Evolution (7 Cols) -->
-<div class="xl:col-span-7 bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
-<div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm">
-<div>
-<h3 class="font-headline-sm text-headline-sm text-on-surface">EVOLUCIÓN TEMPORAL: ALERTAS SOS VS CIUDADANOS RESCATADOS</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Correlación entre el uso del pinger sonoro forzado y la velocidad de extracción</p>
-</div>
-<div class="flex items-center gap-3 font-label-sm text-label-sm">
-<span class="inline-flex items-center gap-1 text-secondary"><span class="w-3 h-1 bg-secondary rounded"></span> Alertas SOS Nuevas</span>
-<span class="inline-flex items-center gap-1 text-on-tertiary-container"><span class="w-3 h-1 bg-tertiary-fixed-dim rounded"></span> Rescates Confirmados</span>
-</div>
-</div>
-<!-- High Fidelity Inline SVG Vector Chart -->
-<div class="w-full py-2">
-<svg class="w-full h-48" fill="none" viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg">
-<!-- Grid lines -->
-<line stroke="#cfc4c5" stroke-dasharray="4 4" stroke-opacity="0.3" x1="40" x2="680" y1="20" y2="20"></line>
-<line stroke="#cfc4c5" stroke-dasharray="4 4" stroke-opacity="0.3" x1="40" x2="680" y1="60" y2="60"></line>
-<line stroke="#cfc4c5" stroke-dasharray="4 4" stroke-opacity="0.3" x1="40" x2="680" y1="100" y2="100"></line>
-<line stroke="#cfc4c5" stroke-dasharray="4 4" stroke-opacity="0.3" x1="40" x2="680" y1="140" y2="140"></line>
-<!-- Axis Y Labels -->
-<text class="font-label-sm text-[10px]" fill="#75777e" x="10" y="24">120</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="10" y="64">80</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="10" y="104">40</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="10" y="144">0</text>
-<!-- Shaded Area for Rescues (Green) -->
-<path d="M 40,140 L 90,135 L 150,120 L 220,105 L 300,75 L 380,50 L 460,35 L 540,25 L 620,22 L 680,20 L 680,140 Z" fill="#62df7d" fill-opacity="0.12"></path>
-<!-- Green Trend Line (Rescues) -->
-<path d="M 40,140 L 90,135 L 150,120 L 220,105 L 300,75 L 380,50 L 460,35 L 540,25 L 620,22 L 680,20" stroke="#019842" stroke-linecap="round" stroke-width="2.5"></path>
-<!-- Red Trend Line (Alerts SOS Peak at 06:00 to 10:00) -->
-<path d="M 40,130 L 90,110 L 150,80 L 220,30 L 300,22 L 380,55 L 460,85 L 540,115 L 620,130 L 680,135" stroke="#bb0112" stroke-linecap="round" stroke-width="2.5"></path>
-<!-- Event Marker for "Activación Pinger Masivo" -->
-<line stroke="#bb0112" stroke-dasharray="2 2" stroke-width="1.5" x1="300" x2="300" y1="22" y2="140"></line>
-<circle cx="300" cy="22" fill="#bb0112" r="4"></circle>
-<rect fill="#ffdad6" height="18" rx="3" width="140" x="230" y="2"></rect>
-<text class="font-label-sm text-[9px] font-bold" fill="#93000a" x="236" y="14">ACTIVACIÓN DE SONAR MASIVO</text>
-<!-- Axis X Time Labels -->
-<text class="font-label-sm text-[10px]" fill="#75777e" x="35" y="165">00:00</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="140" y="165">03:00</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="290" y="165">06:00</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="440" y="165">09:00</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="580" y="165">12:00</text>
-<text class="font-label-sm text-[10px]" fill="#75777e" x="660" y="165">15:00</text>
-</svg>
-</div>
-<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs font-label-sm text-label-sm text-on-surface-variant">
-<span class="">Tasa de efectividad acústica: <strong>89.4% de éxito en rescates</strong></span>
-<span class="">Próxima sincronización de satélite: <strong>14:45:00 UTC</strong></span>
-</div>
-</div>
-<!-- Right Card: Sector Breakdown & Live Syslog Console (5 Cols) -->
-<div class="xl:col-span-5 bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
-<div class="pb-space-xs">
-<h3 class="font-headline-sm text-headline-sm text-on-surface">EFECTIVIDAD DE BÚSQUEDA Y CONSOLA DE AUDITORÍA</h3>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Telemetría de recepción acústica y paquetes ACK</p>
-</div>
-<!-- Sector Progress Bars -->
-<div class="flex flex-col gap-2 my-space-xs">
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface">Sector Norte (Zona Inundación)</span>
-<span class="font-bold text-on-tertiary-container">92% localizados vía sonido</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-primary h-1.5 rounded-full" style="width: 92%"></div>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface">Sector Poniente (Laderas y Deslaves)</span>
-<span class="font-bold text-on-surface">88% localizados</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-primary h-1.5 rounded-full" style="width: 88%"></div>
-</div>
-</div>
-<div class="flex flex-col gap-1">
-<div class="flex justify-between font-label-sm text-label-sm">
-<span class="text-on-surface">Zona Centro &amp; Albergues</span>
-<span class="font-bold text-on-tertiary-container">96% confirmados</span>
-</div>
-<div class="w-full bg-surface-container-highest rounded-full h-1.5">
-<div class="bg-on-tertiary-container h-1.5 rounded-full" style="width: 96%"></div>
-</div>
-</div>
-</div>
-<!-- Live Terminal Console Log Feed -->
-<div class="bg-inverse-surface rounded-lg p-space-sm flex flex-col gap-1 font-label-sm text-label-sm text-inverse-on-surface select-text mt-space-xs">
-<div class="flex items-center justify-between text-outline-variant pb-1">
-<span class="flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px]">terminal</span>
-            CONSOLA DEL SISTEMA TÁCTICO (SYSLOG)
-          </span>
-<span class="text-[10px]">BUF: 1024KB</span>
-</div>
-<div class="flex flex-col gap-0.5 text-[11px] leading-tight font-mono">
-<p class=""><span class="text-tertiary-fixed-dim">[14:38:19]</span> ACK recibido terminal #RSG-8821 | Altavoz ON @ 95dB | Sat-Core: OK</p>
-<p class=""><span class="text-tertiary-fixed-dim">[14:37:44]</span> Despachada Unidad Táctica R-09 hacia Sector San Jerónimo</p>
-<p class=""><span class="text-secondary-fixed-dim">[14:36:02]</span> Bypass DND activado para 1,420 terminales en cuadrante 4-B</p>
-<p class=""><span class="text-outline-variant">[14:34:50]</span> Malla LoRa reporta 18 nodos repetidores operando a plena potencia</p>
-</div>
-</div>
-</div>
-</section>
-<!-- CONFIRMATION MODAL (HIDDEN BY DEFAULT, ACCESSIBLE VIA SCRIPT) -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/70 hidden p-space-md backdrop-blur-xs" id="confirmation-modal">
-<div class="bg-surface-container-lowest rounded-xl max-w-lg w-full p-space-lg shadow-2xl flex flex-col gap-space-md">
-<div class="flex items-start gap-space-md">
-<div class="w-12 h-12 rounded-full bg-error-container text-secondary flex items-center justify-center flex-shrink-0">
-<span class="material-symbols-outlined text-[28px]">crisis_alert</span>
-</div>
-<div class="flex flex-col">
-<h3 class="font-headline-sm text-headline-sm text-on-surface">¿CONFIRMAR DISPARO ACÚSTICO GENERAL?</h3>
-<p class="font-body-md text-body-md text-on-surface-variant mt-1">
-            Se emitirá un tono de 95dB en <strong class="text-on-surface">1,420 dispositivos</strong> del Sector 4. Esta acción anulará el modo silencio de los usuarios para facilitar su localización física inmediata.
-          </p>
-</div>
-</div>
-<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between font-label-sm text-label-sm">
-<span class="text-on-surface-variant">Código de autorización de despacho:</span>
-<span class="font-bold text-on-surface">AUTH-TAC-9921-X</span>
-</div>
-<div class="flex items-center justify-end gap-space-sm pt-space-xs">
-<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md tracking-wider uppercase transition" id="modal-cancel-btn" type="button">
-          Cancelar
-        </button>
-<button class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-secondary hover:bg-secondary-container text-on-secondary font-label-md text-label-md tracking-wider uppercase transition shadow-md" id="modal-confirm-btn" type="button">
-<span class="material-symbols-outlined text-[18px]">campaign</span>
-          Emitir Pulso Ahora
-        </button>
-</div>
-</div>
-</div>
-<!-- CLIENT-SIDE MICRO-INTERACTIONS SCRIPT -->
-<script>
-    (function() {
-      // Elements
-      const broadcastBtn = document.getElementById('broadcast-trigger-btn');
-      const modal = document.getElementById('confirmation-modal');
-      const cancelBtn = document.getElementById('modal-cancel-btn');
-      const confirmBtn = document.getElementById('modal-confirm-btn');
-      const toggleBypass = document.getElementById('toggle-bypass');
-      const testBtn = document.getElementById('test-audio-btn');
-
-      // Modal Triggers
-      if (broadcastBtn && modal) {
-        broadcastBtn.addEventListener('click', () => {
-          modal.classList.remove('hidden');
-        });
-      }
-
-      if (cancelBtn && modal) {
-        cancelBtn.addEventListener('click', () => {
-          modal.classList.add('hidden');
-        });
-      }
-
-      if (confirmBtn && modal) {
-        confirmBtn.addEventListener('click', () => {
-          confirmBtn.textContent = 'TRANSMITIENDO PULSO...';
-          confirmBtn.classList.add('opacity-75');
-          setTimeout(() => {
-            modal.classList.add('hidden');
-            confirmBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">campaign</span> Emitir Pulso Ahora';
-            confirmBtn.classList.remove('opacity-75');
-            alert('Pulso acústico emitido con éxito a 1,420 terminales.');
-          }, 800);
-        });
-      }
-
-      // Bypass DND Toggle Interactive state
-      if (toggleBypass) {
-        toggleBypass.addEventListener('click', () => {
-          const isChecked = toggleBypass.getAttribute('aria-checked') === 'true';
-          toggleBypass.setAttribute('aria-checked', !isChecked);
-          const thumb = toggleBypass.querySelector('span');
-          if (!isChecked) {
-            toggleBypass.classList.remove('bg-outline-variant');
-            toggleBypass.classList.add('bg-secondary');
-            thumb.classList.remove('translate-x-0');
-            thumb.classList.add('translate-x-5');
-          } else {
-            toggleBypass.classList.remove('bg-secondary');
-            toggleBypass.classList.add('bg-outline-variant');
-            thumb.classList.remove('translate-x-5');
-            thumb.classList.add('translate-x-0');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_dashboard" name="shell-type">
+  <title>Red NOVA — Centro de Comando C5 & Tablero Táctico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f8f9ff",
+            "surface": "#f8f9ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eff4ff",
+            "surface-container": "#e6eeff",
+            "surface-container-high": "#dde9ff",
+            "surface-container-highest": "#d3e3ff",
+            "primary": "#000000",
+            "on-primary": "#ffffff",
+            "secondary": "#bb0112",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#e02928",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "outline": "#75777e",
+            "outline-variant": "#cfc4c5",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#44474d",
+            "safe-emerald": "#059669",
+            "safe-container": "#d1fae5",
+            "on-safe": "#065f46"
+          },
+          fontFamily: {
+            "display": ["Space Grotesk", "sans-serif"],
+            "headline": ["Space Grotesk", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
           }
-        });
+        }
       }
-
-      // Local Audio Test Simulation
-      if (testBtn) {
-        testBtn.addEventListener('click', () => {
-          testBtn.classList.add('bg-surface-container-highest');
-          const originalText = testBtn.innerHTML;
-          testBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> <span class="ml-1">Probando...</span>';
-          setTimeout(() => {
-            testBtn.innerHTML = originalText;
-            testBtn.classList.remove('bg-surface-container-highest');
-          }, 1200);
-        });
-      }
-    })();
+    };
   </script>
-</div></main></div>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+    #tactical-map { z-index: 10; }
+    .leaflet-pane { z-index: 10; }
+    .leaflet-top, .leaflet-bottom { z-index: 15; }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+  <!-- HEADER SUPERIOR -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-surface-container-lowest border-b border-outline-variant/40 shadow-sm">
+    <div class="h-16 w-full px-6 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-headline font-bold text-lg shadow-sm">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface leading-none">RED NOVA</span>
+          <span class="font-mono text-[10px] text-on-surface-variant tracking-wider font-semibold">CENTRO DE COMANDO & OPERACIONES C5</span>
+        </div>
+        <div class="hidden xl:flex items-center gap-2 pl-4 border-l border-outline-variant/50">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container font-mono text-xs font-bold tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+            MANDO MULTI-AMENAZA ACTIVO
+          </span>
+        </div>
+      </div>
 
+      <div class="flex items-center gap-4 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-safe-container text-on-safe font-mono text-xs font-bold tracking-wider">
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+          ENLACE LORA & SAT-CORE 99.9%
+        </div>
+        <div class="hidden md:flex flex-col text-right font-mono text-xs">
+          <span id="utc-clock" class="text-on-surface font-semibold">14:38:22 UTC</span>
+          <span class="text-on-surface-variant text-[10px]">CST (LOCAL)</span>
+        </div>
+        <!-- OPERATOR BADGE ÚNICO (Sin nombres duplicados) -->
+        <div class="flex items-center gap-2.5 pl-2">
+          <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-headline text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left leading-tight">
+            <span id="header-operator-name" class="font-headline text-xs font-bold text-on-surface">Cmdte. J. Morales</span>
+            <span id="header-operator-role" class="font-mono text-[10px] text-on-surface-variant">SUPER_ADMIN [C5-01]</span>
+          </div>
+          <button onclick="ApiClient.clearSession(); window.location.href='/dashboard/login.html';" class="p-1 text-on-surface-variant hover:text-secondary" title="Cerrar Sesión">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
 
+  <!-- SIDEBAR NAVEGACIÓN -->
+  <aside class="fixed left-0 top-16 bottom-0 w-64 bg-surface-container-lowest border-r border-outline-variant/40 shadow-sm z-40 flex flex-col justify-between py-4 overflow-y-auto">
+    <div class="flex flex-col gap-1 px-3">
+      <div class="px-3 py-1 mb-1">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">CANALES DE CONTROL</span>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-container text-on-surface font-headline font-bold text-sm shadow-sm" data-path="tablero-general" href="/dashboard/panel.html">
+          <span class="material-symbols-outlined text-[20px] text-primary">radar</span>
+          <span>Tablero General & Mapa</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="dispositivos-activacion" href="/dashboard/devices.html">
+          <span class="material-symbols-outlined text-[20px]">volume_up</span>
+          <span>Dispositivos & Sirenas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="incidentes-sos" href="/dashboard/incidents.html">
+          <span class="material-symbols-outlined text-[20px]">emergency</span>
+          <span>Registro de Incidentes & SOS</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="red-familiar" href="/dashboard/people.html">
+          <span class="material-symbols-outlined text-[20px]">group_work</span>
+          <span>Red Familiar & Personas</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="metricas-analitica" href="/dashboard/analytics.html">
+          <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <span>Métricas & Analítica</span>
+        </a>
+        <a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm border-l-2 border-secondary" data-path="noticias-alertas-app" href="/dashboard/broadcasts.html">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[20px] text-secondary">campaign</span>
+            <span class="font-medium">Noticias & Alertas App</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-secondary/10 text-secondary border border-secondary/20 rounded uppercase">BROADCAST</span>
+        </a>
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-body text-sm" data-path="arquitectura-sistema" href="/dashboard/architecture.html">
+          <span class="material-symbols-outlined text-[20px]">account_tree</span>
+          <span>Arquitectura del Sistema</span>
+        </a>
+      </nav>
+    </div>
+    <div class="px-4">
+      <div class="p-3 rounded-lg bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[11px] font-bold text-on-surface">RED NOVA CORE</span>
+          <span class="w-2 h-2 rounded-full bg-safe-emerald"></span>
+        </div>
+        <p class="font-mono text-[10px] text-on-surface-variant">PostGIS 16 + LoRaWAN + SAT</p>
+        <p class="font-mono text-[10px] text-on-surface-variant">Frecuencia: 915 MHz Cifrada</p>
+      </div>
+    </div>
+  </aside>
 
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="pl-64">
+    <main class="pt-16 w-full px-6 min-h-screen pb-12">
+      <!-- SELECTOR DE AMENAZA / SITUATIONAL AWARENESS -->
+      <section class="mt-4 mb-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-[24px]">public</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-headline font-bold text-lg text-on-surface">Tablero Operacional de Amenazas</h1>
+              <span id="threat-badge" class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-mono text-xs font-bold">SISTEMA ACTIVO</span>
+            </div>
+            <p class="font-body text-xs text-on-surface-variant">Monitoreo multiriesgo nacional: Sismos, Inundaciones, Huracanes, Incendios, Volcanes, Deslaves y Riesgos Químicos.</p>
+          </div>
+        </div>
+        <!-- Selector rápido de catástrofe activa -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <label class="font-mono text-xs text-on-surface-variant font-bold uppercase">Amenaza Activa:</label>
+          <select id="activeDisasterSelector" onchange="switchDisasterContext(this.value)" class="bg-surface-container-low text-on-surface font-headline font-bold text-xs px-3 py-2 rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="EARTHQUAKE">Sismo / Terremoto (Magnitud 7.4)</option>
+            <option value="FLOOD" selected>Inundación Severa (Desbordamiento de Río)</option>
+            <option value="HURRICANE">Tornado / Huracán Cat 4</option>
+            <option value="FIRE">Incendio Forestal / Urbano</option>
+            <option value="VOLCANO">Alerta Volcánica Fase 3</option>
+            <option value="LANDSLIDE">Deslave / Deslizamiento de Ladera</option>
+            <option value="CHEMICAL">Fuga Química / Contingencia</option>
+          </select>
+        </div>
+      </section>
 
+      <!-- KPIS OPERACIONALES -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Terminales en Línea</span>
+              <span id="kpi-devices-count" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">sensors</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-safe-emerald flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+            <span>Malla LoRa + 4G/5G Enlazada</span>
+          </div>
+        </div>
 
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Alertas SOS Activas</span>
+              <span id="kpi-active-emergencies" class="font-headline font-bold text-2xl text-secondary mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-error-container text-on-error-container">
+              <span class="material-symbols-outlined text-[20px]">emergency</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-secondary flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">priority_high</span>
+            <span id="kpi-reports-pending">-- reportes pendientes</span>
+          </div>
+        </div>
 
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Albergues Oficiales</span>
+              <span id="kpi-total-shelters" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">night_shelter</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">people</span>
+            <span id="kpi-people-count">-- personas registradas</span>
+          </div>
+        </div>
 
+        <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="flex flex-col">
+              <span class="font-mono text-xs uppercase text-on-surface-variant font-bold">Zonas de Riesgo Activas</span>
+              <span id="kpi-risk-zones-count" class="font-headline font-bold text-2xl text-on-surface mt-1">--</span>
+            </div>
+            <span class="p-2 rounded-lg bg-surface-container text-primary">
+              <span class="material-symbols-outlined text-[20px]">warning</span>
+            </span>
+          </div>
+          <div class="mt-2 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">map</span>
+            <span>Geocercas activas en PostGIS</span>
+          </div>
+        </div>
+      </section>
 
+      <!-- GRID PRINCIPAL: MAPA TÁCTICO & CONSOLA DE ALTA DE ZONAS/ALBERGUES/POIS -->
+      <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+        <!-- COLUMNA IZQUIERDA: MAPA TÁCTICO (7 COLS) -->
+        <div class="xl:col-span-7 flex flex-col gap-4">
+          <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm flex flex-col">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-[22px]">radar</span>
+                <h2 class="font-headline font-bold text-base text-on-surface">Mapa Operacional en Tiempo Real</h2>
+              </div>
+              <div class="flex items-center gap-2 font-mono text-[11px] text-on-surface-variant">
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> SOS</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Albergue</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Zona Peligro</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> POI</span>
+              </div>
+            </div>
 
+            <!-- VIEWPORT DEL MAPA LEAFLET -->
+            <div id="tactical-map" class="relative w-full h-[480px] rounded-lg overflow-hidden border border-outline-variant/40 shadow-inner"></div>
 
+            <div class="mt-3 flex items-center justify-between text-xs font-mono text-on-surface-variant bg-surface-container-low p-2.5 rounded-lg">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px] text-primary">touch_app</span>
+                <span>Haz clic en el mapa para capturar coordenadas al dar de alta zonas o albergues.</span>
+              </div>
+              <span id="map-last-coords" class="font-bold text-primary">19.4326, -99.1332</span>
+            </div>
+          </div>
+        </div>
 
-<script src="/dashboard/js/auth.js"></script><script src="/dashboard/js/api.js"></script><script src="/dashboard/js/dashboard.js"></script></body></html>
+        <!-- COLUMNA DERECHA: CONSOLA DE ALTA TÁCTICA DEL ADMINISTRADOR (5 COLS) -->
+        <div class="xl:col-span-5 flex flex-col gap-4">
+          <div class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-outline-variant/30">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[20px]">add_location_alt</span>
+                <h3 class="font-headline font-bold text-sm text-on-surface uppercase">Consola de Alta Táctica (C5)</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-mono text-[10px] font-bold">100% FUNCIONAL</span>
+            </div>
+
+            <!-- TABS DE ALTA -->
+            <div class="flex items-center gap-1 py-2 border-b border-outline-variant/30 overflow-x-auto">
+              <button onclick="switchCreateTab('riskZone')" id="tabBtn-riskZone" class="px-3 py-1.5 rounded-lg bg-primary text-white font-headline text-xs font-bold whitespace-nowrap shadow-sm">
+                Zona de Peligro
+              </button>
+              <button onclick="switchCreateTab('shelter')" id="tabBtn-shelter" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Albergue
+              </button>
+              <button onclick="switchCreateTab('poi')" id="tabBtn-poi" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Punto de Interés
+              </button>
+              <button onclick="switchCreateTab('device')" id="tabBtn-device" class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-headline text-xs font-semibold whitespace-nowrap">
+                Sirena / Nodo
+              </button>
+            </div>
+
+            <!-- FORMULARIO 1: ALTA DE ZONA DE PELIGRO -->
+            <form id="form-riskZone" onsubmit="handleCreateRiskZone(event)" class="flex flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre / Identificador de la Zona *</label>
+                <input type="text" id="rz-name" required placeholder="Ej: Perímetro de Desborde Río San Javier" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none focus:ring-1 focus:ring-primary">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Tipo de Amenaza *</label>
+                  <select id="rz-hazardType" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none">
+                    <option value="FLOOD">Inundación</option>
+                    <option value="EARTHQUAKE">Sismo / Falla</option>
+                    <option value="HURRICANE">Tornado / Huracán</option>
+                    <option value="FIRE">Fuego / Incendio</option>
+                    <option value="VOLCANO">Alerta Volcánica</option>
+                    <option value="LANDSLIDE">Deslave</option>
+                    <option value="CHEMICAL">Riesgo Químico</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nivel de Riesgo *</label>
+                  <select id="rz-riskLevel" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none">
+                    <option value="CRITICAL">Crítico (Evacuación)</option>
+                    <option value="HIGH">Alto (Peligro)</option>
+                    <option value="MEDIUM">Medio (Precaución)</option>
+                    <option value="LOW">Bajo (Monitoreo)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="rz-lat" required value="19.4326" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="rz-lng" required value="-99.1332" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Radio (Metros)</label>
+                  <input type="number" id="rz-radius" value="1200" min="50" max="15000" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Descripción / Instrucción Civil</label>
+                <textarea id="rz-desc" rows="2" placeholder="Desalojo obligatorio hacia albergues en cota alta..." class="w-full px-3 py-1.5 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40 focus:outline-none"></textarea>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-secondary hover:bg-secondary-container text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_alert</span>
+                <span>Dar de Alta Zona de Peligro</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 2: ALTA DE ALBERGUE (Oculto por defecto) -->
+            <form id="form-shelter" onsubmit="handleCreateShelter(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre del Albergue *</label>
+                <input type="text" id="sh-name" required placeholder="Ej: Gimnasio Municipal Benito Juárez" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Capacidad Total *</label>
+                  <input type="number" id="sh-capacity" required value="450" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Ocupación Inicial</label>
+                  <input type="number" id="sh-occupancy" value="120" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Dirección / Referencia</label>
+                <input type="text" id="sh-address" placeholder="Calle República de Brasil #42, Centro" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="sh-lat" required value="19.4385" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="sh-lng" required value="-99.1295" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-primary hover:bg-black text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">night_shelter</span>
+                <span>Registrar Albergue Oficial</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 3: ALTA DE POI (Oculto) -->
+            <form id="form-poi" onsubmit="handleCreatePoi(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Nombre del Punto de Interés *</label>
+                <input type="text" id="poi-name" required placeholder="Ej: Puesto Médico Cruz Roja San Jerónimo" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Categoría POI *</label>
+                <select id="poi-cat" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+                  <option value="MEDICAL">Puesto Médico / Hospital</option>
+                  <option value="WATER">Distribución de Agua Potable</option>
+                  <option value="FOOD">Centro de Acopio y Raciones</option>
+                  <option value="POLICE">Seguridad / Guardia Nacional</option>
+                  <option value="FIREFIGHTERS">Bomberos / Rescate Urbano</option>
+                  <option value="HELIPAD">Helipuerto de Evacuación</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="poi-lat" required value="19.4350" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="poi-lng" required value="-99.1310" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-safe-emerald hover:bg-emerald-700 text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">add_location</span>
+                <span>Registrar Punto de Interés</span>
+              </button>
+            </form>
+
+            <!-- FORMULARIO 4: ALTA DE TERMINAL / SIRENA (Oculto) -->
+            <form id="form-device" onsubmit="handleCreateDevice(event)" class="hidden flex-col gap-3 pt-3">
+              <div>
+                <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Identificador de la Sirena / Nodo *</label>
+                <input type="text" id="dev-id" required placeholder="Ej: SIRENA-NOVA-NORTE-08" class="w-full px-3 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Tipo de Baliza</label>
+                  <select id="dev-type" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-body text-xs rounded-lg border border-outline-variant/40">
+                    <option value="SIREN_COMMUNITY">Sirena Comunitaria (120dB)</option>
+                    <option value="LORA_GATEWAY">Gateway Malla LoRa</option>
+                    <option value="RESCUE_TERMINAL">Terminal Móvil SAR</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Frecuencia / Canal</label>
+                  <input type="text" id="dev-freq" value="915.0 MHz (CH 04)" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Latitud *</label>
+                  <input type="number" step="any" id="dev-lat" required value="19.4370" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] font-bold text-on-surface-variant uppercase mb-1">Longitud *</label>
+                  <input type="number" step="any" id="dev-lng" required value="-99.1340" class="w-full px-2.5 py-2 bg-surface-container-low text-on-surface font-mono text-xs rounded-lg border border-outline-variant/40">
+                </div>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-primary hover:bg-black text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition">
+                <span class="material-symbols-outlined text-[18px]">cell_tower</span>
+                <span>Activar Nodo / Sirena en Red</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTADO INFERIOR DE RECURSOS TÁCTICOS ACTIVOS (ZONAS DE PELIGRO, ALBERGUES Y POIS) -->
+      <section class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-2 border-b border-outline-variant/30">
+          <div>
+            <h2 class="font-headline font-bold text-base text-on-surface">Puntos Tácticos y Zonas Activas en Terreno</h2>
+            <p class="font-body text-xs text-on-surface-variant">Inventario en tiempo real sincronizado con la App Móvil de la ciudadanía y brigadas.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs text-on-surface-variant">FILTRO:</span>
+            <button onclick="renderTacticalTable('all')" class="px-2.5 py-1 rounded bg-primary text-white font-mono text-xs font-bold">Todos</button>
+            <button onclick="renderTacticalTable('zones')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">Peligros</button>
+            <button onclick="renderTacticalTable('shelters')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">Albergues</button>
+            <button onclick="renderTacticalTable('pois')" class="px-2.5 py-1 rounded bg-surface-container text-on-surface font-mono text-xs">POIs</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-body text-xs">
+            <thead>
+              <tr class="bg-surface-container text-on-surface font-mono text-[11px] uppercase tracking-wider">
+                <th class="py-2.5 px-3 rounded-l-lg">Tipo / Icono</th>
+                <th class="py-2.5 px-3">Nombre del Recurso</th>
+                <th class="py-2.5 px-3">Categoría / Nivel</th>
+                <th class="py-2.5 px-3">Coordenadas</th>
+                <th class="py-2.5 px-3">Capacidad / Alcance</th>
+                <th class="py-2.5 px-3 text-right rounded-r-lg">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tactical-resources-table" class="divide-y divide-outline-variant/20">
+              <!-- Renderizado dinámico desde dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="/dashboard/js/api.js"></script>
+  <script src="/dashboard/js/dashboard.js"></script>
+</body>
+</html>

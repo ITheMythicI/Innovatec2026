@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:innovatec_mobile/core/theme/resguardo_theme.dart';
+import 'package:innovatec_mobile/core/network/gps_location_service.dart';
 import 'package:innovatec_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:innovatec_mobile/features/reports/domain/models/report.dart';
 import 'package:innovatec_mobile/features/reports/presentation/controllers/report_controller.dart';
@@ -429,8 +430,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       category: selectedCat,
                       priority: selectedPri,
                       status: ReportStatus.pending,
-                      latitude: 19.4326,
-                      longitude: -99.1332,
+                      latitude: GpsLocationService().currentLocation.latitude,
+                      longitude: GpsLocationService().currentLocation.longitude,
                       createdAt: now,
                       updatedAt: now,
                     );
@@ -440,7 +441,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       messenger.showSnackBar(
                         const SnackBar(
                           backgroundColor: ResguardoTheme.safeEmerald,
-                          content: Text('✅ Reporte de incidente transmitido al Centro de Comando C5.'),
+                          content: Text('[OK] Reporte de incidente transmitido al Centro de Comando C5.'),
                         ),
                       );
                     }

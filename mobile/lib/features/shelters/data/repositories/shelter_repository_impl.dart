@@ -23,12 +23,7 @@ class ShelterRepositoryImpl implements ShelterRepository {
     bool? onlyAvailable,
     bool forceRefresh = false,
   }) async {
-    final localList = await _localDataSource.getShelters(status: status, onlyAvailable: onlyAvailable);
-    if (localList.isNotEmpty && !forceRefresh) {
-      _refreshRemote(status: status, onlyAvailable: onlyAvailable);
-      return localList;
-    }
-
+    // 1. Intentar obtener desde el backend en tiempo real
     try {
       final remoteList = await _remoteDataSource.getShelters(status: status, onlyAvailable: onlyAvailable);
       if (remoteList.isNotEmpty) {
@@ -37,8 +32,52 @@ class ShelterRepositoryImpl implements ShelterRepository {
       }
     } catch (_) {}
 
-    return localList;
+    // 2. Si no hay conexión, recuperar de la base de datos local SQLite
+    final localList = await _localDataSource.getShelters(status: status, onlyAvailable: onlyAvailable);
+    if (localList.isNotEmpty) {
+      return localList;
+    }
+
+    // 3. Contingencia inicial si aún no se ha sincronizado y no hay red
+    final defaultShelters = _getDefaultEmergencyShelters();
+    await _localDataSource.saveShelters(defaultShelters);
+    return defaultShelters;
   }
+
+  List<Shelter> _getDefaultEmergencyShelters() => [
+        Shelter(
+          id: 'SH-01',
+          name: 'Gimnasio Municipal Benito Juárez',
+          address: 'Calle República de Brasil #42, Centro',
+          latitude: 19.4385,
+          longitude: -99.1295,
+          capacity: 450,
+          currentOccupancy: 288,
+          status: ShelterStatus.open,
+          contactName: 'Dra. Elena Ramos',
+          contactPhone: '+52 55 1234 5678',
+          managedBy: 'Cruz Roja Mexicana / Protección Civil',
+          services: ['Agua potable', 'Atención médica 24/7', 'Energía solar', 'Raciones calientes'],
+          createdAt: DateTime.now().subtract(const Duration(days: 30)),
+          updatedAt: DateTime.now(),
+        ),
+        Shelter(
+          id: 'SH-02',
+          name: 'Estadio Jesús Martínez "Palillo"',
+          address: 'Av. Río Churubusco s/n, Magdalena Mixhuca',
+          latitude: 19.4080,
+          longitude: -99.1020,
+          capacity: 800,
+          currentOccupancy: 410,
+          status: ShelterStatus.open,
+          contactName: 'Ing. Carlos Mendoza',
+          contactPhone: '+52 55 8765 4321',
+          managedBy: 'Plan DN-III-E / Sedena',
+          services: ['Comedor comunitario', 'Pabellón pediátrico', 'Dormitorios familiares'],
+          createdAt: DateTime.now().subtract(const Duration(days: 15)),
+          updatedAt: DateTime.now(),
+        ),
+      ];
 
   void _refreshRemote({ShelterStatus? status, bool? onlyAvailable}) async {
     try {

@@ -12,14 +12,17 @@ export class SheltersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateShelterDto) {
+    const finalCapacity = dto.capacity || dto.totalCapacity || 100;
+    const finalOccupancy = dto.currentOccupancy ?? dto.occupancy ?? 0;
+
     return this.prisma.shelter.create({
       data: {
         name: dto.name,
         address: dto.address,
         latitude: dto.latitude,
         longitude: dto.longitude,
-        capacity: dto.capacity,
-        currentOccupancy: dto.currentOccupancy || 0,
+        capacity: finalCapacity,
+        currentOccupancy: finalOccupancy,
         status: dto.status || ShelterStatus.OPEN,
         contactName: dto.contactName,
         contactPhone: dto.contactPhone,

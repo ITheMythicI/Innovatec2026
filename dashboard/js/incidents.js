@@ -478,7 +478,7 @@ function triggerSirenForReport(reportId) {
         btn.classList.remove('bg-black', 'text-white');
       }, 3500);
     }
-    alert('✅ Pulso de alarma acústica de 98 dB SPL transmitido exitosamente al dispositivo del ciudadano.');
+    alert('Pulso de alarma acústica de 98 dB SPL transmitido exitosamente al dispositivo del ciudadano.');
   }, 1000);
 }
 

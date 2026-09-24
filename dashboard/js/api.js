@@ -109,9 +109,9 @@ function checkAuth() {
       return;
     }
 
-    // Actualizar nombre y rol del operador en la barra superior si los elementos existen
-    const operatorNameEl = document.querySelector('header span.text-on-surface.font-semibold');
-    const operatorRoleEl = document.querySelector('header span.text-on-surface-variant');
+    // Actualizar nombre y rol del operador en la barra superior usando IDs específicos
+    const operatorNameEl = document.getElementById('header-operator-name');
+    const operatorRoleEl = document.getElementById('header-operator-role');
     if (operatorNameEl && user.fullName) {
       operatorNameEl.textContent = user.fullName;
     }

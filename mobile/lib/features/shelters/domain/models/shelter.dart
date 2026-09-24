@@ -118,22 +118,25 @@ class Shelter {
       parsedServices = (json['services_json'] as String).split(',');
     }
 
+    final rawCreated = json['createdAt'] ?? json['created_at'];
+    final rawUpdated = json['updatedAt'] ?? json['updated_at'];
+
     return Shelter(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      address: json['address'] as String?,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
-      capacity: (json['capacity'] as num).toInt(),
-      currentOccupancy: (json['currentOccupancy'] ?? json['current_occupancy'] as num?)?.toInt() ?? 0,
-      status: ShelterStatusExtension.fromString(json['status'] as String?),
-      contactName: json['contactName'] ?? json['contact_name'] as String?,
-      contactPhone: json['contactPhone'] ?? json['contact_phone'] as String?,
-      managedBy: json['managedBy'] ?? json['managed_by'] as String?,
-      services: parsedServices,
-      createdAt: DateTime.parse((json['createdAt'] ?? json['created_at']) as String),
-      updatedAt: DateTime.parse((json['updatedAt'] ?? json['updated_at']) as String),
-      syncStatus: json['syncStatus'] ?? json['sync_status'] ?? 'synced',
+      id: (json['id'] ?? 'SH-01').toString(),
+      name: (json['name'] ?? 'Albergue Oficial').toString(),
+      address: json['address']?.toString(),
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 19.4385,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? -99.1295,
+      capacity: (json['capacity'] ?? json['totalCapacity'] as num?)?.toInt() ?? 100,
+      currentOccupancy: (json['currentOccupancy'] ?? json['current_occupancy'] ?? json['occupancy'] as num?)?.toInt() ?? 0,
+      status: ShelterStatusExtension.fromString(json['status']?.toString()),
+      contactName: (json['contactName'] ?? json['contact_name'])?.toString(),
+      contactPhone: (json['contactPhone'] ?? json['contact_phone'])?.toString(),
+      managedBy: (json['managedBy'] ?? json['managed_by'])?.toString(),
+      services: parsedServices.isNotEmpty ? parsedServices : ['Agua potable', 'Atención médica', 'Energía solar'],
+      createdAt: rawCreated != null ? (DateTime.tryParse(rawCreated.toString()) ?? DateTime.now()) : DateTime.now(),
+      updatedAt: rawUpdated != null ? (DateTime.tryParse(rawUpdated.toString()) ?? DateTime.now()) : DateTime.now(),
+      syncStatus: (json['syncStatus'] ?? json['sync_status'] ?? 'synced').toString(),
     );
   }
 }
