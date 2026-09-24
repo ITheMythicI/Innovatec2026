@@ -118,4 +118,17 @@ export class BroadcastsService {
       data: { status: BroadcastStatus.CANCELLED },
     });
   }
+
+  async getActiveFeed() {
+    return this.prisma.broadcast.findMany({
+      where: {
+        status: { not: BroadcastStatus.CANCELLED },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      include: {
+        sentBy: { select: { fullName: true, appRole: true, tacticalId: true } },
+      },
+    });
+  }
 }
