@@ -13,6 +13,133 @@ datasource db {
 }
 
 // ==============================================================================
+// ENUMS: EMERGENCIAS Y GEOGRAFÍA
+// ==============================================================================
+
+enum EmergencyType {
+  EARTHQUAKE
+  FLOOD
+  HURRICANE
+  WILDFIRE
+  LANDSLIDE
+  VOLCANIC_ERUPTION
+  TSUNAMI
+  EXPLOSION
+  BUILDING_COLLAPSE
+  HAZARDOUS_SPILL
+  OTHER
+}
+
+enum EmergencySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EmergencyStatus {
+  ACTIVE
+  CONTAINED
+  RESOLVED
+  CANCELLED
+}
+
+enum ShelterStatus {
+  OPEN
+  FULL
+  CLOSED
+  EVACUATING
+}
+
+enum ShelterServiceType {
+  MEDICAL
+  FOOD
+  WATER
+  ELECTRICITY
+  SANITATION
+  BEDS
+  PSYCHOLOGICAL_SUPPORT
+  WIFI_COMMUNICATION
+  PETS_ALLOWED
+  ACCESSIBLE
+  OTHER
+}
+
+enum ShelterStayStatus {
+  ACTIVE
+  CHECKED_OUT
+  TRANSFERRED
+}
+
+enum ReportCategory {
+  CASUALTIES
+  TRAPPED_PERSONS
+  STRUCTURAL_DAMAGE
+  FIRE_HAZARD
+  FLOODING
+  ROAD_BLOCKED
+  SUPPLY_NEED
+  MEDICAL_EMERGENCY
+  OTHER
+}
+
+enum ReportPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportStatus {
+  PENDING
+  VERIFIED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum HazardType {
+  FLOOD
+  LANDSLIDE
+  TSUNAMI
+  FIRE
+  STRUCTURAL_COLLAPSE
+  CONTAMINATION
+  VOLCANIC_LAHAR
+  SEISMIC_FAULT
+  OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  EXTREME
+}
+
+enum PoiCategory {
+  HOSPITAL
+  CLINIC
+  WATER_POINT
+  FOOD_DISTRIBUTION
+  POLICE_STATION
+  FIRE_STATION
+  HELIPAD
+  SUPPLY_DEPOT
+  TELECOM_TOWER
+  GOVERNMENT_OFFICE
+  OTHER
+}
+
+enum PoiStatus {
+  OPERATIONAL
+  LIMITED
+  DAMAGED
+  DESTROYED
+  INACCESSIBLE
+}
+
+// ==============================================================================
 // 1. IDENTIDAD Y CONTROL DE ACCESO (RBAC)
 // ==============================================================================
 
@@ -175,29 +302,33 @@ model PersonLocationEvent {
 // ==============================================================================
 
 model Emergency {
-  id           String    @id @default(uuid())
+  id           String            @id @default(uuid())
   title        String
   description  String?
-  severity     String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
-  status       String    @default("ACTIVE") // ACTIVE, CONTAINED, RESOLVED, CANCELLED
+  type         EmergencyType     @default(OTHER)
+  severity     EmergencySeverity @default(MEDIUM)
+  status       EmergencyStatus   @default(ACTIVE)
   latitude     Float
   longitude    Float
-  radiusMeters Float?    @map("radius_meters")
-  startedAt    DateTime  @default(now()) @map("started_at")
-  endedAt      DateTime? @map("ended_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  radiusMeters Float?            @map("radius_meters")
+  startedAt    DateTime          @default(now()) @map("started_at")
+  endedAt      DateTime?         @map("ended_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
 
-  events  EmergencyEvent[]
-  reports Report[]
+  events    EmergencyEvent[]
+  reports   Report[]
+  riskZones RiskZone[]
 
+  @@index([status, severity])
+  @@index([startedAt])
   @@map("emergencies")
 }
 
 model EmergencyEvent {
   id          String   @id @default(uuid())
   emergencyId String   @map("emergency_id")
-  eventType   String   @map("event_type") // AFTERSHOCK, FLOOD_PEAK, EVACUATION, SHELTER_OPENED
+  eventType   String   @map("event_type") // AFTERSHOCK, EVACUATION_ORDER, ALERT_LEVEL_CHANGE, etc.
   description String?
   latitude    Float?
   longitude   Float?
@@ -206,26 +337,35 @@ model EmergencyEvent {
 
   emergency Emergency @relation(fields: [emergencyId], references: [id], onDelete: Cascade)
 
+  @@index([emergencyId, recordedAt])
   @@map("emergency_events")
 }
 
 model Report {
-  id              String   @id @default(uuid())
-  reporterUserId  String?  @map("reporter_user_id")
-  reporterName    String?  @map("reporter_name")
-  reporterContact String?  @map("reporter_contact")
-  emergencyId     String?  @map("emergency_id")
-  title           String
-  description     String
-  latitude        Float?
-  longitude       Float?
-  status          String   @default("PENDING") // PENDING, VERIFIED, IN_PROGRESS, RESOLVED, DISMISSED
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id                String         @id @default(uuid())
+  reporterUserId    String?        @map("reporter_user_id")
+  reporterName      String?        @map("reporter_name")
+  reporterContact   String?        @map("reporter_contact")
+  emergencyId       String?        @map("emergency_id")
+  title             String
+  description       String
+  category          ReportCategory @default(OTHER)
+  priority          ReportPriority @default(MEDIUM)
+  status            ReportStatus   @default(PENDING)
+  latitude          Float?
+  longitude         Float?
+  address           String?
+  verifiedByUserId  String?        @map("verified_by_user_id")
+  verificationNotes String?        @map("verification_notes")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
 
   reporterUser User?      @relation(fields: [reporterUserId], references: [id], onDelete: SetNull)
   emergency    Emergency? @relation(fields: [emergencyId], references: [id], onDelete: SetNull)
 
+  @@index([status, priority])
+  @@index([emergencyId])
+  @@index([createdAt])
   @@map("reports")
 }
 
@@ -246,76 +386,93 @@ model Location {
 }
 
 model Shelter {
-  id               String   @id @default(uuid())
+  id               String        @id @default(uuid())
   name             String
   address          String?
   latitude         Float
   longitude        Float
   capacity         Int
-  currentOccupancy Int      @default(0) @map("current_occupancy")
-  status           String   @default("OPEN") // OPEN, FULL, CLOSED
-  contactPhone     String?  @map("contact_phone")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  currentOccupancy Int           @default(0) @map("current_occupancy")
+  status           ShelterStatus @default(OPEN)
+  contactName      String?       @map("contact_name")
+  contactPhone     String?       @map("contact_phone")
+  managedBy        String?       @map("managed_by")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
 
   services ShelterService[]
   stays    ShelterStay[]
 
+  @@index([status, currentOccupancy])
   @@map("shelters")
 }
 
 model ShelterService {
-  id          String  @id @default(uuid())
-  shelterId   String  @map("shelter_id")
-  serviceName String  @map("service_name") // MEDICAL, WATER, FOOD, ELECTRICITY, SANITATION
+  id          String             @id @default(uuid())
+  shelterId   String             @map("shelter_id")
+  serviceType ShelterServiceType @map("service_type")
   description String?
-  isAvailable Boolean @default(true) @map("is_available")
+  isAvailable Boolean            @default(true) @map("is_available")
+  createdAt   DateTime           @default(now()) @map("created_at")
 
   shelter Shelter @relation(fields: [shelterId], references: [id], onDelete: Cascade)
 
+  @@unique([shelterId, serviceType])
   @@map("shelter_services")
 }
 
 model ShelterStay {
-  id           String    @id @default(uuid())
-  shelterId    String    @map("shelter_id")
-  personId     String    @map("person_id")
-  checkInDate  DateTime  @default(now()) @map("check_in_date")
-  checkOutDate DateTime? @map("check_out_date")
-  status       String    @default("ACTIVE") // ACTIVE, CHECKED_OUT, TRANSFERRED
+  id           String            @id @default(uuid())
+  shelterId    String            @map("shelter_id")
+  personId     String            @map("person_id")
+  checkInDate  DateTime          @default(now()) @map("check_in_date")
+  checkOutDate DateTime?         @map("check_out_date")
+  status       ShelterStayStatus @default(ACTIVE)
+  assignedBed  String?           @map("assigned_bed")
   notes        String?
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
 
   shelter Shelter @relation(fields: [shelterId], references: [id], onDelete: Cascade)
   person  Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
 
+  @@index([shelterId, status])
+  @@index([personId, status])
   @@map("shelter_stays")
 }
 
 model RiskZone {
-  id              String   @id @default(uuid())
+  id              String     @id @default(uuid())
   name            String
-  riskLevel       String   @map("risk_level") // LOW, MEDIUM, HIGH, EXTREME
-  geometryGeoJson Json?    @map("geometry_geojson") // GeoJSON Polygon
+  hazardType      HazardType @default(OTHER) @map("hazard_type")
+  riskLevel       RiskLevel  @default(HIGH) @map("risk_level")
   description     String?
-  active          Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  geometryGeoJson Json       @map("geometry_geojson") // GeoJSON Polygon o MultiPolygon
+  active          Boolean    @default(true)
+  emergencyId     String?    @map("emergency_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
 
+  emergency Emergency? @relation(fields: [emergencyId], references: [id], onDelete: SetNull)
+
+  @@index([active, riskLevel])
   @@map("risk_zones")
 }
 
 model PointOfInterest {
-  id          String   @id @default(uuid())
-  name        String
-  category    String   // WATER, MEDICAL, HELIPAD, AID_STATION, FUEL
-  latitude    Float
-  longitude   Float
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           String      @id @default(uuid())
+  name         String
+  category     PoiCategory
+  status       PoiStatus   @default(OPERATIONAL)
+  latitude     Float
+  longitude    Float
+  address      String?
+  contactPhone String?     @map("contact_phone")
+  description  String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
 
+  @@index([category, status])
   @@map("points_of_interest")
 }
 

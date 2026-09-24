@@ -10,6 +10,7 @@ import { EmergenciesModule } from './emergencies/emergencies.module';
 import { SheltersModule } from './shelters/shelters.module';
 import { ReportsModule } from './reports/reports.module';
 import { SyncModule } from './sync/sync.module';
+import { GeographyModule } from './geography/geography.module';
 import { DevicesModule } from './devices/devices.module';
 
 @Module({
@@ -29,6 +30,7 @@ import { DevicesModule } from './devices/devices.module';
     ReportsModule,
     SyncModule,
     DevicesModule,
+    GeographyModule,
   ],
 })
 export class AppModule {}
